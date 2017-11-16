@@ -1,0 +1,13 @@
+{
+  "manifest_version": 2,
+  "name": "Savory",
+  "version": "0.1.0",
+  "description": "Bookmark Manager Extension for Chrome",
+  "permissions": [
+    "storage",
+    "bookmarks"
+  ],
+  "chrome_url_overrides": {
+    "bookmarks": "bookmarks.html"
+  }
+}
