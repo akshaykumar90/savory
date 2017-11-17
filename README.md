@@ -7,8 +7,8 @@ Bookmark Manager Extension for Chrome
   continues to work
 - MUST allow tagging bookmarks with multiple tags
 - MUST be able to filter bookmarks by tags
-- MUST be able to search tags, url and title
-- MUST use the same sorting process as Chrome
+- MUST be able to search by tags, url and title
+- MUST preserve bookmark sort order as Chrome
 - MUST support case insensitive tag names
 - SHOULD be able to tag multiple bookmarks
 - SHOULD be fast

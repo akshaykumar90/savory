@@ -6,7 +6,13 @@
 </head>
 <body>
     <div id="app">
-        {{ message }}
+        <ol>
+            <bookmark-row
+                v-for="item in bookmarksList"
+                v-bind:bookmark="item"
+                v-bind:key="item.id">
+            </bookmark-row>
+        </ol>
     </div>
     <script src="../libs/vue.js"></script>
     <script src="bookmarks.js"></script>
