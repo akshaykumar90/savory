@@ -14,3 +14,19 @@ Bookmark Manager Extension for Chrome
 - SHOULD be fast
 - MAY search bookmarks as you type
 - MAY override "add bookmark" popup to add tags
+
+## Setup
+
+``` bash
+# install dependencies
+yarn install
+
+# build extension in build/
+npm run build
+```
+
+In Chrome:
+
+1. Go to `chrome://extensions/`
+2. Load Unpacked
+3. Select build directory
