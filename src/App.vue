@@ -36,3 +36,13 @@
     }
   }
 </script>
+
+<style lang="stylus">
+body
+  font-family -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-size 15px
+  background-color lighten(#eceef1, 30%)
+  margin 0
+  color #34495e
+  overflow-y scroll
+</style>
