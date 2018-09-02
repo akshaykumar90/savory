@@ -1,4 +1,5 @@
 # savory
+
 Bookmark Manager Extension for Chrome
 
 ## Requirements

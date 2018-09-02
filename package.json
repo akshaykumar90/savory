@@ -10,6 +10,7 @@
     "npm": ">=4.0"
   },
   "dependencies": {
+    "normalize.css": "^8.0.0",
     "vue": "^2.5.16"
   },
   "devDependencies": {
