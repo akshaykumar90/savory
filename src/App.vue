@@ -4,7 +4,7 @@
       <h1>Savory</h1>
     </header>
     <div class="row">
-      <nav class="column column-25">placeholder</nav>
+      <nav class="column column-25"><strong>{{bookmarks.length}}</strong> Bookmarks</nav>
       <section class="column">
         <ol>
           <BookmarkRow
@@ -36,7 +36,7 @@
       // can access it inside the promise function
       const vm = this;
       // Fetch recent bookmarks from chrome API
-      chrome.bookmarks.getRecent(5, function (results) {
+      chrome.bookmarks.getRecent(200, function (results) {
         for (var node of results) {
           vm.bookmarks.push({'id': node.id, 'title': node.title, 'site': node.url})
         }
