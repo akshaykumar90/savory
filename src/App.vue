@@ -47,6 +47,9 @@
 
 <style lang="sass">
 @import mystyles
+
+header
+  background-color: $color-primary
 </style>
 
 <style lang="stylus">

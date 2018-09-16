@@ -1,5 +1,5 @@
 <template>
-  <li><a :href="bookmark.site" target="_blank" rel="noopener">{{ bookmark.title }}</a> • {{ domainName }}</li>
+  <li><a :href="bookmark.site" target="_blank" rel="noopener">{{ bookmark.title }}</a> • <span class="domain">{{ domainName }}</span></li>
 </template>
 
 <script>
@@ -17,3 +17,10 @@ export default {
   }
 }
 </script>
+
+<style lang="sass">
+@import "../mystyles"
+
+.domain
+  color: $color-grey
+</style>
