@@ -17,10 +17,3 @@ export default {
   }
 }
 </script>
-
-<style lang="sass">
-@import "../mystyles"
-
-.domain
-  color: $color-grey
-</style>

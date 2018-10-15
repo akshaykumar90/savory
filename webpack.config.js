@@ -30,15 +30,20 @@ module.exports = {
         exclude: /node_modules/
       },
       {
-        test: /\.sass$/,
+        test: /\.css$/,
+        exclude: /node_modules/,
         use: [
-          'vue-style-loader',
-          'css-loader',
           {
-            loader: 'sass-loader',
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
             options: {
-              indentedSyntax: true
+              importLoaders: 1,
             }
+          },
+          {
+            loader: 'postcss-loader'
           }
         ]
       },

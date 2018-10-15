@@ -1,11 +1,11 @@
 <template>
-  <div id="app" class="container">
+  <div id="app">
     <header>
       <h1>Savory</h1>
     </header>
-    <div class="row">
-      <nav class="column column-25"><strong>{{bookmarks.length}}</strong> Bookmarks</nav>
-      <section class="column">
+    <div>
+      <nav><strong>{{bookmarks.length}}</strong> Bookmarks</nav>
+      <section>
         <ol>
           <BookmarkRow
             v-for="item in bookmarks"
@@ -45,14 +45,8 @@
   }
 </script>
 
-<style lang="sass">
-@import mystyles
-
-header
-  background-color: $color-primary
-</style>
-
-<style lang="stylus">
-ol
-  list-style: none
+<style>
+@tailwind preflight;
+@tailwind components;
+@tailwind utilities;
 </style>
