@@ -208,6 +208,7 @@ module.exports = {
       'sans-serif',
     ],
     'serif': [
+      'Georgia',
       'Constantia',
       'Lucida Bright',
       'Lucidabright',
@@ -216,7 +217,6 @@ module.exports = {
       'DejaVu Serif',
       'Bitstream Vera Serif',
       'Liberation Serif',
-      'Georgia',
       'serif',
     ],
     'mono': [

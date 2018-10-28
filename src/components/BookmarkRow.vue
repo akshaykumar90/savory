@@ -1,5 +1,9 @@
 <template>
-  <li><a :href="bookmark.site" target="_blank" rel="noopener">{{ bookmark.title }}</a> • <span class="domain">{{ domainName }}</span></li>
+  <li class="mb-2">
+    <a :href="bookmark.site"
+       target="_blank" rel="noopener"
+       class="no-underline hover:underline">{{ bookmark.title }}</a> • <span class="domain">{{ domainName }}</span>
+  </li>
 </template>
 
 <script>
