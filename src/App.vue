@@ -4,14 +4,14 @@
       <div class="px-4 w-1/5">
         <h1 class="text-2xl">Savory</h1>
         <nav class="py-2">
-          <span class="text-lg font-bold">{{this.$store.state.bookmarks.length}}</span>
+          <span class="text-lg font-bold">{{bookmarks.length}}</span>
           <span class="text-xs mx-1">Bookmarks</span>
         </nav>
       </div>
       <div class="px-4 w-4/5">
         <ol class="list-reset text-sm font-medium">
           <BookmarkRow
-            v-for="item in this.$store.state.bookmarks"
+            v-for="item in bookmarks"
             v-bind:bookmark="item"
             v-bind:key="item.id">
           </BookmarkRow>
@@ -26,10 +26,18 @@
 
   export default {
     name: 'app',
+
     components: {
       BookmarkRow
     },
-    created: function () {
+
+    computed: {
+      bookmarks () {
+        return this.$store.state.bookmarks
+      }
+    },
+
+    created () {
       this.$store.dispatch({
         type: 'FETCH_BOOKMARKS',
         num: 50
