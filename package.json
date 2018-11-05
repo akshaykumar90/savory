@@ -3,8 +3,8 @@
   "description": "Bookmark Manager Extension for Chrome",
   "author": "Akshay Kumar <akshaykumar90@gmail.com>",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development webpack --progress --hide-modules --watch",
-    "build": "rimraf build && webpack --progress --hide-modules"
+    "dev": "webpack --progress --hide-modules --watch",
+    "build": "rimraf build && cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "engines": {
     "node": ">=7.0",
