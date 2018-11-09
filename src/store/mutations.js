@@ -1,5 +1,5 @@
 export default {
   SET_BOOKMARKS: (state, { items }) => {
-    state.bookmarks = items.map(({ id, title, url }) => ({ id, title, site:url }))
+    state.bookmarks = items.map(({ id, title, url, tags }) => ({ id, title, site:url, tags }))
   }
 }
