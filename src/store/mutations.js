@@ -1,5 +1,13 @@
+import Vue from 'vue'
+
 export default {
   SET_BOOKMARKS: (state, { items }) => {
-    state.bookmarks = items.map(({ id, title, url, tags }) => ({ id, title, site:url, tags }))
-  }
+    items.forEach(({ id, title, url, tags }) => {
+      Vue.set(state.bookmarks, id, { id, title, site:url, tags })
+    })
+  },
+
+  SET_RECENT: (state, ids) => {
+    state.recent = ids
+  },
 }

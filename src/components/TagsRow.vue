@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-wrap items-end pt-2">
-    <span v-for="(tag, index) in innerTags" :key="index"
+    <span v-for="(tag, index) in tags" :key="index"
           class="bg-grey-lighter text-teal-dark p-1 mr-2 text-center text-xs rounded cursor-pointer border border-teal-dark">
       <span>{{ tag }}</span>
     </span>
@@ -14,15 +14,20 @@
     name: "tags-row",
 
     props: {
-      value: {
-        type: Array,
-        default: () => []
-      }
+      bookmarkId: String
     },
 
-    data () {
-      return {
-        innerTags: [...this.value]
+    computed: {
+      bookmark () {
+        return this.$store.getters.getBookmarkById(this.bookmarkId)
+      },
+      domainName () {
+        const url = new URL(this.bookmark.site);
+        // Drop the subdomain, e.g. news.ycombinator.com -> ycombinator.com
+        return url.hostname.split('.').splice(-2, 2).join('.')
+      },
+      tags () {
+        return [this.domainName, ...this.bookmark.tags]
       }
     }
   }

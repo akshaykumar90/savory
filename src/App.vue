@@ -4,16 +4,16 @@
       <div class="px-4 w-1/5">
         <h1 class="text-2xl">Savory</h1>
         <nav class="py-2">
-          <span class="text-lg font-bold">{{bookmarks.length}}</span>
+          <span class="text-lg font-bold">{{recent.length}}</span>
           <span class="text-xs mx-1">Bookmarks</span>
         </nav>
       </div>
       <div class="px-4 w-4/5">
         <ol class="list-reset text-sm font-medium">
           <BookmarkRow
-            v-for="item in bookmarks"
-            v-bind:bookmark="item"
-            v-bind:key="item.id">
+            v-for="item in recent"
+            v-bind:bookmark-id="item"
+            v-bind:key="item">
           </BookmarkRow>
         </ol>
       </div>
@@ -32,8 +32,8 @@
     },
 
     computed: {
-      bookmarks () {
-        return this.$store.state.bookmarks
+      recent () {
+        return this.$store.state.recent
       }
     },
 

@@ -7,7 +7,10 @@ export default {
       .then(items => dispatch({
         type: 'FETCH_TAGS_FOR_BOOKMARKS',
         bookmarks: items}))
-      .then(items => commit('SET_BOOKMARKS', { items }))
+      .then(items => {
+        commit('SET_BOOKMARKS', { items });
+        commit('SET_RECENT', items.map(({ id }) => id));
+      })
   },
   FETCH_TAGS_FOR_BOOKMARKS: ({ commit }, { bookmarks }) => {
     const ids = bookmarks.map(({ id }) => id);

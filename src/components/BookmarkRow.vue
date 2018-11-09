@@ -1,7 +1,7 @@
 <template>
   <li class="mb-2">
     <a :href="bookmark.site" target="_blank" rel="noopener" class="no-underline hover:underline">{{ bookmark.title }}</a>
-    <TagsRow :value="tags"></TagsRow>
+    <TagsRow :bookmark-id="bookmarkId"></TagsRow>
   </li>
 </template>
 
@@ -16,17 +16,12 @@
     },
 
     props: {
-      bookmark: Object
+      bookmarkId: String
     },
 
     computed: {
-      domainName () {
-        const url = new URL(this.bookmark.site);
-        // Drop the subdomain, e.g. news.ycombinator.com -> ycombinator.com
-        return url.hostname.split('.').splice(-2, 2).join('.')
-      },
-      tags () {
-        return [this.domainName, ...this.bookmark.tags]
+      bookmark () {
+        return this.$store.getters.getBookmarkById(this.bookmarkId)
       }
     }
   }
