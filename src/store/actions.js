@@ -12,10 +12,8 @@ export default {
   FETCH_TAGS_FOR_BOOKMARKS: ({ commit }, { bookmarks }) => {
     const ids = bookmarks.map(({ id }) => id);
     return fetchTagsForBookmarkIds(ids).then( result => {
-      let i = 0;
-      for (let tagObject of result) {
-        while (bookmarks[i].id !== tagObject.id) i++
-        bookmarks[i].tags = tagObject.tags
+      for (let item of bookmarks) {
+        item.tags = []
       }
       return bookmarks
     })

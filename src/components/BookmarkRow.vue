@@ -1,30 +1,33 @@
 <template>
   <li class="mb-2">
     <a :href="bookmark.site" target="_blank" rel="noopener" class="no-underline hover:underline">{{ bookmark.title }}</a>
-    <ul class="list-reset">
-      <li>{{ domainName }}</li>
-      <li v-for="tag in tags" :key="tag.id">
-        {{ tag.name }}
-      </li>
-    </ul>
+    <TagsRow :value="tags"></TagsRow>
   </li>
 </template>
 
 <script>
+  import TagsRow from './TagsRow.vue'
 
-export default {
-  name: 'bookmark-row',
-  props: {
-    bookmark: Object
-  },
-  computed: {
-    domainName () {
-      const url = new URL(this.bookmark.site);
-      return url.hostname
+  export default {
+    name: 'bookmark-row',
+
+    components: {
+      TagsRow
     },
-    tags () {
-      return this.bookmark.tags
+
+    props: {
+      bookmark: Object
+    },
+
+    computed: {
+      domainName () {
+        const url = new URL(this.bookmark.site);
+        // Drop the subdomain, e.g. news.ycombinator.com -> ycombinator.com
+        return url.hostname.split('.').splice(-2, 2).join('.')
+      },
+      tags () {
+        return [this.domainName, ...this.bookmark.tags]
+      }
     }
   }
-}
 </script>
