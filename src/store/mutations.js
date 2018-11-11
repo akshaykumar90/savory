@@ -10,4 +10,8 @@ export default {
   SET_RECENT: (state, ids) => {
     state.recent = ids
   },
+
+  ADD_TAG: (state, { id, tag }) => {
+    state.bookmarks[id].tags.push(tag)
+  }
 }

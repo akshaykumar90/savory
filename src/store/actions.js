@@ -12,6 +12,7 @@ export default {
         commit('SET_RECENT', items.map(({ id }) => id));
       })
   },
+
   FETCH_TAGS_FOR_BOOKMARKS: ({ commit }, { bookmarks }) => {
     const ids = bookmarks.map(({ id }) => id);
     return fetchTagsForBookmarkIds(ids).then( result => {
@@ -20,5 +21,9 @@ export default {
       }
       return bookmarks
     })
-  }
+  },
+
+  ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tag }) => {
+    commit('ADD_TAG', { id, tag });
+  },
 }
