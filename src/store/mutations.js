@@ -11,7 +11,7 @@ export default {
     state.recent = ids
   },
 
-  ADD_TAG: (state, { id, tag }) => {
-    state.bookmarks[id].tags.push(tag)
+  UPDATE_TAGS: (state, { id, tags }) => {
+    state.bookmarks[id].tags = tags
   }
 }

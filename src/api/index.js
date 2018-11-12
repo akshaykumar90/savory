@@ -19,3 +19,17 @@ export function fetchTagsForBookmarkIds (ids) {
     return store.getAll();
   });
 }
+
+export function addNewTagForBookmark ({ id, tag }) {
+  return dbPromise.then(async db => {
+    const tx = db.transaction('tags', 'readwrite');
+    const store = tx.objectStore('tags');
+    let tagsObj = await store.get(id) || { id, tags: [] };
+    if (!tagsObj.tags.includes(tag)) {
+      tagsObj.tags.push(tag);
+    }
+    store.put(tagsObj);
+    await tx.complete;
+    return db.transaction('tags').objectStore('tags').get(id);
+  })
+}

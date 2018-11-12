@@ -1,5 +1,8 @@
-import { fetchRecent } from '../api'
-import { fetchTagsForBookmarkIds } from '../api'
+import {
+  fetchRecent,
+  fetchTagsForBookmarkIds,
+  addNewTagForBookmark
+} from '../api'
 
 export default {
   FETCH_BOOKMARKS: ({ commit, dispatch }, { num }) => {
@@ -24,6 +27,8 @@ export default {
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tag }) => {
-    commit('ADD_TAG', { id, tag });
+    addNewTagForBookmark({ id, tag }).then(({ tags }) => {
+      commit('UPDATE_TAGS', { id, tags });
+    })
   },
 }
