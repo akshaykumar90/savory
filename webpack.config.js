@@ -6,9 +6,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
-  entry: {
-    app: './src/bookmarks.js',
-  },
+  entry: ['@babel/polyfill', './src/bookmarks.js'],
   output: {
     path: path.join(__dirname, "build"),
     filename: '[name].[chunkhash].js'
