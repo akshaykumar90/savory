@@ -16,7 +16,10 @@ export function fetchTagsForBookmarkIds (ids) {
   return dbPromise.then(db => {
     const tx = db.transaction('tags', 'readonly');
     const store = tx.objectStore('tags');
-    return store.getAll();
+    let requests = ids.map(id => store.get(id))
+    return Promise.all(requests).then(responses => {
+      return responses.filter(resp => resp !== undefined);
+    });
   });
 }
 
