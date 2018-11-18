@@ -42,7 +42,18 @@
         type: 'FETCH_BOOKMARKS',
         num: 50
       })
-    }
+    },
+
+    watch: {
+      '$route' (to) {
+        const tagName = this.$route.params.tag.trim()
+        console.log('Routing to:', tagName)
+        this.$store.dispatch({
+          type: 'FILTER_BY_TAG',
+          tagName: tagName
+        })
+      }
+    },
   }
 </script>
 

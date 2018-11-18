@@ -1,6 +1,7 @@
 import {
   fetchRecent,
   fetchTagsForBookmarkIds,
+  fetchBookmarksWithTag,
   addNewTagForBookmark
 } from '../api'
 
@@ -14,6 +15,12 @@ export default {
       bookmark.tags = result ? result.tags : [];
     }
     commit('SET_BOOKMARKS', { items: recentBookmarks });
+    commit('SET_RECENT', bookmarkIds);
+  },
+
+  FILTER_BY_TAG: async ({ commit }, { tagName }) => {
+    let bookmarksWithTag = await fetchBookmarksWithTag(tagName);
+    const bookmarkIds = bookmarksWithTag.map(({ id }) => id)
     commit('SET_RECENT', bookmarkIds);
   },
 

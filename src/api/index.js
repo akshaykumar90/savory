@@ -23,6 +23,15 @@ export function fetchTagsForBookmarkIds (ids) {
   });
 }
 
+export function fetchBookmarksWithTag (tag) {
+  return dbPromise.then(db => {
+    const tx = db.transaction('tags', 'readonly');
+    const store = tx.objectStore('tags');
+    let index = store.index('tagName');
+    return index.getAll(tag)
+  });
+}
+
 export function addNewTagForBookmark ({ id, tag }) {
   return dbPromise.then(async db => {
     const tx = db.transaction('tags', 'readwrite');
