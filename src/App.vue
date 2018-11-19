@@ -4,14 +4,14 @@
       <div class="px-4 w-1/5">
         <h1 class="text-2xl">Savory</h1>
         <nav class="py-2">
-          <span class="text-lg font-bold">{{recent.length}}</span>
+          <span class="text-lg font-bold">{{current.length}}</span>
           <span class="text-xs mx-1">Bookmarks</span>
         </nav>
       </div>
       <div class="px-4 w-4/5">
         <ol class="list-reset text-sm font-medium">
           <BookmarkRow
-            v-for="item in recent"
+            v-for="item in current"
             v-bind:bookmark-id="item"
             v-bind:key="item">
           </BookmarkRow>
@@ -32,8 +32,8 @@
     },
 
     computed: {
-      recent () {
-        return this.$store.state.recent
+      current () {
+        return this.$store.state.current
       }
     },
 
@@ -46,12 +46,19 @@
 
     watch: {
       '$route' (to) {
-        const tagName = this.$route.params.tag.trim()
-        console.log('Routing to:', tagName)
-        this.$store.dispatch({
-          type: 'FILTER_BY_TAG',
-          tagName: tagName
-        })
+        if (!this.$route.params.hasOwnProperty('tag')) {
+          // Go to Home Page
+          this.$store.dispatch({
+            type: 'FILTER_RECENT',
+            num: 50
+          })
+        } else {
+          const tagName = this.$route.params.tag.trim()
+          this.$store.dispatch({
+            type: 'FILTER_BY_TAG',
+            tagName: tagName
+          })
+        }
       }
     },
   }

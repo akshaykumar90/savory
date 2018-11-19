@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-wrap items-end pt-2">
-    <span v-for="(tag, index) in tags" :key="index"
-          class="bg-grey-lighter text-teal-dark p-1 mr-2 text-center text-xs rounded cursor-pointer border border-teal-dark">
-      <span>{{ tag }}</span>
-    </span>
+    <button v-for="(tag, index) in tags" :key="index"
+          class="bg-grey-lighter text-teal-dark p-1 mr-2 text-center text-xs rounded border border-teal-dark focus:outline-none">
+      <router-link :to="'/tag/'+tag" tag="span">{{ tag }}</router-link>
+    </button>
     <input type="text" title="new-tag"
            v-model="newTag" @keydown.tab.prevent="addNewTag" @keyup.enter="addNewTag"
            class="block text-teal-darker font-xs bg-grey-lighter focus:bg-grey-light focus:outline-none rounded px-2 py-2 h-6">

@@ -10,7 +10,8 @@ export function createStore () {
   return new Vuex.Store({
     state: {
       bookmarks: {/* [id: number]: Bookmark */},
-      recent: [/* number */],
+      new: [/* number */],
+      current: [/* number */],
     },
     actions,
     mutations,

@@ -15,13 +15,18 @@ export default {
       bookmark.tags = result ? result.tags : [];
     }
     commit('SET_BOOKMARKS', { items: recentBookmarks });
-    commit('SET_RECENT', bookmarkIds);
+    commit('SET_CURRENT', bookmarkIds);
   },
 
   FILTER_BY_TAG: async ({ commit }, { tagName }) => {
     let bookmarksWithTag = await fetchBookmarksWithTag(tagName);
     const bookmarkIds = bookmarksWithTag.map(({ id }) => id)
-    commit('SET_RECENT', bookmarkIds);
+    commit('SET_CURRENT', bookmarkIds);
+  },
+
+  FILTER_RECENT: ({ commit, state }, { num }) => {
+    const bookmarkIds = state.new.slice(0, num).map(_ => _)
+    commit('SET_CURRENT', bookmarkIds);
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tag }) => {
