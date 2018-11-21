@@ -9,6 +9,10 @@ export default {
     })
   },
 
+  // ADD_BOOKMARK: (state, { id, title, url }) => {
+  //   Vue.set(state.bookmarks, id, { id, title, site:url, tags:[] })
+  // },
+
   SET_CURRENT: (state, ids) => {
     state.current = ids
   },

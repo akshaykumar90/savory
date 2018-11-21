@@ -18,6 +18,16 @@ export default {
     commit('SET_CURRENT', bookmarkIds);
   },
 
+  ON_BOOKMARK_CREATED: ({ commit }, { bookmark }) => {
+    console.log('bookmark added!')
+    console.log(bookmark)
+  },
+
+  ON_BOOKMARK_REMOVED: ({ commit }, { bookmark }) => {
+    console.log('bookmark removed!')
+    console.log(bookmark)
+  },
+
   FILTER_BY_TAG: async ({ commit }, { tagName }) => {
     let bookmarksWithTag = await fetchBookmarksWithTag(tagName);
     const bookmarkIds = bookmarksWithTag.map(({ id }) => id)
