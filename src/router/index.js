@@ -7,6 +7,7 @@ export function createRouter () {
   return new Router({
     routes: [
       { path: '/tag/:tag', component: require('../App.vue') },
+      { path: '/site/:site', component: require('../App.vue') },
     ]
   })
 }

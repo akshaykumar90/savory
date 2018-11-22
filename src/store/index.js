@@ -12,6 +12,7 @@ export function createStore () {
       bookmarks: {/* [id: number]: Bookmark */},
       new: [/* number */],
       filtered: [/* number */],
+      itemsPerPage: 50,
     },
     actions,
     mutations,

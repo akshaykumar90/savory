@@ -27,15 +27,21 @@ export default {
     commit('REMOVE_BOOKMARK', bookmark);
   },
 
-  FILTER_BY_TAG: async ({ commit }, { tagName }) => {
-    if (tagName === undefined) {
-      // Remove any filters, aka go to home page
-      commit('CLEAR_FILTERED')
-    } else {
-      const cleanTagName = tagName.trim()
-      let bookmarksWithTag = await fetchBookmarksWithTag(cleanTagName);
+  FILTER_BY_TAG: async ({ commit, getters }, { params }) => {
+    if (params.hasOwnProperty('site')) {
+      // Filter bookmarks by domain name
+      let site = params.site.trim()
+      const bookmarkIds = getters.getBookmarkIdsWithSite(site)
+      commit('SET_FILTERED', bookmarkIds);
+    } else if (params.hasOwnProperty('tag')) {
+      // Filter bookmarks by tag
+      let tag = params.tag.trim()
+      let bookmarksWithTag = await fetchBookmarksWithTag(tag);
       const bookmarkIds = bookmarksWithTag.map(({ id }) => id)
       commit('SET_FILTERED', bookmarkIds);
+    } else {
+      // Remove any filters, aka go to home page
+      commit('CLEAR_FILTERED')
     }
   },
 

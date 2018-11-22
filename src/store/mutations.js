@@ -1,15 +1,23 @@
 import Vue from 'vue'
 
+function domainName (bookmarkURL) {
+  const url = new URL(bookmarkURL);
+  // Drop the subdomain, e.g. news.ycombinator.com -> ycombinator.com
+  return url.hostname.split('.').splice(-2, 2).join('.')
+}
+
 export default {
   SET_BOOKMARKS: (state, { items }) => {
     items.forEach(({ id, title, url, tags }) => {
-      Vue.set(state.bookmarks, id, { id, title, site:url, tags })
+      let site = domainName(url)
+      Vue.set(state.bookmarks, id, { id, title, url, site, tags })
     })
     state.new = items.map(({ id }) => id)
   },
 
   ADD_BOOKMARK: (state, { id, title, url }) => {
-    Vue.set(state.bookmarks, id, { id, title, site:url, tags:[] })
+    let site = domainName(url)
+    Vue.set(state.bookmarks, id, { id, title, url, site, tags:[] })
     state.new = [id, ...state.new]
   },
 

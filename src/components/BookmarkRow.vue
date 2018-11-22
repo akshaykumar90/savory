@@ -1,6 +1,6 @@
 <template>
   <li class="mb-2">
-    <a :href="bookmark.site" target="_blank" rel="noopener" class="no-underline hover:underline">{{ bookmark.title }}</a>
+    <a :href="bookmark.url" target="_blank" rel="noopener" class="no-underline hover:underline">{{ bookmark.title }}</a>
     <TagsRow :bookmark-id="bookmarkId"></TagsRow>
   </li>
 </template>

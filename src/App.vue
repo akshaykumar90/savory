@@ -48,7 +48,7 @@
       '$route' (to) {
         this.$store.dispatch({
           type: 'FILTER_BY_TAG',
-          tagName: this.$route.params.tag
+          params: this.$route.params
         })
       }
     },

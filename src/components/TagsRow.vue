@@ -1,6 +1,9 @@
 <template>
   <div class="flex flex-wrap items-end pt-2">
-    <button v-for="(tag, index) in tags" :key="index"
+    <button class="bg-grey-lighter text-teal-dark p-1 mr-2 text-center text-xs rounded border border-teal-dark focus:outline-none">
+      <router-link :to="'/site/'+bookmark.site" tag="span">{{ bookmark.site }}</router-link>
+    </button>
+    <button v-for="(tag, index) in bookmark.tags" :key="index"
           class="bg-grey-lighter text-teal-dark p-1 mr-2 text-center text-xs rounded border border-teal-dark focus:outline-none">
       <router-link :to="'/tag/'+tag" tag="span">{{ tag }}</router-link>
     </button>
@@ -43,14 +46,6 @@
     computed: {
       bookmark () {
         return this.$store.getters.getBookmarkById(this.bookmarkId)
-      },
-      domainName () {
-        const url = new URL(this.bookmark.site);
-        // Drop the subdomain, e.g. news.ycombinator.com -> ycombinator.com
-        return url.hostname.split('.').splice(-2, 2).join('.')
-      },
-      tags () {
-        return [this.domainName, ...this.bookmark.tags]
       }
     }
   }
