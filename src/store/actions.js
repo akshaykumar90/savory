@@ -2,7 +2,8 @@ import {
   fetchRecent,
   fetchTagsForBookmarkIds,
   fetchBookmarksWithTag,
-  addNewTagForBookmark
+  addNewTagForBookmark,
+  deleteBookmarkTags
 } from '../api'
 
 export default {
@@ -21,9 +22,9 @@ export default {
     commit('ADD_BOOKMARK', bookmark);
   },
 
-  ON_BOOKMARK_REMOVED: ({ commit }, { bookmark }) => {
-    console.log('bookmark removed!')
-    console.log(bookmark)
+  ON_BOOKMARK_REMOVED: async ({ commit }, { bookmark }) => {
+    await deleteBookmarkTags(bookmark)
+    commit('REMOVE_BOOKMARK', bookmark);
   },
 
   FILTER_BY_TAG: async ({ commit }, { tagName }) => {

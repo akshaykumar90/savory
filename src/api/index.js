@@ -58,3 +58,11 @@ export function addNewTagForBookmark ({ id, tag }) {
     return db.transaction('tags').objectStore('tags').get(id);
   })
 }
+
+export function deleteBookmarkTags ({ id }) {
+    return dbPromise.then(db => {
+      const tx = db.transaction('tags', 'readwrite');
+      tx.objectStore('tags').delete(id);
+      return tx.complete;
+    });
+}
