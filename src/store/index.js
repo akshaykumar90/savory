@@ -11,7 +11,7 @@ export function createStore () {
     state: {
       bookmarks: {/* [id: number]: Bookmark */},
       new: [/* number */],
-      current: [/* number */],
+      filtered: [/* number */],
     },
     actions,
     mutations,

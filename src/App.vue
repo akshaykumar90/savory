@@ -33,7 +33,7 @@
 
     computed: {
       current () {
-        return this.$store.state.current
+        return this.$store.getters.current
       }
     },
 
@@ -46,19 +46,10 @@
 
     watch: {
       '$route' (to) {
-        if (!this.$route.params.hasOwnProperty('tag')) {
-          // Go to Home Page
-          this.$store.dispatch({
-            type: 'FILTER_RECENT',
-            num: 50
-          })
-        } else {
-          const tagName = this.$route.params.tag.trim()
-          this.$store.dispatch({
-            type: 'FILTER_BY_TAG',
-            tagName: tagName
-          })
-        }
+        this.$store.dispatch({
+          type: 'FILTER_BY_TAG',
+          tagName: this.$route.params.tag
+        })
       }
     },
   }

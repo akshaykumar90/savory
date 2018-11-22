@@ -9,12 +9,17 @@ export default {
     })
   },
 
-  // ADD_BOOKMARK: (state, { id, title, url }) => {
-  //   Vue.set(state.bookmarks, id, { id, title, site:url, tags:[] })
-  // },
+  ADD_BOOKMARK: (state, { id, title, url }) => {
+    Vue.set(state.bookmarks, id, { id, title, site:url, tags:[] })
+    state.new.unshift(id)
+  },
 
-  SET_CURRENT: (state, ids) => {
-    state.current = ids
+  SET_FILTERED: (state, ids) => {
+    state.filtered = ids
+  },
+
+  CLEAR_FILTERED: (state) => {
+    state.filtered = []
   },
 
   UPDATE_TAGS: (state, { id, tags }) => {

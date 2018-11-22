@@ -15,12 +15,10 @@ export default {
       bookmark.tags = result ? result.tags : [];
     }
     commit('SET_BOOKMARKS', { items: recentBookmarks });
-    commit('SET_CURRENT', bookmarkIds);
   },
 
   ON_BOOKMARK_CREATED: ({ commit }, { bookmark }) => {
-    console.log('bookmark added!')
-    console.log(bookmark)
+    commit('ADD_BOOKMARK', bookmark);
   },
 
   ON_BOOKMARK_REMOVED: ({ commit }, { bookmark }) => {
@@ -29,14 +27,15 @@ export default {
   },
 
   FILTER_BY_TAG: async ({ commit }, { tagName }) => {
-    let bookmarksWithTag = await fetchBookmarksWithTag(tagName);
-    const bookmarkIds = bookmarksWithTag.map(({ id }) => id)
-    commit('SET_CURRENT', bookmarkIds);
-  },
-
-  FILTER_RECENT: ({ commit, state }, { num }) => {
-    const bookmarkIds = state.new.slice(0, num).map(_ => _)
-    commit('SET_CURRENT', bookmarkIds);
+    if (tagName === undefined) {
+      // Remove any filters, aka go to home page
+      commit('CLEAR_FILTERED')
+    } else {
+      const cleanTagName = tagName.trim()
+      let bookmarksWithTag = await fetchBookmarksWithTag(cleanTagName);
+      const bookmarkIds = bookmarksWithTag.map(({ id }) => id)
+      commit('SET_FILTERED', bookmarkIds);
+    }
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tag }) => {
