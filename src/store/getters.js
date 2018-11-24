@@ -1,16 +1,22 @@
 export default {
-  newBookmarks: state => {
-    return state.new.slice(0, 50)
+  maxPage (state) {
+    const { activeType, itemsPerPage, lists } = state
+    return Math.ceil(lists[activeType].length / itemsPerPage)
   },
-  current: (state, getters) => {
-    // FIXME: This makes it impossible to render a filtered view with zero
-    //  results
-    return state.filtered.length ? state.filtered : getters.newBookmarks
+
+  activeIds (state) {
+    const { activeType, itemsPerPage, page, lists } = state
+    // const start = (page - 1) * itemsPerPage
+    const end = page * itemsPerPage
+
+    return lists[activeType].slice(0 /* start */, end)
   },
+
   getBookmarkById: (state) => (id) => {
     return state.bookmarks[id]
   },
+
   getBookmarkIdsWithSite: (state) => (site) => {
-    return state.new.filter(id => state.bookmarks[id].site === site)
+    return state.lists['new'].filter(id => state.bookmarks[id].site === site)
   }
 }

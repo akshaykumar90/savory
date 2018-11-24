@@ -18,6 +18,15 @@ export default {
     commit('SET_BOOKMARKS', { items: recentBookmarks });
   },
 
+  LOAD_MORE_BOOKMARKS: ({ commit }) => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        commit('INCR_PAGE')
+        resolve()
+      }, 500)
+    })
+  },
+
   ON_BOOKMARK_CREATED: ({ commit }, { bookmark }) => {
     commit('ADD_BOOKMARK', bookmark);
   },

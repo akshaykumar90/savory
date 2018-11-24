@@ -9,10 +9,14 @@ Vue.use(Vuex)
 export function createStore () {
   return new Vuex.Store({
     state: {
-      bookmarks: {/* [id: number]: Bookmark */},
-      new: [/* number */],
-      filtered: [/* number */],
+      activeType: 'new',
       itemsPerPage: 50,
+      page: 1,
+      bookmarks: {/* [id: number]: Bookmark */},
+      lists: {
+        new: [/* number */],
+        filtered: [],
+      }
     },
     actions,
     mutations,
