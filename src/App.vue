@@ -38,14 +38,14 @@
     created () {
       this.$store.dispatch({
         type: 'FETCH_BOOKMARKS',
-        num: 500
+        num: 5000
       })
     },
 
     watch: {
       '$route' (to) {
         this.$store.dispatch({
-          type: 'FILTER_BY_TAG',
+          type: 'ON_ROUTE_CHANGE',
           params: this.$route.params
         })
       }

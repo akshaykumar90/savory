@@ -12,6 +12,12 @@ export function fetchRecent (num) {
   return new Promise(resolve => chrome.bookmarks.getRecent(num, resolve))
 }
 
+// Searches for BookmarkTreeNodes matching the given query
+// https://developer.chrome.com/extensions/bookmarks#method-search
+export function searchBookmarks (query) {
+  return new Promise(resolve => chrome.bookmarks.search(query, resolve))
+}
+
 export function setupListeners (callback) {
   // https://developer.chrome.com/extensions/bookmarks#event-onCreated
   chrome.bookmarks.onCreated.addListener((id, bookmark) => callback({

@@ -3,7 +3,8 @@ import {
   fetchTagsForBookmarkIds,
   fetchBookmarksWithTag,
   addNewTagForBookmark,
-  deleteBookmarkTags
+  deleteBookmarkTags,
+  searchBookmarks
 } from '../api'
 
 export default {
@@ -36,7 +37,7 @@ export default {
     commit('REMOVE_BOOKMARK', bookmark);
   },
 
-  FILTER_BY_TAG: async ({ commit, getters }, { params }) => {
+  ON_ROUTE_CHANGE: async ({ commit, getters }, { params }) => {
     if (params.hasOwnProperty('site')) {
       // Filter bookmarks by domain name
       let site = params.site.trim()
@@ -47,6 +48,14 @@ export default {
       let tag = params.tag.trim()
       let bookmarksWithTag = await fetchBookmarksWithTag(tag);
       const bookmarkIds = bookmarksWithTag.map(({ id }) => id)
+      commit('SET_FILTERED', bookmarkIds);
+    } else if (params.hasOwnProperty('query')) {
+      // Search query
+      let query = params.query.trim()
+      let searchResults = await searchBookmarks(query);
+      const bookmarkIds = searchResults
+        .filter(node => node.hasOwnProperty('url'))
+        .map(({ id }) => id)
       commit('SET_FILTERED', bookmarkIds);
     } else {
       // Remove any filters, aka go to home page

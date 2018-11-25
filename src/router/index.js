@@ -8,6 +8,8 @@ export function createRouter () {
     routes: [
       { path: '/tag/:tag', component: require('../App.vue') },
       { path: '/site/:site', component: require('../App.vue') },
+      { path: '/q/:query', component: require('../App.vue') },
+      { path: '/', component: require('../App.vue') }
     ]
   })
 }

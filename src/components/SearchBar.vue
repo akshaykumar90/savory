@@ -1,6 +1,7 @@
 <template>
   <div>
     <input type="text" placeholder="Search bookmarks" autocomplete="off" spellcheck="false"
+           v-model="query" @keyup="doSearch"
            class="focus:outline-none text-sm font-medium border border-transparent focus:bg-white focus:border-grey-light placeholder-grey-darkest rounded bg-grey-lighter py-2 pr-4 pl-10 block w-full appearance-none leading-normal">
     <div class="pointer-events-none absolute pin-y pin-l pl-3 flex items-center">
       <svg class="fill-current pointer-events-none text-grey-dark w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -11,7 +12,26 @@
 </template>
 
 <script>
+  import _ from 'lodash'
+
   export default {
-    name: "SearchBar"
+    name: 'search-bar',
+
+    data: function () {
+      return {
+        query: ''
+      }
+    },
+
+    methods: {
+      doSearch: _.debounce(function () {
+        let query = this.query.trim()
+        if (query === '') {
+          this.$router.push('/')
+        } else {
+          this.$router.push(`/q/${query}`)
+        }
+      }, 300)
+    },
   }
 </script>
