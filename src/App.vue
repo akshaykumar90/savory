@@ -9,6 +9,7 @@
         </nav>
       </div>
       <div class="px-4 w-4/5">
+        <SearchBar class="relative mb-4"></SearchBar>
         <BookmarkList></BookmarkList>
       </div>
     </div>
@@ -17,12 +18,14 @@
 
 <script>
   import BookmarkList from './components/BookmarkList.vue'
+  import SearchBar from './components/SearchBar.vue'
 
   export default {
     name: 'app',
 
     components: {
-      BookmarkList
+      BookmarkList,
+      SearchBar
     },
 
     computed: {
