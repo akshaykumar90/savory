@@ -6,6 +6,11 @@
         <nav class="py-2">
           <span class="text-lg font-bold">{{ numBookmarks }}</span>
           <span class="text-xs mx-1">Bookmarks</span>
+          <div class="flex flex-col items-start mt-2">
+            <TagButton class="mb-1" v-for="(name, index) in filters" :key="index">
+              <span>{{ name }}</span>
+            </TagButton>
+          </div>
         </nav>
       </div>
       <div class="px-4 w-4/5">
@@ -19,13 +24,15 @@
 <script>
   import BookmarkList from './components/BookmarkList.vue'
   import SearchBar from './components/SearchBar.vue'
+  import TagButton from './components/TagButton.vue'
 
   export default {
     name: 'app',
 
     components: {
       BookmarkList,
-      SearchBar
+      SearchBar,
+      TagButton
     },
 
     computed: {
@@ -33,6 +40,9 @@
         let type = this.$store.state.activeType
         return this.$store.state.lists[type].length
       },
+      filters: function () {
+        return this.$store.state.filters;
+      }
     },
 
     created () {

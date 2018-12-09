@@ -1,12 +1,11 @@
 <template>
   <div class="flex flex-wrap items-end pt-2">
-    <button class="bg-grey-lighter text-teal-dark p-1 mr-2 text-center text-xs rounded border border-teal-dark focus:outline-none">
+    <TagButton>
       <router-link :to="'/site/'+bookmark.site" tag="span">{{ bookmark.site }}</router-link>
-    </button>
-    <button v-for="(tag, index) in bookmark.tags" :key="index"
-          class="bg-grey-lighter text-teal-dark p-1 mr-2 text-center text-xs rounded border border-teal-dark focus:outline-none">
+    </TagButton>
+    <TagButton v-for="(tag, index) in bookmark.tags" :key="index">
       <router-link :to="'/tag/'+tag" tag="span">{{ tag }}</router-link>
-    </button>
+    </TagButton>
     <input type="text" title="new-tag"
            v-model="newTag" @keydown.tab.prevent="addNewTag" @keyup.enter="addNewTag"
            class="block text-teal-darker font-xs bg-grey-lighter focus:bg-grey-light focus:outline-none rounded px-2 py-2 h-6">
@@ -14,8 +13,14 @@
 </template>
 
 <script>
+  import TagButton from './TagButton.vue'
+
   export default {
     name: 'tags-row',
+
+    components: {
+      TagButton
+    },
 
     props: {
       bookmarkId: String

@@ -16,7 +16,8 @@ export function createStore () {
       lists: {
         new: [/* number */],
         filtered: [],
-      }
+      },
+      filters: [/* string */]
     },
     actions,
     mutations,

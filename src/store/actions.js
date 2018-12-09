@@ -43,12 +43,14 @@ export default {
       let site = params.site.trim()
       const bookmarkIds = getters.getBookmarkIdsWithSite(site)
       commit('SET_FILTERED', bookmarkIds);
+      commit('SET_SEARCH_FILTERS', [site]);
     } else if (params.hasOwnProperty('tag')) {
       // Filter bookmarks by tag
       let tag = params.tag.trim()
       let bookmarksWithTag = await fetchBookmarksWithTag(tag);
       const bookmarkIds = bookmarksWithTag.map(({ id }) => id)
       commit('SET_FILTERED', bookmarkIds);
+      commit('SET_SEARCH_FILTERS', [tag]);
     } else if (params.hasOwnProperty('query')) {
       // Search query
       let query = params.query.trim()
@@ -57,9 +59,12 @@ export default {
         .filter(node => node.hasOwnProperty('url'))
         .map(({ id }) => id)
       commit('SET_FILTERED', bookmarkIds);
+      // Search resets any existing filters
+      commit('SET_SEARCH_FILTERS', []);
     } else {
       // Remove any filters, aka go to home page
       commit('CLEAR_FILTERED')
+      commit('SET_SEARCH_FILTERS', []);
     }
   },
 

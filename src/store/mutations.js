@@ -43,6 +43,10 @@ export default {
     state.page = 1
   },
 
+  SET_SEARCH_FILTERS: (state, items) => {
+    state.filters = items
+  },
+
   CLEAR_FILTERED: (state) => {
     state.filtered = []
     state.activeType = 'new'
