@@ -4,8 +4,8 @@
       <div class="px-4 w-1/5">
         <h1 class="text-2xl font-bold"><router-link to="/" class="no-underline hover:underline">Savory</router-link></h1>
         <nav class="py-2">
-          <span class="text-lg font-bold">{{ numBookmarks }}</span>
-          <span class="text-xs mx-1">Bookmarks</span>
+          <span class="text-lg font-bold">{{ numBookmarks.toLocaleString('en') }}</span>
+          <span class="text-xs mx-1">{{ pluralized }}</span>
           <div class="flex flex-col items-start mt-2">
             <TagButton class="mb-1" v-for="(name, index) in filters" :key="index">
               <span>{{ name }}</span>
@@ -39,6 +39,9 @@
       numBookmarks () {
         let type = this.$store.state.activeType
         return this.$store.state.lists[type].length
+      },
+      pluralized () {
+        return this.numBookmarks === 1 ? 'Bookmark' : 'Bookmarks'
       },
       filters: function () {
         return this.$store.state.filters;
