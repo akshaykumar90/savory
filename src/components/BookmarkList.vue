@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ol class="list-reset text-sm font-medium">
+    <ol class="list-reset text-sm">
       <BookmarkRow
         v-for="item in current"
         v-bind:bookmark-id="item"

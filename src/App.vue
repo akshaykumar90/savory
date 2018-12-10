@@ -1,8 +1,8 @@
 <template>
-  <div id="app" class="min-h-screen font-serif">
+  <div id="app" class="min-h-screen font-sans">
     <div class="flex justify-between container mx-auto px-6 py-8">
       <div class="px-4 w-1/5">
-        <h1 class="text-2xl"><router-link to="/">Savory</router-link></h1>
+        <h1 class="text-2xl font-bold"><router-link to="/" class="no-underline hover:underline">Savory</router-link></h1>
         <nav class="py-2">
           <span class="text-lg font-bold">{{ numBookmarks }}</span>
           <span class="text-xs mx-1">Bookmarks</span>
@@ -64,6 +64,7 @@
 </script>
 
 <style>
+@import url('https://rsms.me/inter/inter-ui.css');
 @tailwind preflight;
 @tailwind components;
 @tailwind utilities;
