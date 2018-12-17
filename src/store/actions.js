@@ -21,10 +21,11 @@ export default {
 
   LOAD_MORE_BOOKMARKS: ({ commit }) => {
     return new Promise(resolve => {
+      // The setTimeout simulates async remote api call to load more content
       setTimeout(() => {
         commit('INCR_PAGE')
         resolve()
-      }, 500)
+      }, 100)
     })
   },
 

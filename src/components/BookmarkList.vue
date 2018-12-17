@@ -53,7 +53,7 @@
         this.$store.dispatch('LOAD_MORE_BOOKMARKS').then(() => {
           this.bottom = false
         })
-      }, 1000)
+      }, 250)
     },
 
     created () {
