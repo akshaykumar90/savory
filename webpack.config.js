@@ -28,6 +28,14 @@ module.exports = {
         exclude: /node_modules/
       },
       {
+        test: /\.(png|jpg|gif|svg)$/,
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+          name: '[name].[ext]?[hash]'
+        }
+      },
+      {
         test: /\.css$/,
         exclude: /node_modules/,
         use: [
