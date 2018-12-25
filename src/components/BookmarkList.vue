@@ -46,23 +46,23 @@
         const scrollY = window.scrollY
         const visible = document.documentElement.clientHeight
         const pageHeight = document.documentElement.scrollHeight
-        const bottomOfPage = visible + scrollY >= pageHeight
+        // Some wiggle room (.9) to allow time to load content before user
+        // reaches bottom
+        const bottomOfPage = visible + scrollY >= .9 * pageHeight
         return bottomOfPage || pageHeight < visible
       },
-      loadMoreBookmarks: _.debounce(function () {
-        this.$store.dispatch('LOAD_MORE_BOOKMARKS').then(() => {
-          this.bottom = false
-        })
-      }, 250)
+      onScroll() {
+        if (this.bottomVisible() && this.hasMore) {
+          this.bottom = true
+          this.$store.dispatch('LOAD_MORE_BOOKMARKS').then(() => {
+            this.bottom = false
+          })
+        }
+      }
     },
 
     created () {
-      window.addEventListener('scroll', () => {
-        if (this.bottomVisible() && this.hasMore) {
-          this.bottom = true
-          this.loadMoreBookmarks()
-        }
-      })
+      window.addEventListener('scroll', _.throttle(this.onScroll, 200))
     },
 
   }

@@ -10,7 +10,7 @@ export function createStore () {
   return new Vuex.Store({
     state: {
       activeType: 'new',
-      itemsPerPage: 50,
+      itemsPerPage: 100,
       page: 1,
       bookmarks: {/* [id: number]: Bookmark */},
       lists: {
