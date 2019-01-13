@@ -4,7 +4,7 @@
       <div class="px-4 w-1/5">
         <div>
           <router-link to="/">
-            <img class="block w-64" src="./assets/logo.png" alt="logo">
+            <img class="block w-64" src="./assets/logo.svg" alt="logo">
           </router-link>
         </div>
         <nav class="py-4">
