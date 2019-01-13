@@ -63,7 +63,12 @@
     },
 
     created () {
-      window.addEventListener('scroll', _.throttle(this.onScroll, 200))
+      this.scrollHandler = _.throttle(this.onScroll, 200)
+      window.addEventListener('scroll', this.scrollHandler)
+    },
+
+    destroyed() {
+      window.removeEventListener('scroll', this.scrollHandler)
     },
 
   }

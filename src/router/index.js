@@ -9,6 +9,7 @@ export function createRouter () {
       { path: '/tag/:tag', name: 'tag', component: require('../App.vue') },
       { path: '/site/:site', name: 'site', component: require('../App.vue') },
       { path: '/q/:query', name: 'search', component: require('../App.vue') },
+      { path: '/list/:list', name: 'list', component: require('../App.vue') },
       { path: '/', name: 'home', component: require('../App.vue') }
     ]
   })

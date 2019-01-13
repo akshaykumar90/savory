@@ -19,7 +19,7 @@
       </div>
       <div class="px-4 w-4/5">
         <SearchBar class="relative mb-4"></SearchBar>
-        <BookmarkList></BookmarkList>
+        <component v-bind:is="currentView"></component>
       </div>
     </div>
   </div>
@@ -29,11 +29,13 @@
   import BookmarkList from './components/BookmarkList.vue'
   import SearchBar from './components/SearchBar.vue'
   import TagButton from './components/TagButton.vue'
+  import LinkList from './components/LinkList.vue'
 
   export default {
     name: 'app',
 
     components: {
+      LinkList,
       BookmarkList,
       SearchBar,
       TagButton
@@ -41,14 +43,17 @@
 
     computed: {
       numBookmarks () {
-        let type = this.$store.state.activeType
-        return this.$store.state.lists[type].length
+        return this.$store.getters.numBookmarks
       },
       pluralized () {
         return this.numBookmarks === 1 ? 'Bookmark' : 'Bookmarks'
       },
       filters: function () {
         return this.$store.state.filters;
+      },
+      currentView () {
+        let type = this.$store.state.activeType
+        return type === 'listicle' ? 'LinkList' : 'BookmarkList'
       }
     },
 

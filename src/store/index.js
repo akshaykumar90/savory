@@ -13,11 +13,13 @@ export function createStore () {
       itemsPerPage: 100,
       page: 1,
       bookmarks: {/* [id: number]: Bookmark */},
+      listicles: {/* [id: string]: Listicle */},
       lists: {
         new: [/* number */],
         filtered: [],
       },
-      filters: [/* string */]
+      filters: [/* string */],
+      activeListicleId: null
     },
     actions,
     mutations,

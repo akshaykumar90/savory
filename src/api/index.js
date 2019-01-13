@@ -1,9 +1,17 @@
-import idb from 'idb';
+import { openDb } from 'idb';
 
-const dbPromise = idb.open('savory', 1, upgradeDB => {
-  console.log('making a new object store');
-  const tagsOS = upgradeDB.createObjectStore('tags', {keyPath: 'id'});
-  tagsOS.createIndex('tagName', 'tags', { unique: false, multiEntry: true })
+const dbPromise = openDb('savory', 2, upgradeDB => {
+  // Note: we don't use 'break' in this switch statement,
+  // the fall-through behaviour is what we want.
+  switch (upgradeDB.oldVersion) {
+    case 0:
+      console.log('Making tags store');
+      const tagsOS = upgradeDB.createObjectStore('tags', {keyPath: 'id'});
+      tagsOS.createIndex('tagName', 'tags', { unique: false, multiEntry: true })
+    case 1:
+      console.log('Making lists store');
+      const listsOS = upgradeDB.createObjectStore('lists', {keyPath: 'id'});
+  }
 });
 
 // Retrieves the recently added bookmarks
@@ -49,6 +57,12 @@ export function fetchBookmarksWithTag (tag) {
     let index = store.index('tagName');
     return index.getAll(tag)
   });
+}
+
+export function fetchList (listId) {
+  return dbPromise.then(db => {
+    return db.transaction('lists').objectStore('lists').get(listId);
+  })
 }
 
 export function addNewTagForBookmark ({ id, tag }) {
