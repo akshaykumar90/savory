@@ -1,8 +1,8 @@
 <template>
-  <li class="mb-2">
+  <div class="text-sm">
     <a :href="bookmark.url" target="_blank" rel="noopener" class="no-underline hover:underline">{{ bookmark.title }}</a>
     <TagsRow :bookmark-id="bookmarkId"></TagsRow>
-  </li>
+  </div>
 </template>
 
 <script>

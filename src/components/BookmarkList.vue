@@ -1,11 +1,12 @@
 <template>
   <div>
-    <ol class="list-reset text-sm">
-      <BookmarkRow
+    <ol class="list-reset">
+      <li
+        class="mb-2"
         v-for="item in current"
-        v-bind:bookmark-id="item"
         v-bind:key="item">
-      </BookmarkRow>
+        <BookmarkRow v-bind:bookmark-id="item"/>
+      </li>
     </ol>
     <div>
       <BookmarkLoader v-if="bottom"></BookmarkLoader>
