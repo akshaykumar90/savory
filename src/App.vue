@@ -1,15 +1,15 @@
 <template>
-  <div id="app" class="min-h-screen font-sans">
+  <div id="app" class="min-h-screen font-sans bg-default theme-light">
     <div class="flex justify-between container mx-auto px-6 py-8">
       <div class="px-4 w-1/5">
         <div>
           <router-link to="/">
-            <img class="block w-64" src="./assets/logo.svg" alt="logo">
+            <img class="block w-64" src="./assets/logo_light.svg" alt="logo">
           </router-link>
         </div>
         <nav class="py-4">
-          <p class="text-xs">{{ pluralized }}</p>
-          <p class="text-2xl font-bold mt-2">{{ numBookmarks.toLocaleString('en') }}</p>
+          <p class="text-xs text-muted">{{ pluralized }}</p>
+          <p class="text-2xl text-muted font-bold mt-2">{{ numBookmarks.toLocaleString('en') }}</p>
           <div class="flex flex-col items-start mt-2">
             <TagButton class="mb-1" v-for="(name, index) in filters" :key="index">
               <span>{{ name }}</span>
@@ -75,9 +75,5 @@
   }
 </script>
 
-<style>
-@import url('https://rsms.me/inter/inter-ui.css');
-@tailwind preflight;
-@tailwind components;
-@tailwind utilities;
+<style src="./assets/app.css">
 </style>

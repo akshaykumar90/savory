@@ -1,5 +1,5 @@
 <template>
-  <button class="bg-grey-lighter text-teal-dark p-1 mr-2 text-center text-xs rounded border border-teal-dark focus:outline-none">
+  <button class="bg-grey-100 text-primary p-1 mr-2 text-center text-xs rounded border border-primary focus:outline-none">
     <slot></slot>
   </button>
 </template>

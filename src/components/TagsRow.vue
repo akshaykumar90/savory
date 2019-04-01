@@ -8,7 +8,7 @@
     </TagButton>
     <input type="text" title="new-tag"
            v-model="newTag" @keydown.tab.prevent="addNewTag" @keyup.enter="addNewTag"
-           class="block text-teal-darker text-xs bg-grey-lighter focus:bg-grey-light focus:outline-none rounded px-2 py-2 h-6">
+           class="block text-default text-xs bg-grey-100 focus:bg-default border border-transparent focus:border-primary focus:outline-none rounded px-2 py-2 h-6">
   </div>
 </template>
 

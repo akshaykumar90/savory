@@ -1,6 +1,6 @@
 <template>
   <div class="text-sm">
-    <a :href="bookmark.url" target="_blank" rel="noopener" class="no-underline hover:underline">{{ bookmark.title }}</a>
+    <a :href="bookmark.url" target="_blank" rel="noopener" class="text-default no-underline hover:underline">{{ bookmark.title }}</a>
     <TagsRow :bookmark-id="bookmarkId"></TagsRow>
   </div>
 </template>

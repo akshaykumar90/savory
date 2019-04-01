@@ -1,0 +1,91 @@
+@import url('https://rsms.me/inter/inter-ui.css');
+
+/**
+ * This injects Tailwind's base styles, which is a combination of
+ * Normalize.css and some additional base styles.
+ *
+ * You can see the styles here:
+ * https://github.com/tailwindcss/tailwindcss/blob/master/css/preflight.css
+ *
+ * If using `postcss-import`, use this import instead:
+ *
+ * @import "tailwindcss/preflight";
+ */
+@tailwind preflight;
+
+/**
+ * This injects any component classes registered by plugins.
+ *
+ * If using `postcss-import`, use this import instead:
+ *
+ * @import "tailwindcss/components";
+ */
+@tailwind components;
+
+/**
+ * Here you would add any of your custom component classes; stuff that you'd
+ * want loaded *before* the utilities so that the utilities could still
+ * override them.
+ *
+ * Example:
+ *
+ * .btn { ... }
+ * .form-input { ... }
+ *
+ * Or if using a preprocessor or `postcss-import`:
+ *
+ * @import "components/buttons";
+ * @import "components/forms";
+ */
+
+/**
+ * This injects all of Tailwind's utility classes, generated based on your
+ * config file.
+ *
+ * If using `postcss-import`, use this import instead:
+ *
+ * @import "tailwindcss/utilities";
+ */
+@tailwind utilities;
+
+/**
+ * Here you would add any custom utilities you need that don't come out of the
+ * box with Tailwind.
+ *
+ * Example :
+ *
+ * .bg-pattern-graph-paper { ... }
+ * .skew-45 { ... }
+ *
+ * Or if using a preprocessor or `postcss-import`:
+ *
+ * @import "utilities/background-patterns";
+ * @import "utilities/skew-transforms";
+ */
+
+.theme-light {
+  --color-bg-default: white;
+  --color-grey-100: #E6F2F9;
+  --color-grey-200: #D7E8F3;
+  --color-grey-300: #BFD5E5;
+  --color-grey-400: #99B2C7;
+  --color-grey: #5E7388;
+  --color-grey-600: #233449;
+  --color-grey-700: #0D1727;
+  --color-grey-800: #050A15;
+  --color-grey-900: #02050B;
+  --color-primary: #0988CA;
+}
+.theme-dark {
+  --color-bg-default: #0D1727;
+  --color-grey-100: #233449;
+  --color-grey-200: #5E7388;
+  --color-grey-300: #99B2C7;
+  --color-grey-400: #BFD5E5;
+  --color-grey: #D7E8F3;
+  --color-grey-600: #5E7388;
+  --color-grey-700: #99B2C7;
+  --color-grey-800: #BFD5E5;
+  --color-grey-900: #D7E8F3;
+  --color-primary: #31BAE3;
+}

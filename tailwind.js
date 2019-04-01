@@ -341,7 +341,11 @@ module.exports = {
   |
   */
 
-  textColors: colors,
+  textColors: global.Object.assign({
+    'default': 'var(--color-grey-800)',
+    'primary': 'var(--color-primary)',
+    'muted': 'var(--color-grey-600)',
+  }, colors),
 
 
   /*
@@ -357,7 +361,13 @@ module.exports = {
   |
   */
 
-  backgroundColors: colors,
+  backgroundColors: global.Object.assign({
+    'default': 'var(--color-bg-default)',
+    'grey': 'var(--color-grey)',
+    'grey-100': 'var(--color-grey-100)',
+    'grey-200': 'var(--color-grey-200)',
+    'grey-300': 'var(--color-grey-300)',
+  }, colors),
 
 
   /*
@@ -419,7 +429,10 @@ module.exports = {
   |
   */
 
-  borderColors: global.Object.assign({ default: colors['grey-light'] }, colors),
+  borderColors: global.Object.assign({
+    default: colors['grey-light'],
+    'primary': 'var(--color-primary)',
+  }, colors),
 
 
   /*
