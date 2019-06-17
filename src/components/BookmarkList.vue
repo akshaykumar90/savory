@@ -2,7 +2,7 @@
   <div>
     <ol class="list-reset">
       <li
-        class="mb-2"
+        class="mb-4"
         v-for="item in current"
         v-bind:key="item">
         <BookmarkRow v-bind:bookmark-id="item"/>

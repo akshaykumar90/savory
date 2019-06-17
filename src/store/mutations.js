@@ -18,9 +18,9 @@ function scrubFromList (state, type, id) {
 
 export default {
   SET_BOOKMARKS: (state, { items }) => {
-    items.forEach(({ id, title, url, tags }) => {
+    items.forEach(({ id, title, dateAdded, url, tags }) => {
       let site = domainName(url)
-      Vue.set(state.bookmarks, id, { id, title, url, site, tags })
+      Vue.set(state.bookmarks, id, { id, title, dateAdded, url, site, tags })
     })
     state.lists['new'] = items.map(({ id }) => id)
   },
