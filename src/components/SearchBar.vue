@@ -1,6 +1,6 @@
 <template>
   <div>
-    <input type="text" placeholder="Search bookmarks" autocomplete="off" spellcheck="false"
+    <input ref="input" type="text" placeholder="Search bookmarks" autocomplete="off" spellcheck="false"
            v-model="query" @keyup="doSearch"
            class="focus:outline-none text-sm text-muted border border-transparent focus:bg-default focus:border-primary rounded bg-grey-100 py-2 pr-4 pl-10 block w-full appearance-none leading-normal">
     <div class="absolute pin-y pin-l pl-3 flex items-center" v-if="query">
@@ -40,6 +40,10 @@
       clearSearch: function () {
         this.query = ''
         this.$router.push('/')
+      },
+      // Used to focus the input from the parent
+      focus: function () {
+        this.$refs.input.focus()
       }
     },
 

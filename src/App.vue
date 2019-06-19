@@ -18,7 +18,7 @@
         </nav>
       </div>
       <div class="px-4 w-4/5">
-        <SearchBar class="relative mb-4"></SearchBar>
+        <SearchBar ref="searchInput" class="relative mb-4"></SearchBar>
         <component v-bind:is="currentView"></component>
       </div>
     </div>
@@ -62,6 +62,10 @@
         type: 'FETCH_BOOKMARKS',
         num: 5000
       })
+    },
+
+    mounted() {
+      this.$refs.searchInput.focus()
     },
 
     watch: {
