@@ -27,7 +27,13 @@ to automatically compile code whenever it changes.
 npm run dev
 ```
 
-To use [vue-devtools][1], use the standalone Electron app
+Set `DEVTOOLS=true` to use [vue-devtools][1].
+
+```bash
+DEVTOOLS=true npm run dev
+```
+
+Use the standalone Electron app
 
 ```bash
 ./node_modules/.bin/vue-devtools

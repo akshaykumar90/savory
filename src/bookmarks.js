@@ -6,8 +6,9 @@ import { createRouter } from './router'
 import { setupListeners } from './api'
 
 const isDev = process.env.NODE_ENV === 'development'
+const enableDevtools = process.env.DEVTOOLS === 'true'
 
-if (isDev) {
+if (isDev && enableDevtools) {
   devtools.connect(/* host, port */)
 }
 

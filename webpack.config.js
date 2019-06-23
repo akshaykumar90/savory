@@ -62,6 +62,7 @@ module.exports = {
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development', // use 'development' unless process.env.NODE_ENV is defined
+      DEVTOOLS: 'false', // Disable devtools by default
     }),
     new VueLoaderPlugin(),
     new FriendlyErrorsPlugin(),
