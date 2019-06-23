@@ -56,10 +56,7 @@ export default {
     } else if (params.hasOwnProperty('query')) {
       // Search query
       let query = params.query.trim()
-      let searchResults = await searchBookmarks(query);
-      const bookmarkIds = searchResults
-        .filter(node => node.hasOwnProperty('url'))
-        .map(({ id }) => id)
+      const bookmarkIds = await searchBookmarks(query);
       commit('SET_FILTERED', bookmarkIds);
       // Search resets any existing filters
       commit('SET_SEARCH_FILTERS', []);
