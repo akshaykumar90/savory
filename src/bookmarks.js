@@ -18,6 +18,17 @@ const router = createRouter()
 
 setupListeners(store.dispatch)
 
+// This is the event hub we'll use in every
+// component to communicate between them.
+window.Event = new Vue()
+
+// Clicking outside tags row input should exit edit mode
+// Inspired from: https://stackoverflow.com/a/36180348/7003143
+// Also see `collapseSiblings` in TagsRow.vue
+document.body.addEventListener('click', event => {
+  Event.$emit('exitEditMode', {})
+})
+
 new Vue({
   router,
   store,

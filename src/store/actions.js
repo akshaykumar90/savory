@@ -3,6 +3,7 @@ import {
   fetchTagsForBookmarkIds,
   fetchBookmarksWithTag,
   addNewTagForBookmark,
+  removeTagFromBookmark,
   deleteBookmarkTags,
   searchBookmarks,
   fetchList
@@ -74,9 +75,15 @@ export default {
     }
   },
 
-  ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tag }) => {
-    addNewTagForBookmark({ id, tag }).then(({ tags }) => {
-      commit('UPDATE_TAGS', { id, tags });
+  ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tags: newTags }) => {
+    addNewTagForBookmark({ id, tags: newTags }).then(({ tags }) => {
+      commit('SET_TAGS', { id, tags });
+    })
+  },
+
+  REMOVE_TAG_FROM_BOOKMARK: ({ commit }, { id, tag }) => {
+    removeTagFromBookmark({ id, tag }).then(({ tags }) => {
+      commit('SET_TAGS', { id, tags });
     })
   },
 }

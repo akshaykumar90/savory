@@ -1,14 +1,24 @@
 <template>
-  <div class="flex flex-wrap items-end pt-2">
-    <TagButton>
-      <router-link :to="'/site/'+bookmark.site" tag="span">{{ bookmark.site }}</router-link>
-    </TagButton>
-    <TagButton v-for="(tag, index) in bookmark.tags" :key="index">
-      <router-link :to="'/tag/'+tag" tag="span">{{ tag }}</router-link>
-    </TagButton>
+  <div class="flex flex-wrap items-end py-1 mt-2" @click.stop="collapseSiblings"
+       v-bind:class="[editMode ? 'border-0 bg-grey-100 rounded -ml-1 pl-1': '']">
+    <button class="text-primary p-1 mr-2 text-center text-xs rounded border border-primary focus:outline-none"
+            v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']">
+      <span v-if="editMode">{{ bookmark.site }}</span>
+      <router-link v-else :to="'/site/'+bookmark.site" tag="span">{{ bookmark.site }}</router-link>
+    </button>
+    <button v-for="(tag, index) in bookmark.tags" :key="index"
+            class="text-primary p-1 mr-2 text-center text-xs rounded border border-primary focus:outline-none"
+            v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']">
+      <template v-if="editMode">
+        <span>{{ tag }}</span>
+        <a class="remove" @click="removeTag(tag)"></a>
+      </template>
+      <router-link v-else :to="'/tag/'+tag" tag="span">{{ tag }}</router-link>
+    </button>
     <input type="text" title="new-tag"
            v-model="newTag" @keydown.tab.prevent="addNewTag" @keyup.enter="addNewTag"
-           class="block text-default text-xs bg-grey-100 focus:bg-default border border-transparent focus:border-primary focus:outline-none rounded px-2 py-2 h-6">
+           @focus="enterEditMode"
+           class="block text-default text-xs bg-grey-100 border border-transparent focus:outline-none rounded py-2 h-6">
   </div>
 </template>
 
@@ -28,6 +38,7 @@
 
     data: function () {
       return {
+        editMode: false,
         newTag: ''
       }
     },
@@ -35,16 +46,38 @@
     methods: {
       addNewTag () {
         if (!this.newTag.trim()) {
-          return;
+          return
         }
 
-        this.$store.dispatch({
-          type: 'ADD_TAG_FOR_BOOKMARK',
-          id: this.bookmarkId,
-          tag: this.newTag.trim()
-        })
+        let tagsInput = this.newTag.trim()
+        let dataObj = { id: this.bookmarkId, tags: tagsInput.split(/\s+/) }
+        // Sync commit to refresh UI
+        this.$store.commit('ADD_TAG', dataObj)
+        // Async flush to DB
+        this.$store.dispatch('ADD_TAG_FOR_BOOKMARK', dataObj)
 
         this.newTag = ''
+      },
+      removeTag (tagName) {
+        let dataObj = { id: this.bookmarkId, tag: tagName }
+        // Sync commit to refresh UI
+        this.$store.commit('REMOVE_TAG', dataObj)
+        // Async flush to DB
+        this.$store.dispatch('REMOVE_TAG_FROM_BOOKMARK', dataObj)
+      },
+      enterEditMode () {
+        this.editMode = true
+        Event.$on('exitEditMode', this.exitEditMode)
+      },
+      exitEditMode ({ currFocusId }) {
+        if (this.bookmarkId !== currFocusId) {
+          this.editMode = false
+          this.newTag = ''
+          Event.$off('exitEditMode', this.exitEditMode)
+        }
+      },
+      collapseSiblings () {
+        Event.$emit('exitEditMode', { currFocusId: this.bookmarkId })
       }
     },
 
@@ -55,3 +88,33 @@
     }
   }
 </script>
+
+<style>
+  .remove {
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    overflow: hidden;
+    margin-left: 0.25rem;
+  }
+
+  .remove:before, .remove:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 0;
+    background: var(--color-primary);
+    height: 2px;
+    margin-top: -1px;
+  }
+
+  .remove:before {
+    transform: rotate(45deg);
+  }
+  .remove:after {
+    transform: rotate(-45deg);
+  }
+</style>

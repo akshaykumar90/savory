@@ -73,17 +73,29 @@ export function fetchList (listId) {
   })
 }
 
-export function addNewTagForBookmark ({ id, tag }) {
+function updateTags(bookmarkId, modifyFn) {
   return dbPromise.then(async db => {
     const tx = db.transaction('tags', 'readwrite');
     const store = tx.objectStore('tags');
-    let tagsObj = await store.get(id) || { id, tags: [] };
-    if (!tagsObj.tags.includes(tag)) {
-      tagsObj.tags.push(tag);
-    }
+    let tagsObj = await store.get(bookmarkId) || { id: bookmarkId, tags: [] }
+    tagsObj.tags = modifyFn(tagsObj.tags)
     store.put(tagsObj);
     await tx.complete;
-    return db.transaction('tags').objectStore('tags').get(id);
+    return db.transaction('tags').objectStore('tags').get(bookmarkId);
+  })
+}
+
+export function addNewTagForBookmark ({ id, tags: newTags }) {
+  return updateTags(id, existingTags => {
+    let tagsList = [...existingTags, ...newTags]
+    return [...new Set(tagsList)]
+  })
+}
+
+export function removeTagFromBookmark ({ id, tag: tagToRemove }) {
+  // Tag names are unique, so we can filter by value
+  return updateTags(id, existingTags => {
+    return existingTags.filter(t => t !== tagToRemove)
   })
 }
 

@@ -66,7 +66,17 @@ export default {
     state.page += 1
   },
 
-  UPDATE_TAGS: (state, { id, tags }) => {
+  SET_TAGS: (state, { id, tags }) => {
     state.bookmarks[id].tags = tags
+  },
+
+  ADD_TAG: (state, { id, tags }) => {
+    // Multiple tags can be added together
+    state.bookmarks[id].tags = [...state.bookmarks[id].tags, ...tags]
+  },
+
+  REMOVE_TAG: (state, { id, tag: tagToRemove }) => {
+    let existingTags = state.bookmarks[id].tags
+    state.bookmarks[id].tags = existingTags.filter(t => t !== tagToRemove)
   }
 }
