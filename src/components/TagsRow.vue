@@ -23,14 +23,8 @@
 </template>
 
 <script>
-  import TagButton from './TagButton.vue'
-
   export default {
     name: 'tags-row',
-
-    components: {
-      TagButton
-    },
 
     props: {
       bookmarkId: String
