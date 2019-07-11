@@ -1,19 +1,17 @@
 <template>
   <div class="flex flex-wrap items-end py-1 mt-2" @click.stop="collapseSiblings"
        v-bind:class="[editMode ? 'border-0 bg-grey-100 rounded -ml-1 pl-1': '']">
-    <button class="text-primary p-1 mr-2 text-center text-xs rounded border border-primary focus:outline-none"
-            v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']">
-      <span v-if="editMode">{{ bookmark.site }}</span>
-      <router-link v-else :to="'/site/'+bookmark.site" tag="span">{{ bookmark.site }}</router-link>
+    <button class="text-primary p-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
+            v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
+            @click="navigateTo({tagType:'site'})">
+      {{ bookmark.site }}
     </button>
     <button v-for="(tag, index) in bookmark.tags" :key="index"
-            class="text-primary p-1 mr-2 text-center text-xs rounded border border-primary focus:outline-none"
-            v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']">
-      <template v-if="editMode">
-        <span>{{ tag }}</span>
-        <a class="remove" @click="removeTag(tag)"></a>
-      </template>
-      <router-link v-else :to="'/tag/'+tag" tag="span">{{ tag }}</router-link>
+            class="text-primary p-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
+            v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
+            @click="navigateTo({tagType:'tag', tagDest:tag})">
+      {{ tag }}
+      <a v-if="editMode" class="remove" @click="removeTag(tag)"></a>
     </button>
     <input type="text" title="new-tag"
            v-model="newTag" @keydown.tab.prevent="addNewTag" @keyup.enter="addNewTag"
@@ -38,6 +36,16 @@
     },
 
     methods: {
+      navigateTo ({ tagType, tagDest }) {
+        if (this.editMode) {
+          return
+        }
+        if (tagType === 'site') {
+          this.$router.push(`/site/${this.bookmark.site}`)
+        } else if (tagType === 'tag') {
+          this.$router.push(`/tag/${tagDest}`)
+        }
+      },
       addNewTag () {
         if (!this.newTag.trim()) {
           return
