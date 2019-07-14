@@ -15,6 +15,7 @@
     </button>
     <input type="text" title="new-tag"
            v-model="newTag" @keydown.tab.prevent="addNewTag" @keyup.enter="addNewTag"
+           v-bind:class="{'flex-grow': editMode}"
            @focus="enterEditMode"
            class="block text-default text-xs bg-grey-100 border border-transparent focus:outline-none rounded my-1 py-2 h-6">
   </div>
