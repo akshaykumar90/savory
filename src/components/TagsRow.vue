@@ -1,13 +1,13 @@
 <template>
   <div class="flex flex-wrap items-end py-1 mt-2" @click.stop="collapseSiblings"
        v-bind:class="[editMode ? 'border-0 bg-grey-100 rounded -ml-1 pl-1': '']">
-    <button class="text-primary p-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
+    <button class="text-primary p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
             v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
             @click="navigateTo({tagType:'site'})">
       {{ bookmark.site }}
     </button>
     <button v-for="(tag, index) in bookmark.tags" :key="index"
-            class="text-primary p-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
+            class="text-primary p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
             v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
             @click="navigateTo({tagType:'tag', tagDest:tag})">
       {{ tag }}
@@ -16,7 +16,7 @@
     <input type="text" title="new-tag"
            v-model="newTag" @keydown.tab.prevent="addNewTag" @keyup.enter="addNewTag"
            @focus="enterEditMode"
-           class="block text-default text-xs bg-grey-100 border border-transparent focus:outline-none rounded py-2 h-6">
+           class="block text-default text-xs bg-grey-100 border border-transparent focus:outline-none rounded my-1 py-2 h-6">
   </div>
 </template>
 
