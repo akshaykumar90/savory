@@ -3,15 +3,15 @@
        v-bind:class="[editMode ? 'border-0 bg-grey-100 rounded -ml-1 pl-1': '']">
     <button class="text-primary p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
             v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
-            @click="navigateTo({tagType:'site'})">
+            @click="tagClicked({tagType: 'site'})">
       {{ bookmark.site }}
     </button>
     <button v-for="(tag, index) in bookmark.tags" :key="index"
             class="text-primary p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
             v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
-            @click="navigateTo({tagType:'tag', tagDest:tag})">
+            @click="tagClicked({tagType: 'tag', tagName: tag})">
       {{ tag }}
-      <a v-if="editMode" class="remove" @click="removeTag(tag)"></a>
+      <a v-if="editMode" class="remove"></a>
     </button>
     <input type="text" title="new-tag"
            v-model="newTag" @keydown.tab.prevent="addNewTag" @keyup.enter="addNewTag"
@@ -36,14 +36,15 @@
     },
 
     methods: {
-      navigateTo ({ tagType, tagDest }) {
+      tagClicked ({ tagType, tagName }) {
         if (this.editMode) {
+          this.removeTag(tagName)
           return
         }
         if (tagType === 'site') {
           this.$router.push(`/site/${this.bookmark.site}`)
         } else if (tagType === 'tag') {
-          this.$router.push(`/tag/${tagDest}`)
+          this.$router.push(`/tag/${tagName}`)
         }
       },
       addNewTag () {
@@ -61,6 +62,9 @@
         this.newTag = ''
       },
       removeTag (tagName) {
+        if (!tagName) {
+          return
+        }
         let dataObj = { id: this.bookmarkId, tag: tagName }
         // Sync commit to refresh UI
         this.$store.commit('REMOVE_TAG', dataObj)
