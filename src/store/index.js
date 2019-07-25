@@ -18,7 +18,10 @@ export function createStore () {
         new: [/* number */],
         filtered: [],
       },
-      filters: [/* string */],
+      filter: {
+        active: [/* { type: string, name: string } */],
+        items: [/* number */],
+      },
       activeListicleId: null
     },
     actions,

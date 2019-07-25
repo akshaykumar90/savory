@@ -7,13 +7,8 @@ function domainName (bookmarkURL) {
 }
 
 function scrubFromList (state, type, id) {
-  let index = state.lists[type].indexOf(id)
-  if (index !== -1) {
-    state.lists[type] = [
-      ...state.lists[type].slice(0, index),
-      ...state.lists[type].slice(index + 1)
-    ]
-  }
+  let currList = state.lists[type]
+  state.lists[type] = currList.filter(x => x !== id)
 }
 
 export default {
@@ -52,12 +47,13 @@ export default {
     state.page = 1
   },
 
-  SET_SEARCH_FILTERS: (state, items) => {
-    state.filters = items
+  UPDATE_SEARCH_FILTER: (state, filter) => {
+    state.filter = filter
   },
 
   CLEAR_FILTERED: (state) => {
-    state.filtered = []
+    state.lists['filtered'] = []
+    state.filter = { active: [], items: [] }
     state.activeType = 'new'
     state.page = 1
   },

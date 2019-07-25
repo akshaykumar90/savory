@@ -1,13 +1,30 @@
 import {
+  addNewTagForBookmark,
+  deleteBookmarkTags,
+  fetchBookmarksWithTag,
+  fetchList,
   fetchRecent,
   fetchTagsForBookmarkIds,
-  fetchBookmarksWithTag,
-  addNewTagForBookmark,
   removeTagFromBookmark,
-  deleteBookmarkTags,
-  searchBookmarks,
-  fetchList
+  searchBookmarks
 } from '../api'
+
+function getDrillDownFunction(getters) {
+  return async function drillDownFilter(currentItems, { type, name }) {
+    let bookmarkIds = []
+    if (type === 'site') {
+      bookmarkIds = getters.getBookmarkIdsWithSite(name)
+    } else if (type === 'tag') {
+      let bookmarksWithTag = await fetchBookmarksWithTag(name);
+      bookmarkIds = bookmarksWithTag.map(({ id }) => id)
+    } else {
+      /* bad input */
+      return currentItems
+    }
+    let currFiltered = new Set(currentItems)
+    return currFiltered.size ? bookmarkIds.filter(x => currFiltered.has(x)) : bookmarkIds
+  }
+}
 
 export default {
   FETCH_BOOKMARKS: async ({ commit }, { num }) => {
@@ -40,27 +57,59 @@ export default {
     commit('REMOVE_BOOKMARK', bookmark);
   },
 
-  ON_ROUTE_CHANGE: async ({ commit, getters }, { params }) => {
+  FILTER_ADDED: async ({ state, commit, getters }, { type, name, drillDown }) => {
+    let drillDownFilter = getDrillDownFunction(getters)
+    let newFilter = { type, name }
+    // We "drill down" the current set of results only from the search bar
+    let activeFilters = drillDown ? [...state.filter.active, newFilter] : [newFilter]
+    let currentItems = drillDown ? state.filter.items : []
+    let filteredIds = await drillDownFilter(currentItems, { type, name })
+    commit('UPDATE_SEARCH_FILTER', { active: activeFilters, items: filteredIds })
+    commit('SET_FILTERED', filteredIds)
+  },
+
+  FILTER_REMOVED: async ({ state, commit, getters }, index) => {
+    let drillDownFilter = getDrillDownFunction(getters)
+    let currFilters = state.filter.active
+    if (index < 0) {
+      index += currFilters.length
+    }
+    const newFilters = [...currFilters.slice(0, index), ...currFilters.slice(index+1)]
+    const reducer = async (acc, curr) => await drillDownFilter(acc, curr)
+    if (!newFilters.length) {
+      commit('CLEAR_FILTERED')
+    } else {
+      let filteredIds = await newFilters.reduce(reducer, [])
+      commit('UPDATE_SEARCH_FILTER', { active: newFilters, items: filteredIds })
+      commit('SET_FILTERED', filteredIds)
+    }
+  },
+
+  SEARCH_QUERY: async ({ state, commit, getters }, query) => {
+    if (!query) {
+      // Empty query is valid input if there are active filters
+      if (state.filter.active.length) {
+        commit('SET_FILTERED', state.filter.items)
+      } else {
+        commit('CLEAR_FILTERED')
+      }
+    } else {
+      let searchResults = await searchBookmarks(query)
+      let currFiltered = new Set(state.filter.items)
+      const filteredIds = currFiltered.size ? searchResults.filter(x => currFiltered.has(x)) : searchResults
+      commit('SET_FILTERED', filteredIds)
+    }
+  },
+
+  ON_ROUTE_CHANGE: async ({ dispatch, commit, getters }, { params }) => {
     if (params.hasOwnProperty('site')) {
       // Filter bookmarks by domain name
       let site = params.site.trim()
-      const bookmarkIds = getters.getBookmarkIdsWithSite(site)
-      commit('SET_FILTERED', bookmarkIds);
-      commit('SET_SEARCH_FILTERS', [site]);
+      await dispatch('FILTER_ADDED', { type: 'site', name: site })
     } else if (params.hasOwnProperty('tag')) {
       // Filter bookmarks by tag
       let tag = params.tag.trim()
-      let bookmarksWithTag = await fetchBookmarksWithTag(tag);
-      const bookmarkIds = bookmarksWithTag.map(({ id }) => id)
-      commit('SET_FILTERED', bookmarkIds);
-      commit('SET_SEARCH_FILTERS', [tag]);
-    } else if (params.hasOwnProperty('query')) {
-      // Search query
-      let query = params.query.trim()
-      const bookmarkIds = await searchBookmarks(query);
-      commit('SET_FILTERED', bookmarkIds);
-      // Search resets any existing filters
-      commit('SET_SEARCH_FILTERS', []);
+      await dispatch('FILTER_ADDED', { type: 'tag', name: tag })
     } else if (params.hasOwnProperty('list')) {
       // Show list view. This is probably not the right way to do this. We
       // want to clear the activeListicleId in store, for example.
@@ -71,7 +120,6 @@ export default {
     } else {
       // Remove any filters, aka go to home page
       commit('CLEAR_FILTERED')
-      commit('SET_SEARCH_FILTERS', []);
     }
   },
 
