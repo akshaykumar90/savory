@@ -53,8 +53,8 @@
           return
         }
 
-        let tagsInput = this.newTag.trim()
-        let dataObj = { id: this.bookmarkId, tags: tagsInput.split(/\s+/) }
+        let tag = this.newTag.trim().replace(/\s+/g, ' ')
+        let dataObj = { id: this.bookmarkId, tags: [tag] }
         // Sync commit to refresh UI
         this.$store.commit('ADD_TAG', dataObj)
         // Async flush to DB
