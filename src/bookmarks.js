@@ -2,7 +2,7 @@ import devtools from '@vue/devtools'
 import Vue from 'vue'
 import App from './App.vue'
 import { createStore } from './store'
-import { createRouter } from './router'
+import { router } from './router'
 import { setupListeners } from './api'
 
 const isDev = process.env.NODE_ENV === 'development'
@@ -12,9 +12,7 @@ if (isDev && enableDevtools) {
   devtools.connect(/* host, port */)
 }
 
-// create store and router instances
 const store = createStore()
-const router = createRouter()
 
 setupListeners(store.dispatch)
 

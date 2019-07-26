@@ -5,13 +5,15 @@
             v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
             @click="tagClicked({tagType: 'site'})">
       {{ bookmark.site }}
+      <a v-if="filterMode && !editMode" class="tag-link add"></a>
     </button>
     <button v-for="(tag, index) in bookmark.tags" :key="index"
             class="text-primary p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
             v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
             @click="tagClicked({tagType: 'tag', tagName: tag})">
       {{ tag }}
-      <a v-if="editMode" class="remove"></a>
+      <a v-if="editMode || filterMode" class="tag-link"
+         v-bind:class="[editMode ? 'remove': 'add']"></a>
     </button>
     <input type="text" title="new-tag"
            v-model="newTag" @keydown.tab.prevent="addNewTag" @keyup.enter="addNewTag"
@@ -43,9 +45,9 @@
           return
         }
         if (tagType === 'site') {
-          this.$router.push(`/site/${this.bookmark.site}`)
+          this.$store.dispatch('FILTER_ADDED', { type: tagType, name: this.bookmark.site, drillDown: this.filterMode })
         } else if (tagType === 'tag') {
-          this.$router.push(`/tag/${tagName}`)
+          this.$store.dispatch('FILTER_ADDED', { type: tagType, name: tagName, drillDown: this.filterMode })
         }
       },
       addNewTag () {
@@ -91,13 +93,16 @@
     computed: {
       bookmark () {
         return this.$store.getters.getBookmarkById(this.bookmarkId)
+      },
+      filterMode () {
+        return !!this.$store.state.filter.active.length
       }
     }
   }
 </script>
 
-<style>
-  .remove {
+<style scoped>
+  .tag-link {
     cursor: pointer;
     position: relative;
     display: inline-block;
@@ -107,7 +112,7 @@
     margin-left: 0.25rem;
   }
 
-  .remove:before, .remove:after {
+  .tag-link:before, .tag-link:after {
     content: '';
     position: absolute;
     width: 100%;
@@ -123,5 +128,12 @@
   }
   .remove:after {
     transform: rotate(-45deg);
+  }
+
+  .add:before {
+    transform: rotate(90deg);
+  }
+  .add:after {
+    transform: rotate(0deg);
   }
 </style>

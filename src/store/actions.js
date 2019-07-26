@@ -1,3 +1,6 @@
+import _ from 'lodash'
+import { router } from '../router'
+
 import {
   addNewTagForBookmark,
   deleteBookmarkTags,
@@ -24,6 +27,19 @@ function getDrillDownFunction(getters) {
     let currFiltered = new Set(currentItems)
     return currFiltered.size ? bookmarkIds.filter(x => currFiltered.has(x)) : bookmarkIds
   }
+}
+
+function getFiltersFromQueryString(filterString) {
+  return filterString.split('/').map(filter => {
+    let peeled = filter.split(':')
+    const type = peeled[0] === 's' ? 'site' : 'tag'
+    const name = peeled[1]
+    return { type, name }
+  })
+}
+
+function getQueryStringFromFilters(filters) {
+  return filters.map(({ type, name }) => `${type[0]}:${name}`).join('/')
 }
 
 export default {
@@ -57,31 +73,43 @@ export default {
     commit('REMOVE_BOOKMARK', bookmark);
   },
 
-  FILTER_ADDED: async ({ state, commit, getters }, { type, name, drillDown }) => {
-    let drillDownFilter = getDrillDownFunction(getters)
-    let newFilter = { type, name }
-    // We "drill down" the current set of results only from the search bar
-    let activeFilters = drillDown ? [...state.filter.active, newFilter] : [newFilter]
-    let currentItems = drillDown ? state.filter.items : []
-    let filteredIds = await drillDownFilter(currentItems, { type, name })
-    commit('UPDATE_SEARCH_FILTER', { active: activeFilters, items: filteredIds })
-    commit('SET_FILTERED', filteredIds)
+  ON_FILTER_UPDATE: async ({ state, commit, getters }, filters) => {
+    if (!filters.length) {
+      commit('CLEAR_FILTERED')
+    } else {
+      let drillDownFilter = getDrillDownFunction(getters)
+      let filteredIds = []
+      for (const filter of filters) {
+        filteredIds = await drillDownFilter(filteredIds, filter)
+      }
+      commit('UPDATE_SEARCH_FILTER', { active: filters, items: filteredIds })
+      commit('SET_FILTERED', filteredIds)
+    }
   },
 
-  FILTER_REMOVED: async ({ state, commit, getters }, index) => {
-    let drillDownFilter = getDrillDownFunction(getters)
+  FILTER_ADDED: async ({ state }, { type, name, drillDown }) => {
+    let newFilter = { type, name }
+    const filterAlreadyExists = state.filter.active.some(x => _.isEqual(x, newFilter))
+    if (filterAlreadyExists) {
+      return
+    }
+    let activeFilters = drillDown ? [...state.filter.active, newFilter] : [newFilter]
+    let filtersParam = getQueryStringFromFilters(activeFilters)
+    router.push(`/filter/${filtersParam}`)
+  },
+
+  FILTER_REMOVED: async ({ state }, index) => {
     let currFilters = state.filter.active
     if (index < 0) {
       index += currFilters.length
     }
-    const newFilters = [...currFilters.slice(0, index), ...currFilters.slice(index+1)]
-    const reducer = async (acc, curr) => await drillDownFilter(acc, curr)
-    if (!newFilters.length) {
-      commit('CLEAR_FILTERED')
+    let activeFilters = [...currFilters.slice(0, index), ...currFilters.slice(index+1)]
+    let filtersParam = getQueryStringFromFilters(activeFilters)
+    if (!filtersParam) {
+      // end of filters, go home
+      router.push('/')
     } else {
-      let filteredIds = await newFilters.reduce(reducer, [])
-      commit('UPDATE_SEARCH_FILTER', { active: newFilters, items: filteredIds })
-      commit('SET_FILTERED', filteredIds)
+      router.push(`/filter/${filtersParam}`)
     }
   },
 
@@ -101,26 +129,21 @@ export default {
     }
   },
 
-  ON_ROUTE_CHANGE: async ({ dispatch, commit, getters }, { params }) => {
-    if (params.hasOwnProperty('site')) {
-      // Filter bookmarks by domain name
-      let site = params.site.trim()
-      await dispatch('FILTER_ADDED', { type: 'site', name: site })
-    } else if (params.hasOwnProperty('tag')) {
-      // Filter bookmarks by tag
-      let tag = params.tag.trim()
-      await dispatch('FILTER_ADDED', { type: 'tag', name: tag })
-    } else if (params.hasOwnProperty('list')) {
+  ON_ROUTE_CHANGE: async ({ dispatch, commit }, { name, params }) => {
+    if (name === 'home') {
+      // Remove any filters, aka go to home page
+      commit('CLEAR_FILTERED')
+    } else if (name === 'filter') {
+      let filters = getFiltersFromQueryString(params.filter)
+      await dispatch('ON_FILTER_UPDATE', filters)
+    } /* else if (name === 'list') {
       // Show list view. This is probably not the right way to do this. We
       // want to clear the activeListicleId in store, for example.
       let listId = params.list.trim()
-      let listicle = await fetchList(listId);
-      commit('SET_LISTICLE', listicle);
-      commit('SWITCH_TO_LISTICLE_VIEW', listId);
-    } else {
-      // Remove any filters, aka go to home page
-      commit('CLEAR_FILTERED')
-    }
+      let listicle = await fetchList(listId)
+      commit('SET_LISTICLE', listicle)
+      commit('SWITCH_TO_LISTICLE_VIEW', listId)
+    } */
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tags: newTags }) => {

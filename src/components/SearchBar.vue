@@ -52,10 +52,7 @@
         this.$router.push('/')
       },
       removeFilter: function (index) {
-        // We only support 1 filter in the search bar (for now). So removing
-        // filters should just clear search.
         this.$store.dispatch('FILTER_REMOVED', index)
-        this.clearSearch()
       },
       handleBackspace: function () {
         if (!this.query && this.filters.length) {
@@ -90,7 +87,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .remove {
     cursor: pointer;
     position: relative;
