@@ -10,11 +10,6 @@
         <nav class="py-4">
           <p class="text-xs text-muted">{{ pluralized }}</p>
           <p class="text-2xl text-muted font-bold mt-2">{{ numBookmarks.toLocaleString('en') }}</p>
-          <div class="flex flex-col items-start mt-2">
-            <TagButton class="mb-1" v-for="(name, index) in filters" :key="index">
-              <span>{{ name }}</span>
-            </TagButton>
-          </div>
         </nav>
       </div>
       <div class="px-4 w-4/5">
@@ -28,7 +23,6 @@
 <script>
   import BookmarkList from './components/BookmarkList.vue'
   import SearchBar from './components/SearchBar.vue'
-  import TagButton from './components/TagButton.vue'
   import LinkList from './components/LinkList.vue'
 
   export default {
@@ -38,7 +32,6 @@
       LinkList,
       BookmarkList,
       SearchBar,
-      TagButton
     },
 
     computed: {
@@ -47,9 +40,6 @@
       },
       pluralized () {
         return this.numBookmarks === 1 ? 'Bookmark' : 'Bookmarks'
-      },
-      filters: function () {
-        return this.$store.state.filters;
       },
       currentView () {
         let type = this.$store.state.activeType
