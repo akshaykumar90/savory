@@ -44,10 +44,11 @@
           this.removeTag(tagName)
           return
         }
+        let dataObj = { type: tagType, drillDown: this.filterMode }
         if (tagType === 'site') {
-          this.$store.dispatch('FILTER_ADDED', { type: tagType, name: this.bookmark.site, drillDown: this.filterMode })
+          this.$store.dispatch('FILTER_ADDED', { ...dataObj, name: this.bookmark.site })
         } else if (tagType === 'tag') {
-          this.$store.dispatch('FILTER_ADDED', { type: tagType, name: tagName, drillDown: this.filterMode })
+          this.$store.dispatch('FILTER_ADDED', { ...dataObj, name: tagName })
         }
       },
       addNewTag () {
