@@ -3,6 +3,7 @@
        v-bind:class="[editMode ? 'border-0 bg-grey-100 rounded -ml-1 pl-1': '']">
     <button class="text-primary p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
             v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
+            v-if="bookmark.site"
             @click="tagClicked({tagType: 'site'})">
       {{ bookmark.site }}
       <a v-if="filterMode && !editMode" class="tag-link add"></a>
