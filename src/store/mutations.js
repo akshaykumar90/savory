@@ -1,9 +1,10 @@
 import Vue from 'vue'
+const { getDomain } = require('tldjs')
 
 function domainName (bookmarkURL) {
-  const url = new URL(bookmarkURL);
+  const url = new URL(bookmarkURL)
   // Drop the subdomain, e.g. news.ycombinator.com -> ycombinator.com
-  return url.hostname.split('.').splice(-2, 2).join('.')
+  return getDomain(url.hostname)
 }
 
 function scrubFromList (state, type, id) {
