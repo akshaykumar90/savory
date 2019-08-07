@@ -16,7 +16,7 @@
       <a v-if="editMode || filterMode" class="tag-link"
          v-bind:class="[editMode ? 'remove': 'add']"></a>
     </button>
-    <input type="text" title="new-tag"
+    <input ref="input" type="text" title="new-tag"
            v-model="newTag" @keydown.tab.prevent="addNewTag" @keyup.enter="addNewTag"
            v-bind:class="{'flex-grow': editMode}"
            @focus="enterEditMode"
@@ -43,6 +43,9 @@
       tagClicked ({ tagType, tagName }) {
         if (this.editMode) {
           this.removeTag(tagName)
+          // We can only delete a tag when we put focus on the input box. When
+          // we delete a tag, the input box should not lose focus.
+          this.$refs.input.focus()
           return
         }
         let dataObj = { type: tagType, drillDown: this.filterMode }
