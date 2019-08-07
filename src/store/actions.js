@@ -39,7 +39,9 @@ function getFiltersFromQueryString(filterString) {
 }
 
 function getQueryStringFromFilters(filters) {
-  return filters.map(({ type, name }) => `${type[0]}:${name}`).join('/')
+  return filters
+    .map(({ type, name }) => encodeURIComponent(`${type[0]}:${name}`))
+    .join('/')
 }
 
 export default {
