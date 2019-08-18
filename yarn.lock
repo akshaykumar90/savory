@@ -3578,10 +3578,10 @@ icss-utils@^2.1.0:
   dependencies:
     postcss "^6.0.1"
 
-idb@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/idb/-/idb-3.0.0.tgz#f7d835fcf097b1a7464bafc5e41e2772de3badcc"
-  integrity sha512-6p6KFlzfu8tMOhPXc6Kpp+MXUNOfJ3a72R3iKfp579qC81hbOEd/Iw+cTDH5zS4nqqP33vAQe1Vs9KO8mqedQQ==
+idb@^4.0.0:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/idb/-/idb-4.0.4.tgz#f0c06f58bd78fe557e4de944fd6ba6a3240faa8e"
+  integrity sha512-ZYsaBSNub2yAnjvmRKudQlMIPqZQIefAOwNIPeXC+RLIeXYFc0UNQqONKNuQeBNf8oBOV5L75yJ9zFISjHVj4g==
 
 ieee754@^1.1.4:
   version "1.1.12"

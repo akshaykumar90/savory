@@ -1,18 +1,20 @@
-import { openDb } from 'idb';
+import { openDB } from 'idb';
 
-const dbPromise = openDb('savory', 2, upgradeDB => {
-  // Note: we don't use 'break' in this switch statement,
-  // the fall-through behaviour is what we want.
-  switch (upgradeDB.oldVersion) {
-    case 0:
-      console.log('Making tags store');
-      const tagsOS = upgradeDB.createObjectStore('tags', {keyPath: 'id'});
-      tagsOS.createIndex('tagName', 'tags', { unique: false, multiEntry: true })
-    case 1:
-      console.log('Making lists store');
-      const listsOS = upgradeDB.createObjectStore('lists', {keyPath: 'id'});
-  }
-});
+const dbPromise = openDB('savory', 2, {
+  upgrade(db, oldVersion, newVersion, transaction) {
+    // Note: we don't use 'break' in this switch statement,
+    // the fall-through behaviour is what we want.
+    switch (oldVersion) {
+      case 0:
+        console.log('Making tags store');
+        const tagsOS = db.createObjectStore('tags', {keyPath: 'id'});
+        tagsOS.createIndex('tagName', 'tags', { unique: false, multiEntry: true })
+      case 1:
+        console.log('Making lists store');
+        const listsOS = db.createObjectStore('lists', {keyPath: 'id'});
+    }
+  },
+})
 
 // Retrieves the recently added bookmarks
 // https://developer.chrome.com/extensions/bookmarks#method-getRecent
@@ -85,7 +87,7 @@ function updateTags(bookmarkId, modifyFn) {
     let tagsObj = await store.get(bookmarkId) || { id: bookmarkId, tags: [] }
     tagsObj.tags = modifyFn(tagsObj.tags)
     store.put(tagsObj);
-    await tx.complete;
+    await tx.done;
     return db.transaction('tags').objectStore('tags').get(bookmarkId);
   })
 }
@@ -108,6 +110,6 @@ export function deleteBookmarkTags ({ id }) {
     return dbPromise.then(db => {
       const tx = db.transaction('tags', 'readwrite');
       tx.objectStore('tags').delete(id);
-      return tx.complete;
+      return tx.done;
     });
 }
