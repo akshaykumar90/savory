@@ -59,12 +59,17 @@ export function fetchTagsForBookmarkIds (ids) {
 }
 
 export function fetchBookmarksWithTag (tag) {
-  return dbPromise.then(db => {
-    const tx = db.transaction('tags', 'readonly');
-    const store = tx.objectStore('tags');
-    let index = store.index('tagName');
-    return index.getAll(tag)
-  });
+  return dbPromise.then(async db => {
+    const tx = db.transaction('tags', 'readonly')
+    const store = tx.objectStore('tags')
+    let cursor = await store.index('tagName').openCursor(tag, 'prev')
+    let bookmarks = []
+    while (cursor) {
+      bookmarks.push(cursor.value)
+      cursor = await cursor.continue()
+    }
+    return bookmarks
+  })
 }
 
 export function fetchList (listId) {
