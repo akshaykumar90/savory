@@ -10,6 +10,7 @@
         <nav class="py-4">
           <p class="text-xs text-muted">{{ pluralized }}</p>
           <p class="text-2xl text-muted font-bold mt-2">{{ numBookmarks.toLocaleString('en') }}</p>
+          <button v-if="false" @click="printTakeoutData">Takeout</button>
         </nav>
       </div>
       <div class="px-4 w-4/5">
@@ -24,6 +25,7 @@
   import BookmarkList from './components/BookmarkList.vue'
   import SearchBar from './components/SearchBar.vue'
   import LinkList from './components/LinkList.vue'
+  import { takeoutData } from './api'
 
   export default {
     name: 'app',
@@ -44,6 +46,12 @@
       currentView () {
         let type = this.$store.state.activeType
         return type === 'listicle' ? 'LinkList' : 'BookmarkList'
+      }
+    },
+
+    methods: {
+      async printTakeoutData() {
+        console.log(await takeoutData())
       }
     },
 

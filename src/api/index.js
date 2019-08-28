@@ -78,6 +78,12 @@ export function fetchList (listId) {
   })
 }
 
+function fetchAllTags() {
+  return dbPromise.then(db => {
+    return db.transaction('tags').objectStore('tags').getAll()
+  })
+}
+
 function updateTags(bookmarkId, modifyFn) {
   return dbPromise.then(async db => {
     const tx = db.transaction('tags', 'readwrite');
@@ -110,4 +116,9 @@ export function deleteBookmarkTags ({ id }) {
       tx.objectStore('tags').delete(id);
       return tx.complete;
     });
+}
+
+export async function takeoutData() {
+  let tags = await fetchAllTags()
+  return JSON.stringify({'tags': tags})
 }
