@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 export default {
   maxPage (state) {
     const { activeType, itemsPerPage, lists } = state
@@ -28,6 +30,13 @@ export default {
 
   getBookmarkIdsWithSite: (state) => (site) => {
     return state.lists['new'].filter(id => state.bookmarks[id].site === site)
+  },
+
+  tagsJson (state) {
+    let tags = _.values(state.bookmarks)
+      .filter(({ tags }) => tags.length)
+      .map(({ url, tags }) => { return { url, tags } })
+    return JSON.stringify({'tags': tags})
   },
 
   activeListicle (state) {

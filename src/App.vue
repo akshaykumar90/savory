@@ -25,7 +25,6 @@
   import BookmarkList from './components/BookmarkList.vue'
   import SearchBar from './components/SearchBar.vue'
   import LinkList from './components/LinkList.vue'
-  import { takeoutData } from './api'
 
   export default {
     name: 'app',
@@ -50,8 +49,8 @@
     },
 
     methods: {
-      async printTakeoutData() {
-        console.log(await takeoutData())
+      printTakeoutData() {
+        console.log(this.$store.getters.tagsJson)
       }
     },
 
