@@ -45,12 +45,14 @@ export default {
 
   numBookmarks (state, getters) {
     const { activeType, lists } = state
-    if (activeType !== 'listicle') {
-      return lists[activeType].length
-    } else {
+    if (activeType === 'new') {
+      return state.numBookmarks
+    } else if (activeType === 'listicle') {
       return getters.activeListicle.content.reduce((acc, curr) => {
         return acc + curr.bookmarks.length
       }, 0)
+    } else {
+      return lists[activeType].length
     }
   },
 }

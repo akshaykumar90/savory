@@ -50,13 +50,16 @@
 
     methods: {
       printTakeoutData() {
-        console.log(this.$store.getters.tagsJson)
+        // console.log(this.$store.getters.tagsJson)
+        this.$store.dispatch({
+          type: 'EXPORT_BOOKMARKS',
+        })
       }
     },
 
     created () {
       this.$store.dispatch({
-        type: 'FETCH_BOOKMARKS',
+        type: 'SYNC_BOOKMARKS',
         num: 5000
       })
     },

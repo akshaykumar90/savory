@@ -13,6 +13,7 @@ export function createStore () {
       itemsPerPage: 100,
       page: 1,
       bookmarks: {/* [id: number]: Bookmark */},
+      numBookmarks: 0,
       listicles: {/* [id: string]: Listicle */},
       lists: {
         new: [/* number */],

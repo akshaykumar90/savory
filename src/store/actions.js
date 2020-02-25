@@ -4,22 +4,37 @@ import { router } from '../router'
 import {
   addNewTagForBookmark,
   deleteBookmarkTags,
-  fetchBookmarksWithTag,
   fetchList,
-  fetchRecent,
+  fetchRecent as fetchRecentChrome,
   fetchTagsForBookmarkIds,
   removeTagFromBookmark,
   searchBookmarks
 } from '../api'
 
+import {
+  createBookmark,
+  deleteBookmark,
+  importBookmarks,
+  addNewTags,
+  removeTag,
+  fetchBookmarksWithTag,
+  getCount,
+  setCount
+} from '../api/mongodb'
+
+import { fetchRecent } from '../api/mongodb'
+import { mongoApp } from '../api/mongodb'
+import { AnonymousCredential } from 'mongodb-stitch-browser-sdk'
+
 function getDrillDownFunction(getters) {
   return async function drillDownFilter(currentItems, { type, name }) {
+    const userId = 'test1'
     let bookmarkIds = []
     if (type === 'site') {
       bookmarkIds = getters.getBookmarkIdsWithSite(name)
     } else if (type === 'tag') {
-      let bookmarksWithTag = await fetchBookmarksWithTag(name);
-      bookmarkIds = bookmarksWithTag.map(({ id }) => id)
+      let bookmarksWithTag = await fetchBookmarksWithTag(userId, name)
+      bookmarkIds = bookmarksWithTag.map(({ chrome_id }) => chrome_id)
     } else {
       /* bad input */
       return currentItems
@@ -45,15 +60,44 @@ function getQueryStringFromFilters(filters) {
 }
 
 export default {
-  FETCH_BOOKMARKS: async ({ commit }, { num }) => {
-    let recentBookmarks = await fetchRecent(num);
-    const bookmarkIds = recentBookmarks.map(({ id }) => id)
-    let tagsFromDb = await fetchTagsForBookmarkIds(bookmarkIds)
-    for (let bookmark of recentBookmarks) {
-      const result = tagsFromDb.find( tagObj => tagObj.id === bookmark.id );
-      bookmark.tags = result ? result.tags : [];
+  SYNC_BOOKMARKS: async ({ state, dispatch, commit }, { num }) => {
+    await mongoApp.auth.loginWithCredential(new AnonymousCredential())
+    const userId = 'test1'
+    const initialLoadNum = 50
+    let getCountPromise = getCount(userId)
+    let fetchTopBookmarksPromise = fetchRecent(userId, initialLoadNum)
+    let fetchAllBookmarksPromise = fetchRecent(userId, num)
+    let numChromeBookmarks = 100
+    let loadRecentFromChrome = fetchRecentChrome(numChromeBookmarks)
+    let headBookmarks = await fetchTopBookmarksPromise
+    for (let bookmark of headBookmarks) {
+      bookmark.id = bookmark.chrome_id
     }
-    commit('SET_BOOKMARKS', { items: recentBookmarks });
+    commit('SET_BOOKMARKS', { items: headBookmarks })
+    let countResponse = await getCountPromise
+    commit('SET_BOOKMARKS_COUNT', { count: countResponse ? countResponse.count : 0 })
+    let allBookmarks = await fetchAllBookmarksPromise
+    let tailBookmarks = allBookmarks.slice(initialLoadNum)
+    for (let bookmark of tailBookmarks) {
+      bookmark.id = bookmark.chrome_id
+    }
+    commit('SET_BOOKMARKS', { items: tailBookmarks })
+    commit('SET_BOOKMARKS_COUNT', { count: allBookmarks.length })
+    await setCount(userId, state.numBookmarks)
+    let latestChromeIdFromMongo = headBookmarks[0].chrome_id
+    while (true) {
+      let chromeBookmarks = await loadRecentFromChrome
+      let sortedBookmarks = _.sortBy(chromeBookmarks, [(b) => parseInt(b.id)])
+      let found = _.sortedIndexBy(sortedBookmarks, { id: latestChromeIdFromMongo}, (x) => parseInt(x.id))
+      if (sortedBookmarks[found].id === latestChromeIdFromMongo) {
+        for (const bookmark of sortedBookmarks.slice(found + 1)) {
+          dispatch('ON_BOOKMARK_CREATED', { bookmark })
+        }
+        break
+      }
+      numChromeBookmarks += 100
+      loadRecentFromChrome = fetchRecentChrome(numChromeBookmarks)
+    }
   },
 
   LOAD_MORE_BOOKMARKS: ({ commit }) => {
@@ -66,13 +110,21 @@ export default {
     })
   },
 
-  ON_BOOKMARK_CREATED: ({ commit }, { bookmark }) => {
-    commit('ADD_BOOKMARK', bookmark);
+  ON_BOOKMARK_CREATED: async ({ state, commit }, { bookmark }) => {
+    const userId = 'test1'
+    const { id, title, url, dateAdded } = bookmark
+    await createBookmark(userId, { chrome_id: id, title, url, dateAdded, tags: [] })
+    commit('ADD_BOOKMARK', bookmark)
+    commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })
+    await setCount(userId, state.numBookmarks)
   },
 
-  ON_BOOKMARK_REMOVED: async ({ commit }, { bookmark }) => {
-    await deleteBookmarkTags(bookmark)
-    commit('REMOVE_BOOKMARK', bookmark);
+  ON_BOOKMARK_REMOVED: async ({ state, commit }, { bookmark }) => {
+    const userId = 'test1'
+    await deleteBookmark(userId, bookmark.id)
+    commit('REMOVE_BOOKMARK', bookmark)
+    commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks - 1 })
+    await setCount(userId, state.numBookmarks)
   },
 
   ON_FILTER_UPDATE: async ({ state, commit, getters }, filters) => {
@@ -149,15 +201,29 @@ export default {
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tags: newTags }) => {
-    addNewTagForBookmark({ id, tags: newTags }).then(({ tags }) => {
+    const userId = 'test1'
+    addNewTags(userId, id, newTags).then(({ tags }) => {
       commit('SET_TAGS', { id, tags });
     })
   },
 
   REMOVE_TAG_FROM_BOOKMARK: ({ commit }, { id, tag }) => {
-    removeTagFromBookmark({ id, tag }).then(({ tags }) => {
+    const userId = 'test1'
+    removeTag(userId, id, tag).then(({ tags }) => {
       commit('SET_TAGS', { id, tags });
     })
+  },
+
+  EXPORT_BOOKMARKS: async ({ state }) => {
+    const userId = 'test1'
+    let bookmarks = Object.values(state.bookmarks).map(({ id, title, url, dateAdded, tags }) => {
+      return { chrome_id: id, title, url, dateAdded, tags }
+    })
+    console.log('Starting import...')
+    for (const chunk of _.chunk(bookmarks, 100)) {
+      await importBookmarks(userId, chunk)
+    }
+    console.log('...done!')
   },
 
   IMPORT_TAGS: ({ state, dispatch }, { jsonBlob }) => {

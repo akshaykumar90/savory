@@ -18,7 +18,12 @@ export default {
       let site = domainName(url)
       Vue.set(state.bookmarks, id, { id, title, dateAdded, url, site, tags })
     })
-    state.lists['new'] = items.map(({ id }) => id)
+    let newIds = items.map(({ id }) => id)
+    state.lists['new'] = [...state.lists['new'], ...newIds]
+  },
+
+  SET_BOOKMARKS_COUNT: (state, { count }) => {
+    state.numBookmarks = count
   },
 
   ADD_BOOKMARK: (state, { id, title, url }) => {
