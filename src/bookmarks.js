@@ -3,7 +3,6 @@ import Vue from 'vue'
 import App from './App.vue'
 import { createStore } from './store'
 import { router } from './router'
-import { setupListeners } from './api'
 
 const isDev = process.env.NODE_ENV === 'development'
 const enableDevtools = process.env.DEVTOOLS === 'true'
@@ -14,7 +13,9 @@ if (isDev && enableDevtools) {
 
 const store = createStore()
 
-setupListeners(store.dispatch)
+chrome.runtime.onMessage.addListener(({ type, bookmark }) => {
+  store.dispatch({ type, bookmark })
+})
 
 // This is the event hub we'll use in every
 // component to communicate between them.

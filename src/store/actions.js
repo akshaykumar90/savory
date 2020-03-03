@@ -67,8 +67,6 @@ export default {
     let getCountPromise = getCount(userId)
     let fetchTopBookmarksPromise = fetchRecent(userId, initialLoadNum)
     let fetchAllBookmarksPromise = fetchRecent(userId, num)
-    let numChromeBookmarks = 100
-    let loadRecentFromChrome = fetchRecentChrome(numChromeBookmarks)
     let headBookmarks = await fetchTopBookmarksPromise
     for (let bookmark of headBookmarks) {
       bookmark.id = bookmark.chrome_id
@@ -84,20 +82,6 @@ export default {
     commit('SET_BOOKMARKS', { items: tailBookmarks })
     commit('SET_BOOKMARKS_COUNT', { count: allBookmarks.length })
     await setCount(userId, state.numBookmarks)
-    let latestChromeIdFromMongo = headBookmarks[0].chrome_id
-    while (true) {
-      let chromeBookmarks = await loadRecentFromChrome
-      let sortedBookmarks = _.sortBy(chromeBookmarks, [(b) => parseInt(b.id)])
-      let found = _.sortedIndexBy(sortedBookmarks, { id: latestChromeIdFromMongo}, (x) => parseInt(x.id))
-      if (sortedBookmarks[found].id === latestChromeIdFromMongo) {
-        for (const bookmark of sortedBookmarks.slice(found + 1)) {
-          dispatch('ON_BOOKMARK_CREATED', { bookmark })
-        }
-        break
-      }
-      numChromeBookmarks += 100
-      loadRecentFromChrome = fetchRecentChrome(numChromeBookmarks)
-    }
   },
 
   LOAD_MORE_BOOKMARKS: ({ commit }) => {
@@ -113,7 +97,6 @@ export default {
   ON_BOOKMARK_CREATED: async ({ state, commit }, { bookmark }) => {
     const userId = 'test1'
     const { id, title, url, dateAdded } = bookmark
-    await createBookmark(userId, { chrome_id: id, title, url, dateAdded, tags: [] })
     commit('ADD_BOOKMARK', bookmark)
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })
     await setCount(userId, state.numBookmarks)
@@ -121,7 +104,6 @@ export default {
 
   ON_BOOKMARK_REMOVED: async ({ state, commit }, { bookmark }) => {
     const userId = 'test1'
-    await deleteBookmark(userId, bookmark.id)
     commit('REMOVE_BOOKMARK', bookmark)
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks - 1 })
     await setCount(userId, state.numBookmarks)

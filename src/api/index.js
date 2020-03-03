@@ -36,19 +36,6 @@ export async function searchBookmarks (query) {
   return bookmarkIds
 }
 
-export function setupListeners (callback) {
-  // https://developer.chrome.com/extensions/bookmarks#event-onCreated
-  chrome.bookmarks.onCreated.addListener((id, bookmark) => callback({
-    type: 'ON_BOOKMARK_CREATED',
-    bookmark
-  }));
-  // https://developer.chrome.com/extensions/bookmarks#event-onRemoved
-  chrome.bookmarks.onRemoved.addListener((id, { node }) => callback({
-    type: 'ON_BOOKMARK_REMOVED',
-    bookmark: node
-  }));
-}
-
 export function fetchTagsForBookmarkIds (ids) {
   return dbPromise.then(db => {
     const tx = db.transaction('tags', 'readonly');
