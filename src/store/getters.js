@@ -3,20 +3,11 @@ import _ from 'lodash'
 export default {
   maxPage (state) {
     const { activeType, itemsPerPage, lists } = state
-    if (!lists[activeType]) {
-      // Listicle view
-      return 0
-    }
     return Math.ceil(lists[activeType].length / itemsPerPage)
   },
 
   activeIds (state) {
     const { activeType, itemsPerPage, page, lists } = state
-
-    if (!lists[activeType]) {
-      // Listicle view
-      return []
-    }
 
     // const start = (page - 1) * itemsPerPage
     const end = page * itemsPerPage
@@ -39,18 +30,10 @@ export default {
     return JSON.stringify({'tags': tags})
   },
 
-  activeListicle (state) {
-    return state.listicles[state.activeListicleId]
-  },
-
   numBookmarks (state, getters) {
     const { activeType, lists } = state
     if (activeType === 'new') {
       return state.numBookmarks
-    } else if (activeType === 'listicle') {
-      return getters.activeListicle.content.reduce((acc, curr) => {
-        return acc + curr.bookmarks.length
-      }, 0)
     } else {
       return lists[activeType].length
     }

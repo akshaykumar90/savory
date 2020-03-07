@@ -14,7 +14,6 @@ export function createStore () {
       page: 1,
       bookmarks: {/* [id: number]: Bookmark */},
       numBookmarks: 0,
-      listicles: {/* [id: string]: Listicle */},
       lists: {
         new: [/* number */],
         filtered: [],
@@ -23,7 +22,6 @@ export function createStore () {
         active: [/* { type: string, name: string } */],
         items: [/* number */],
       },
-      activeListicleId: null
     },
     actions,
     mutations,

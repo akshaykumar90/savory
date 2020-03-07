@@ -15,7 +15,7 @@
       </div>
       <div class="px-4 w-4/5">
         <SearchBar ref="searchInput" class="relative mb-4"></SearchBar>
-        <component v-bind:is="currentView"></component>
+        <BookmarkList/>
       </div>
     </div>
   </div>
@@ -24,13 +24,11 @@
 <script>
   import BookmarkList from './components/BookmarkList.vue'
   import SearchBar from './components/SearchBar.vue'
-  import LinkList from './components/LinkList.vue'
 
   export default {
     name: 'app',
 
     components: {
-      LinkList,
       BookmarkList,
       SearchBar,
     },
@@ -41,10 +39,6 @@
       },
       pluralized () {
         return this.numBookmarks === 1 ? 'Bookmark' : 'Bookmarks'
-      },
-      currentView () {
-        let type = this.$store.state.activeType
-        return type === 'listicle' ? 'LinkList' : 'BookmarkList'
       }
     },
 

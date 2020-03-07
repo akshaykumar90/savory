@@ -38,15 +38,6 @@ export default {
     scrubFromList(state, 'filtered', idToDelete)
   },
 
-  SET_LISTICLE: (state, listicle) => {
-    Vue.set(state.listicles, listicle.id, listicle)
-  },
-
-  SWITCH_TO_LISTICLE_VIEW: (state, listId) => {
-    state.activeListicleId = listId
-    state.activeType = 'listicle'
-  },
-
   SET_FILTERED: (state, ids) => {
     state.lists['filtered'] = ids
     state.activeType = 'filtered'

@@ -162,14 +162,7 @@ export default {
     } else if (name === 'filter') {
       let filters = getFiltersFromQueryString(params.filter)
       await dispatch('ON_FILTER_UPDATE', filters)
-    } /* else if (name === 'list') {
-      // Show list view. This is probably not the right way to do this. We
-      // want to clear the activeListicleId in store, for example.
-      let listId = params.list.trim()
-      let listicle = await fetchList(listId)
-      commit('SET_LISTICLE', listicle)
-      commit('SWITCH_TO_LISTICLE_VIEW', listId)
-    } */
+    }
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tags: newTags }) => {
