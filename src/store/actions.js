@@ -1,28 +1,18 @@
 import _ from 'lodash'
 import { router } from '../router'
 
-import {
-  addNewTagForBookmark,
-  deleteBookmarkTags,
-  fetchList,
-  fetchRecent as fetchRecentChrome,
-  fetchTagsForBookmarkIds,
-  removeTagFromBookmark,
-  searchBookmarks
-} from '../api'
+import { searchBookmarks } from '../api'
 
 import {
-  createBookmark,
-  deleteBookmark,
   importBookmarks,
   addNewTags,
   removeTag,
   fetchBookmarksWithTag,
+  fetchRecent,
   getCount,
   setCount
 } from '../api/mongodb'
 
-import { fetchRecent } from '../api/mongodb'
 import { mongoApp } from '../api/mongodb'
 import { AnonymousCredential } from 'mongodb-stitch-browser-sdk'
 
