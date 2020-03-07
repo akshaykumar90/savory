@@ -23,7 +23,7 @@ export async function importBookmarks (userId, chunk) {
 }
 
 export function fetchRecent (userId, num) {
-    return bookmarksCollection.find({ owner_id: userId }, { limit: num, sort: { _id: -1 }}).toArray()
+    return bookmarksCollection.find({ owner_id: userId }, { limit: num, sort: { dateAdded: -1 }}).toArray()
 }
 
 export function getCount (userId) {
@@ -74,7 +74,7 @@ export function removeTag (userId, chromeId, tagToRemove) {
 export function fetchBookmarksWithTag (userId, tag) {
     return bookmarksCollection.find(
         { owner_id: userId, tags: tag },
-        { projection: { chrome_id: 1 }, sort: { _id: -1 } },
+        { projection: { chrome_id: 1 }, sort: { dateAdded: -1 } },
     ).toArray()
 }
 
