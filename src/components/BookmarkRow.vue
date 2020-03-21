@@ -1,6 +1,6 @@
 <template>
   <div class="text-sm px-1">
-    <a :href="bookmark.url" target="_blank" rel="noopener" class="text-default leading-normal no-underline">{{ bookmark.title }}</a>
+    <a :href="bookmark.url" target="_blank" rel="noopener" class="text-default leading-normal">{{ bookmark.title }}</a>
     <p class="mt-2 text-xs">{{ date }}</p>
     <TagsRow :bookmark-id="bookmarkId"></TagsRow>
   </div>

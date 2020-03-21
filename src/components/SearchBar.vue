@@ -13,12 +13,12 @@
              @focus="isFocused = true" @blur="isFocused = false"
              class="text-sm text-muted rounded border border-transparent p-0 flex-grow appearance-none leading-normal bg-grey-100 focus:bg-default focus:outline-none">
     </div>
-    <div class="absolute pin-y pin-l pl-3 flex items-center" v-if="query || filters.length">
+    <div class="absolute inset-y-0 left-0 pl-3 flex items-center" v-if="query || filters.length">
       <svg class="fill-current text-muted w-5 h-5 cursor-pointer" @click="clearSearch" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
         <path d="M50,14c-19.9,0-36,16.1-36,36s16.1,36,36,36s36-16.1,36-36S69.9,14,50,14z M62.4,59.6c0.8,0.8,0.8,2,0,2.8   C62,62.8,61.5,63,61,63s-1-0.2-1.4-0.6L50,52.8l-9.6,9.6C40,62.8,39.5,63,39,63s-1-0.2-1.4-0.6c-0.8-0.8-0.8-2,0-2.8l9.6-9.6   l-9.6-9.6c-0.8-0.8-0.8-2,0-2.8c0.8-0.8,2-0.8,2.8,0l9.6,9.6l9.6-9.6c0.8-0.8,2-0.8,2.8,0c0.8,0.8,0.8,2,0,2.8L52.8,50L62.4,59.6z"></path>
       </svg>
     </div>
-    <div class="absolute pin-y pin-l pl-3 flex items-center" v-else>
+    <div class="absolute inset-y-0 left-0 pl-3 flex items-center" v-else>
       <svg class="fill-current pointer-events-none text-muted w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
         <path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"></path>
       </svg>

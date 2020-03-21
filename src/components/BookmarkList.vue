@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ol class="list-reset">
+    <ol>
       <li
         class="mb-2"
         v-for="item in current"
