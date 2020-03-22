@@ -2,6 +2,10 @@
 
 @tailwind base;
 
+html {
+  line-height: 1.15; /* https://tailwindcss.com/docs/upgrading-to-v1#17-double-check-your-default-line-height */
+}
+
 @tailwind components;
 
 @tailwind utilities;
