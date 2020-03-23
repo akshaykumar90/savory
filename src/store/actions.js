@@ -10,7 +10,8 @@ import {
   fetchBookmarksWithTag,
   fetchRecent,
   getCount,
-  setCount
+  setCount,
+  deleteBookmark,
 } from '../api/mongodb'
 
 import { mongoApp } from '../api/mongodb'
@@ -89,6 +90,15 @@ export default {
     const { id, title, url, dateAdded } = bookmark
     commit('ADD_BOOKMARK', bookmark)
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })
+    await setCount(userId, state.numBookmarks)
+  },
+
+  BULK_DELETE_BOOKMARKS: async ({ state, commit }) => {
+    const userId = 'test1'
+    let currSelected = [...state.lists['selected']]
+    currSelected.map(id => commit('REMOVE_BOOKMARK', { id }))
+    commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks - currSelected.length })
+    currSelected.map(async id => await deleteBookmark(userId, id))
     await setCount(userId, state.numBookmarks)
   },
 

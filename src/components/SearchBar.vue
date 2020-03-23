@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="relative">
     <div class="flex flex-wrap items-end py-2 pr-4 pl-10 rounded border"
          v-bind:class="[isFocused ? 'bg-default border-primary': 'bg-grey-100 border-transparent']">
       <button v-for="(name, index) in filters" :key="index"

@@ -36,10 +36,12 @@ export default {
     Vue.delete(state.bookmarks, idToDelete)
     scrubFromList(state, 'new', idToDelete)
     scrubFromList(state, 'filtered', idToDelete)
+    scrubFromList(state, 'selected', idToDelete)
   },
 
   SET_FILTERED: (state, ids) => {
     state.lists['filtered'] = ids
+    state.lists['selected'] = []
     state.activeType = 'filtered'
     state.page = 1
   },
@@ -50,6 +52,7 @@ export default {
 
   CLEAR_FILTERED: (state) => {
     state.lists['filtered'] = []
+    state.lists['selected'] = []
     state.filter = { active: [], items: [] }
     state.activeType = 'new'
     state.page = 1
@@ -71,5 +74,14 @@ export default {
   REMOVE_TAG: (state, { id, tag: tagToRemove }) => {
     let existingTags = state.bookmarks[id].tags
     state.bookmarks[id].tags = existingTags.filter(t => t !== tagToRemove)
+  },
+
+  ADD_TO_SELECTED: (state, { id }) => {
+    state.lists['selected'] = [...state.lists['selected'], id]
+  },
+
+  REMOVE_FROM_SELECTED: (state, { id }) => {
+    let currSelected = state.lists['selected']
+    state.lists['selected'] = currSelected.filter(t => t !== id)
   }
 }

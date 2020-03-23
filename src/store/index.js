@@ -17,6 +17,7 @@ export function createStore () {
       lists: {
         new: [/* number */],
         filtered: [],
+        selected: [],
       },
       filter: {
         active: [/* { type: string, name: string } */],

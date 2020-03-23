@@ -17,7 +17,6 @@
 <script>
   import BookmarkRow from './BookmarkRow.vue'
   import BookmarkLoader from './BookmarkLoader.vue'
-  import _ from 'lodash'
 
   export default {
     name: 'BookmarkList',
@@ -36,39 +35,21 @@
     computed: {
       current () {
         return this.$store.getters.activeIds
-      },
-      hasMore () {
-        return this.$store.state.page < this.$store.getters.maxPage
-      },
+      }
     },
 
     methods: {
-      bottomVisible() {
-        const scrollY = window.scrollY
-        const visible = document.documentElement.clientHeight
-        const pageHeight = document.documentElement.scrollHeight
-        // Some wiggle room (.9) to allow time to load content before user
-        // reaches bottom
-        const bottomOfPage = visible + scrollY >= .9 * pageHeight
-        return bottomOfPage || pageHeight < visible
-      },
-      onScroll() {
-        if (this.bottomVisible() && this.hasMore) {
-          this.bottom = true
-          this.$store.dispatch('LOAD_MORE_BOOKMARKS').then(() => {
-            this.bottom = false
-          })
-        }
+      onBottomVisibleUpdate ({ isVisible }) {
+        this.bottom = isVisible
       }
     },
 
     created () {
-      this.scrollHandler = _.throttle(this.onScroll, 200)
-      window.addEventListener('scroll', this.scrollHandler)
+      Event.$on('bottomVisible', this.onBottomVisibleUpdate)
     },
 
     destroyed() {
-      window.removeEventListener('scroll', this.scrollHandler)
+      Event.$off('bottomVisible', this.onBottomVisibleUpdate)
     },
 
   }
