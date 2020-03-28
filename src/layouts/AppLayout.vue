@@ -1,6 +1,6 @@
 <template>
-  <div class="h-screen flex flex-col">
-    <header class="flex bg-grey-300 flex-shrink-0">
+  <div class="flex flex-col">
+    <header class="flex bg-grey-300 flex-shrink-0 sticky top-0">
       <div class="w-64 flex-shrink-0 px-4 py-3">
         <router-link to="/">
           <img class="block w-32 ml-6" src="../assets/logo_light.svg" alt="logo">
@@ -18,11 +18,11 @@
         </div>
       </div>
     </header>
-    <div class="flex flex-1 overflow-hidden">
-      <div class="w-64 p-6 flex-shrink-0 overflow-y-auto">
-        <SideBar/>
+    <div class="flex flex-1">
+      <div class="w-64 p-6 flex-shrink-0 ">
+        <SideBar class="fixed"/>
       </div>
-      <main class="flex-1 overflow-y-auto" ref="mainView">
+      <main class="flex-1">
         <div class="px-6 mt-4 w-full max-w-lg">
           <slot></slot>
         </div>
@@ -52,10 +52,9 @@
 
     methods: {
       bottomVisible() {
-        let mainViewElem = this.$refs.mainView
-        const scrollY = mainViewElem.scrollTop
-        const visible = mainViewElem.clientHeight
-        const pageHeight = mainViewElem.scrollHeight
+        const scrollY = window.scrollY
+        const visible = document.documentElement.clientHeight
+        const pageHeight = document.documentElement.scrollHeight
         // Some wiggle room (.9) to allow time to load content before user
         // reaches bottom
         const bottomOfPage = visible + scrollY >= .9 * pageHeight
@@ -72,12 +71,12 @@
     },
 
     destroyed() {
-      this.$refs.mainView.removeEventListener('scroll', this.scrollHandler)
+      window.removeEventListener('scroll', this.scrollHandler)
     },
 
     mounted() {
       this.scrollHandler = _.throttle(this.onScroll, 200)
-      this.$refs.mainView.addEventListener('scroll', this.scrollHandler)
+      window.addEventListener('scroll', this.scrollHandler)
       this.$refs.searchInput.focus()
     },
   }
