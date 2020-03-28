@@ -7,6 +7,8 @@ Vue.use(Router)
 
 function createRouter () {
   return new Router({
+    mode: 'history',
+    fallback: false,
     routes: [
       {
         path: '/filter/:filter*',
@@ -18,6 +20,14 @@ function createRouter () {
       },
       {
         path: '/',
+        name: 'home',
+        component: BookmarkList,
+        meta: {
+          layout: AppLayout
+        }
+      },
+      {
+        path: '/bookmarks.html',
         name: 'home',
         component: BookmarkList,
         meta: {

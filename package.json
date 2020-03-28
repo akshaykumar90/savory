@@ -46,7 +46,7 @@
     "url-loader": "^1.1.2",
     "vue-content-loader": "^0.2.1",
     "vue-loader": "^15.0.0-beta.1",
-    "vue-router": "^3.0.1",
+    "vue-router": "^3.1.6",
     "vue-template-compiler": "^2.6.11",
     "webpack": "^3.8.1",
     "webpack-dev-middleware": "^1.12.0",
