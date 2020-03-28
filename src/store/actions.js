@@ -200,19 +200,4 @@ export default {
     }
     console.log('...done!')
   },
-
-  IMPORT_TAGS: ({ state, dispatch }, { jsonBlob }) => {
-    console.log('Starting tags import...')
-    let { tags } = JSON.parse(jsonBlob)
-    let urls = new Map()
-    for (const { url, tags: bookmarkTags } of tags) {
-      urls.set(url, bookmarkTags)
-    }
-    _.forOwn(state.bookmarks, function({ id, url }, key) {
-      if (urls.has(url)) {
-        console.log(`Key: ${key} => (${id}, ${urls.get(url)})`)
-        dispatch('ADD_TAG_FOR_BOOKMARK', { id, tags: urls.get(url)})
-      }
-    })
-  },
 }
