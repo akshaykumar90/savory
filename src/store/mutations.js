@@ -62,6 +62,10 @@ export default {
     state.page += 1
   },
 
+  SET_PAGE: (state, page) => {
+    state.page = page
+  },
+
   SET_TAGS: (state, { id, tags }) => {
     state.bookmarks[id].tags = tags
   },

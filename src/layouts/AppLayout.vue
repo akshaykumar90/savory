@@ -62,10 +62,7 @@
       },
       onScroll() {
         if (this.bottomVisible() && this.hasMore) {
-          Event.$emit('bottomVisible', { isVisible: true })
-          this.$store.dispatch('LOAD_MORE_BOOKMARKS').then(() => {
-            Event.$emit('bottomVisible', { isVisible: false })
-          })
+          Event.$emit('loadItems')
         }
       }
     },

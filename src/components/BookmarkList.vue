@@ -1,11 +1,8 @@
 <template>
   <div>
     <ol>
-      <li
-        class="mb-2"
-        v-for="item in current"
-        v-bind:key="item">
-        <BookmarkRow v-bind:bookmark-id="item"/>
+      <li class="mb-2" v-for="id in current" :key="id">
+        <BookmarkRow :bookmark-id="id"/>
       </li>
     </ol>
     <div>
@@ -19,8 +16,10 @@
   import BookmarkLoader from './BookmarkLoader.vue'
   import { store } from '../store'
 
+  const componentName = 'BookmarkList'
+
   export default {
-    name: 'BookmarkList',
+    name: componentName,
 
     components: {
       BookmarkRow,
@@ -29,19 +28,14 @@
 
     data: function () {
       return {
+        current: this.$store.getters.activeIds,
         bottom: false
-      }
-    },
-
-    computed: {
-      current () {
-        return this.$store.getters.activeIds
       }
     },
 
     beforeRouteEnter (to, from, next) {
       store.dispatch({
-        type: 'UPDATE_APP_VIEW',
+        type: 'FETCH_DATA_FOR_APP_VIEW',
         name: to.name,
         params: to.params
       }).then(next)
@@ -49,24 +43,46 @@
 
     beforeRouteUpdate (to, from, next) {
       store.dispatch({
-        type: 'UPDATE_APP_VIEW',
+        type: 'FETCH_DATA_FOR_APP_VIEW',
         name: to.name,
         params: to.params
       }).then(next)
     },
 
     methods: {
-      onBottomVisibleUpdate ({ isVisible }) {
-        this.bottom = isVisible
+      setBookmarks () {
+        this.current = this.$store.getters.activeIds
+      },
+      loadBookmarks () {
+        this.bottom = true
+        this.$store.dispatch('LOAD_MORE_BOOKMARKS').then(() => {
+          this.setBookmarks()
+          this.bottom = false
+        })
       }
     },
 
     created () {
-      Event.$on('bottomVisible', this.onBottomVisibleUpdate)
+      Event.$on('newItems', this.setBookmarks)
+      Event.$on('loadItems', this.loadBookmarks)
     },
 
     destroyed() {
-      Event.$off('bottomVisible', this.onBottomVisibleUpdate)
+      Event.$off('newItems', this.setBookmarks)
+      Event.$off('loadItems', this.loadBookmarks)
+    },
+
+    watch: {
+      '$route' (to) {
+        const matched = this.$router.getMatchedComponents(to)
+        if (matched.some(({ name }) => name === componentName)) {
+          const history = window.history
+          if (history.state && history.state.page) {
+            this.$store.commit('SET_PAGE', history.state.page)
+          }
+          this.setBookmarks()
+        }
+      }
     },
 
   }

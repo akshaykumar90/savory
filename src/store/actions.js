@@ -63,6 +63,7 @@ export default {
       bookmark.id = bookmark.chrome_id
     }
     commit('SET_BOOKMARKS', { items: headBookmarks })
+    Event.$emit('newItems')
     let countResponse = await getCountPromise
     commit('SET_BOOKMARKS_COUNT', { count: countResponse ? countResponse.count : 0 })
     let allBookmarks = await fetchAllBookmarksPromise
@@ -71,15 +72,19 @@ export default {
       bookmark.id = bookmark.chrome_id
     }
     commit('SET_BOOKMARKS', { items: tailBookmarks })
+    Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: allBookmarks.length })
     await setCount(userId, state.numBookmarks)
   },
 
-  LOAD_MORE_BOOKMARKS: ({ commit }) => {
+  LOAD_MORE_BOOKMARKS: ({ state, commit }) => {
     return new Promise(resolve => {
       // The setTimeout simulates async remote api call to load more content
       setTimeout(() => {
         commit('INCR_PAGE')
+        const history = window.history
+        const stateCopy = { ...history.state, page: state.page }
+        history.replaceState(stateCopy, '')
         resolve()
       }, 100)
     })
@@ -165,7 +170,7 @@ export default {
     }
   },
 
-  UPDATE_APP_VIEW: async ({ dispatch, commit }, { name, params }) => {
+  FETCH_DATA_FOR_APP_VIEW: async ({ dispatch, commit }, { name, params }) => {
     if (name === 'home') {
       // Remove any filters, aka go to home page
       commit('CLEAR_FILTERED')
