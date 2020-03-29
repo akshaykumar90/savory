@@ -165,7 +165,7 @@ export default {
     }
   },
 
-  ON_ROUTE_CHANGE: async ({ dispatch, commit }, { name, params }) => {
+  UPDATE_APP_VIEW: async ({ dispatch, commit }, { name, params }) => {
     if (name === 'home') {
       // Remove any filters, aka go to home page
       commit('CLEAR_FILTERED')

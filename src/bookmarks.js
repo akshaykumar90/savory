@@ -1,7 +1,7 @@
 import devtools from '@vue/devtools'
 import Vue from 'vue'
 import App from './App.vue'
-import { createStore } from './store'
+import { store } from './store'
 import { router } from './router'
 
 const isDev = process.env.NODE_ENV === 'development'
@@ -10,8 +10,6 @@ const enableDevtools = process.env.DEVTOOLS === 'true'
 if (isDev && enableDevtools) {
   devtools.connect(/* host, port */)
 }
-
-const store = createStore()
 
 chrome.runtime.onMessage.addListener(({ type, bookmark }) => {
   store.dispatch({ type, bookmark })

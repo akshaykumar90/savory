@@ -16,16 +16,6 @@
         num: 5000
       })
     },
-
-    watch: {
-      '$route' (to) {
-        this.$store.dispatch({
-          type: 'ON_ROUTE_CHANGE',
-          name: this.$route.name,
-          params: this.$route.params
-        })
-      }
-    },
   }
 </script>
 

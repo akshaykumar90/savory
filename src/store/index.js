@@ -6,7 +6,7 @@ import getters from './getters'
 
 Vue.use(Vuex)
 
-export function createStore () {
+function createStore () {
   return new Vuex.Store({
     state: {
       activeType: 'new',
@@ -29,3 +29,5 @@ export function createStore () {
     getters
   })
 }
+
+export const store = createStore()

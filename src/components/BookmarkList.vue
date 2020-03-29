@@ -17,6 +17,7 @@
 <script>
   import BookmarkRow from './BookmarkRow.vue'
   import BookmarkLoader from './BookmarkLoader.vue'
+  import { store } from '../store'
 
   export default {
     name: 'BookmarkList',
@@ -36,6 +37,22 @@
       current () {
         return this.$store.getters.activeIds
       }
+    },
+
+    beforeRouteEnter (to, from, next) {
+      store.dispatch({
+        type: 'UPDATE_APP_VIEW',
+        name: to.name,
+        params: to.params
+      }).then(next)
+    },
+
+    beforeRouteUpdate (to, from, next) {
+      store.dispatch({
+        type: 'UPDATE_APP_VIEW',
+        name: to.name,
+        params: to.params
+      }).then(next)
     },
 
     methods: {
