@@ -46,10 +46,7 @@
       }, 300),
       clearSearch: function () {
         this.query = ''
-        // Remove any filters
-        this.$store.commit('CLEAR_FILTERED')
-        // Go to home page, if not already there
-        this.$router.push('/')
+        this.$store.dispatch('CLEAR_SEARCH')
       },
       removeFilter: function (index) {
         this.$store.dispatch('FILTER_REMOVED', index)

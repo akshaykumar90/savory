@@ -168,6 +168,20 @@ export default {
       const filteredIds = currFiltered.size ? searchResults.filter(x => currFiltered.has(x)) : searchResults
       commit('SET_FILTERED', filteredIds)
     }
+    Event.$emit('newItems')
+  },
+
+  CLEAR_SEARCH: ({ commit }) => {
+    // Remove any filters
+    commit('CLEAR_FILTERED')
+
+    // Notify app view of changes
+    Event.$emit('newItems')
+
+    // Go to home page, if not already there
+    if (router.currentRoute.name !== 'home') {
+      router.push('/')
+    }
   },
 
   FETCH_DATA_FOR_APP_VIEW: async ({ dispatch, commit }, { name, params }) => {
