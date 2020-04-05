@@ -1,11 +1,13 @@
-import { Stitch } from 'mongodb-stitch-browser-sdk'
+import {CustomCredential, Stitch} from 'mongodb-stitch-browser-sdk'
 import { RemoteMongoClient } from 'mongodb-stitch-browser-sdk'
 
-const APP_ID = 'savory-backend-ailsq'
+import { app_id } from '../stitch/stitch.json'
 
-const mongoApp = Stitch.hasAppClient(APP_ID)
-    ? Stitch.getAppClient(APP_ID)
-    : Stitch.initializeAppClient(APP_ID);
+const mongoApp = Stitch.hasAppClient(app_id)
+    ? Stitch.getAppClient(app_id)
+    : Stitch.initializeAppClient(app_id)
+
+const { auth } = mongoApp
 
 const mongoClient = mongoApp.getServiceClient(
     RemoteMongoClient.factory,
@@ -15,67 +17,89 @@ const mongoClient = mongoApp.getServiceClient(
 const bookmarksCollection = mongoClient.db('savory').collection('bookmarks')
 const bookmarksCountCollection = mongoClient.db('savory').collection('bookmarks_count')
 
-export async function importBookmarks (userId, chunk) {
-    for (const bookmark of chunk) {
-        bookmark.owner_id = userId
-    }
-    await bookmarksCollection.insertMany(chunk)
+export async function onLogin ({ token }) {
+  if (!auth.isLoggedIn) {
+    console.log('[stitch] login')
+    await auth.loginWithCredential(new CustomCredential(token))
+  }
 }
 
-export function fetchRecent (userId, num) {
-    return bookmarksCollection.find({ owner_id: userId }, { limit: num, sort: { dateAdded: -1 }}).toArray()
+export async function onLogout () {
+  if (auth.isLoggedIn) {
+    console.log('[stitch] logout')
+    await auth.logout()
+  }
 }
 
-export function getCount (userId) {
-    return bookmarksCountCollection.findOne( { owner_id: userId })
-}
-
-export function setCount (userId, newCount) {
-    return bookmarksCountCollection.updateOne(
-        { owner_id: userId },
-        { $set: { count: newCount }},
-        { upsert: true }
-    )
-}
-
-export async function createBookmark (userId, bookmark) {
+export async function importBookmarks (chunk) {
+  const userId = auth.user.identities[0].id
+  for (const bookmark of chunk) {
     bookmark.owner_id = userId
-    await bookmarksCollection.insertOne(bookmark)
+  }
+  await bookmarksCollection.insertMany(chunk)
 }
 
-export async function deleteBookmark (userId, chromeId) {
-    await bookmarksCollection.deleteOne({ owner_id: userId, chrome_id: chromeId })
+export function fetchRecent (num) {
+  const userId = auth.user.identities[0].id
+  return bookmarksCollection.find({ owner_id: userId }, { limit: num, sort: { dateAdded: -1 }}).toArray()
 }
 
-async function updateTags(userId, chromeId, modifyFn) {
-    let bookmark = await bookmarksCollection.findOne({ owner_id: userId, chrome_id: chromeId })
-    let updatedTags = modifyFn(bookmark.tags)
-    await bookmarksCollection.updateOne(
-        { owner_id: userId, chrome_id: chromeId },
-        { $set: { tags: updatedTags } }
-    )
-    return { tags: updatedTags }
+export function getCount () {
+  const userId = auth.user.identities[0].id
+  return bookmarksCountCollection.findOne( { owner_id: userId })
 }
 
-export function addNewTags (userId, chromeId, newTags) {
-    return updateTags(userId, chromeId, existingTags => {
-        let tagsList = [...existingTags, ...newTags]
-        return [...new Set(tagsList)]
-    })
+export function setCount (newCount) {
+  const userId = auth.user.identities[0].id
+  return bookmarksCountCollection.updateOne(
+    { owner_id: userId },
+    { $set: { count: newCount }},
+    { upsert: true }
+  )
 }
 
-export function removeTag (userId, chromeId, tagToRemove) {
-    // Tag names are unique, so we can filter by value
-    return updateTags(userId, chromeId, existingTags => {
-        return existingTags.filter(t => t !== tagToRemove)
-    })
+export async function createBookmark (bookmark) {
+  const userId = auth.user.identities[0].id
+  bookmark.owner_id = userId
+  await bookmarksCollection.insertOne(bookmark)
 }
 
-export function fetchBookmarksWithTag (userId, tag) {
-    return bookmarksCollection.find(
-        { owner_id: userId, tags: tag },
-        { projection: { chrome_id: 1 }, sort: { dateAdded: -1 } },
-    ).toArray()
+export async function deleteBookmark (chromeId) {
+  const userId = auth.user.identities[0].id
+  await bookmarksCollection.deleteOne({ owner_id: userId, chrome_id: chromeId })
+}
+
+async function updateTags(chromeId, modifyFn) {
+  const userId = auth.user.identities[0].id
+  let bookmark = await bookmarksCollection.findOne({ owner_id: userId, chrome_id: chromeId })
+  let updatedTags = modifyFn(bookmark.tags)
+  await bookmarksCollection.updateOne(
+    { owner_id: userId, chrome_id: chromeId },
+    { $set: { tags: updatedTags } }
+  )
+  return { tags: updatedTags }
+}
+
+export function addNewTags (chromeId, newTags) {
+  return updateTags(chromeId, existingTags => {
+    let tagsList = [...existingTags, ...newTags]
+    return [...new Set(tagsList)]
+  })
+}
+
+export function removeTag (chromeId, tagToRemove) {
+  // Tag names are unique, so we can filter by value
+  return updateTags(chromeId, existingTags => {
+    return existingTags.filter(t => t !== tagToRemove)
+  })
+}
+
+export function fetchBookmarksWithTag (tag) {
+  const userId = auth.user.identities[0].id
+  return bookmarksCollection.find(
+    { owner_id: userId, tags: tag },
+    { projection: { chrome_id: 1 }, sort: { dateAdded: -1 } },
+  ).toArray()
 }
 
 export { mongoApp }

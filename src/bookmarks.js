@@ -3,6 +3,13 @@ import Vue from 'vue'
 import App from './App.vue'
 import { store } from './store'
 import { router } from './router'
+import { Auth0Plugin } from './auth'
+
+import { domain, clientId, audience } from '../auth_config.json'
+import {
+  onLogin as mongoAppLogin,
+  onLogout as mongoAppLogout,
+} from './api/mongodb'
 
 const isDev = process.env.NODE_ENV === 'development'
 const enableDevtools = process.env.DEVTOOLS === 'true'
@@ -24,6 +31,23 @@ window.Event = new Vue()
 // Also see `collapseSiblings` in TagsRow.vue
 document.body.addEventListener('click', event => {
   Event.$emit('exitEditMode', {})
+})
+
+Event.$on('login', mongoAppLogin)
+Event.$on('logout', mongoAppLogout)
+
+Vue.use(Auth0Plugin, {
+  domain,
+  clientId,
+  audience,
+  onLoginCallback: (token) => {
+    Event.$emit('login', { token })
+    chrome.runtime.sendMessage({ type: 'login', token })
+  },
+  onLogoutCallback: () => {
+    Event.$emit('logout')
+    chrome.runtime.sendMessage({ type: 'logout' })
+  }
 })
 
 new Vue({

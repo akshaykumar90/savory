@@ -1,0 +1,11 @@
+{
+    "id": "5e50bd2060233f621eee4523",
+    "name": "savorydb",
+    "type": "mongodb-atlas",
+    "config": {
+        "clusterName": "savorydb",
+        "readPreference": "primary",
+        "wireProtocolEnabled": false
+    },
+    "version": 1
+}

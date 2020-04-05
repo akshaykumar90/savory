@@ -14,17 +14,13 @@ import {
   deleteBookmark,
 } from '../api/mongodb'
 
-import { mongoApp } from '../api/mongodb'
-import { AnonymousCredential } from 'mongodb-stitch-browser-sdk'
-
 function getDrillDownFunction(getters) {
   return async function drillDownFilter(currentItems, { type, name }) {
-    const userId = 'test1'
     let bookmarkIds = []
     if (type === 'site') {
       bookmarkIds = getters.getBookmarkIdsWithSite(name)
     } else if (type === 'tag') {
-      let bookmarksWithTag = await fetchBookmarksWithTag(userId, name)
+      let bookmarksWithTag = await fetchBookmarksWithTag(name)
       bookmarkIds = bookmarksWithTag.map(({ chrome_id }) => chrome_id)
     } else {
       /* bad input */
@@ -52,12 +48,10 @@ function getQueryStringFromFilters(filters) {
 
 export default {
   SYNC_BOOKMARKS: async ({ state, dispatch, commit }, { num }) => {
-    await mongoApp.auth.loginWithCredential(new AnonymousCredential())
-    const userId = 'test1'
     const initialLoadNum = 50
-    let getCountPromise = getCount(userId)
-    let fetchTopBookmarksPromise = fetchRecent(userId, initialLoadNum)
-    let fetchAllBookmarksPromise = fetchRecent(userId, num)
+    let getCountPromise = getCount()
+    let fetchTopBookmarksPromise = fetchRecent(initialLoadNum)
+    let fetchAllBookmarksPromise = fetchRecent(num)
     let headBookmarks = await fetchTopBookmarksPromise
     for (let bookmark of headBookmarks) {
       bookmark.id = bookmark.chrome_id
@@ -74,7 +68,7 @@ export default {
     commit('SET_BOOKMARKS', { items: tailBookmarks })
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: allBookmarks.length })
-    await setCount(userId, state.numBookmarks)
+    await setCount(state.numBookmarks)
   },
 
   LOAD_MORE_BOOKMARKS: ({ state, commit }) => {
@@ -91,30 +85,27 @@ export default {
   },
 
   ON_BOOKMARK_CREATED: async ({ state, commit }, { bookmark }) => {
-    const userId = 'test1'
     const { id, title, url, dateAdded } = bookmark
     commit('ADD_BOOKMARK', bookmark)
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })
-    await setCount(userId, state.numBookmarks)
+    await setCount(state.numBookmarks)
   },
 
   BULK_DELETE_BOOKMARKS: async ({ state, commit }) => {
-    const userId = 'test1'
     let currSelected = [...state.lists['selected']]
     currSelected.map(id => commit('REMOVE_BOOKMARK', { id }))
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks - currSelected.length })
-    currSelected.map(async id => await deleteBookmark(userId, id))
-    await setCount(userId, state.numBookmarks)
+    currSelected.map(async id => await deleteBookmark(id))
+    await setCount(state.numBookmarks)
   },
 
   ON_BOOKMARK_REMOVED: async ({ state, commit }, { bookmark }) => {
-    const userId = 'test1'
     commit('REMOVE_BOOKMARK', bookmark)
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks - 1 })
-    await setCount(userId, state.numBookmarks)
+    await setCount(state.numBookmarks)
   },
 
   ON_FILTER_UPDATE: async ({ state, commit, getters }, filters) => {
@@ -198,27 +189,24 @@ export default {
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tags: newTags }) => {
-    const userId = 'test1'
-    addNewTags(userId, id, newTags).then(({ tags }) => {
+    addNewTags(id, newTags).then(({ tags }) => {
       commit('SET_TAGS', { id, tags });
     })
   },
 
   REMOVE_TAG_FROM_BOOKMARK: ({ commit }, { id, tag }) => {
-    const userId = 'test1'
-    removeTag(userId, id, tag).then(({ tags }) => {
+    removeTag(id, tag).then(({ tags }) => {
       commit('SET_TAGS', { id, tags });
     })
   },
 
   EXPORT_BOOKMARKS: async ({ state }) => {
-    const userId = 'test1'
     let bookmarks = Object.values(state.bookmarks).map(({ id, title, url, dateAdded, tags }) => {
       return { chrome_id: id, title, url, dateAdded, tags }
     })
     console.log('Starting import...')
     for (const chunk of _.chunk(bookmarks, 100)) {
-      await importBookmarks(userId, chunk)
+      await importBookmarks(chunk)
     }
     console.log('...done!')
   },

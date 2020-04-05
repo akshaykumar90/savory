@@ -7,13 +7,27 @@
 </template>
 
 <script>
+  import { mongoApp } from './api/mongodb'
+
   export default {
     name: 'app',
 
+    methods: {
+      syncBookmarks () {
+        this.$store.dispatch({
+          type: 'SYNC_BOOKMARKS',
+          num: 5000
+        })
+      }
+    },
+
     created () {
-      this.$store.dispatch({
-        type: 'SYNC_BOOKMARKS',
-        num: 5000
+      const { auth } = mongoApp
+      if (auth.isLoggedIn) {
+        this.syncBookmarks()
+      }
+      auth.addAuthListener({
+        onUserLoggedIn: this.syncBookmarks,
       })
     },
   }

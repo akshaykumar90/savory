@@ -1,11 +1,9 @@
 import {
-    createBookmark,
-    deleteBookmark
+  createBookmark,
+  deleteBookmark,
+  onLogin as mongoAppLogin,
+  onLogout as mongoAppLogout
 } from './api/mongodb'
-
-chrome.runtime.onInstalled.addListener(function() {
-    console.log('Background script active!!')
-})
 
 function setupListeners (callback) {
     // https://developer.chrome.com/extensions/bookmarks#event-onCreated
@@ -21,14 +19,20 @@ function setupListeners (callback) {
 }
 
 setupListeners(async function ({ type, bookmark }) {
-    const userId = 'test1'
-    console.log('inside callback')
     if (type === 'ON_BOOKMARK_CREATED') {
         const { id, title, url, dateAdded } = bookmark
-        await createBookmark(userId, { chrome_id: id, title, url, dateAdded, tags: [] })
+        await createBookmark({ chrome_id: id, title, url, dateAdded, tags: [] })
         chrome.runtime.sendMessage({ type: 'ON_BOOKMARK_CREATED', bookmark })
     } else if (type === 'ON_BOOKMARK_REMOVED') {
-        await deleteBookmark(userId, bookmark.id)
+        await deleteBookmark(bookmark.id)
         chrome.runtime.sendMessage({ type: 'ON_BOOKMARK_REMOVED', bookmark })
     }
+})
+
+chrome.runtime.onMessage.addListener(({ type, ...args }) => {
+  if (type === 'login') {
+    mongoAppLogin(args)
+  } else if (type === 'logout') {
+    mongoAppLogout(args)
+  }
 })

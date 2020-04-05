@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import BookmarkList from '../components/BookmarkList.vue'
 import AppLayout from '../layouts/AppLayout.vue'
+import LogoutCallback from '../components/LogoutCallback.vue'
 
 Vue.use(Router)
 
@@ -22,6 +23,11 @@ function createRouter () {
         meta: {
           layout: AppLayout
         }
+      },
+      {
+        path: '/logout',
+        name: 'logout',
+        component: LogoutCallback,
       },
       {
         path: '/',
