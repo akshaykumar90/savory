@@ -4,10 +4,7 @@
   "version": "0.1.0",
   "description": "Bookmark Manager Extension for Chrome",
   "permissions": [
-    "bookmarks",
-    "identity",
-    "https://*.auth0.com/*",
-    "http://auth0.com/*"
+    "bookmarks"
   ],
   "chrome_url_overrides": {
     "bookmarks": "bookmarks.html"
