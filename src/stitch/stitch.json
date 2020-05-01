@@ -6,7 +6,11 @@
     "deployment_model": "GLOBAL",
     "security": {},
     "custom_user_data_config": {
-        "enabled": false
+        "enabled": false,
+        "mongo_service_id": "5e50bd2060233f621eee4523",
+        "database_name": "savory",
+        "collection_name": "user_data",
+        "user_id_field": "user_id"
     },
     "sync": {
         "development_mode_enabled": false

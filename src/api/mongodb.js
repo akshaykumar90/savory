@@ -1,7 +1,6 @@
-import {CustomCredential, Stitch} from 'mongodb-stitch-browser-sdk'
-import { RemoteMongoClient } from 'mongodb-stitch-browser-sdk'
+import {CustomCredential, RemoteMongoClient, Stitch} from 'mongodb-stitch-browser-sdk'
 
-import { app_id } from '../stitch/stitch.json'
+import {app_id} from '../stitch/stitch.json'
 
 const mongoApp = Stitch.hasAppClient(app_id)
     ? Stitch.getAppClient(app_id)
@@ -16,6 +15,7 @@ const mongoClient = mongoApp.getServiceClient(
 
 const bookmarksCollection = mongoClient.db('savory').collection('bookmarks')
 const bookmarksCountCollection = mongoClient.db('savory').collection('bookmarks_count')
+const userDataCollection = mongoClient.db('savory').collection('user_data')
 
 export async function onLogin ({ token }) {
   if (!auth.isLoggedIn) {
@@ -100,6 +100,20 @@ export function fetchBookmarksWithTag (tag) {
     { owner_id: userId, tags: tag },
     { projection: { chrome_id: 1 }, sort: { dateAdded: -1 } },
   ).toArray()
+}
+
+export async function loadUserData () {
+  const userId = auth.user.identities[0].id
+  return await userDataCollection.findOne({owner_id: userId})
+}
+
+export function markBookmarksImported () {
+  const userId = auth.user.identities[0].id
+  return userDataCollection.updateOne(
+    { owner_id: userId },
+    { $set: { is_chrome_imported: true }},
+    { upsert: true }
+  )
 }
 
 export { mongoApp }

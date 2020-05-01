@@ -7,7 +7,11 @@
 </template>
 
 <script>
-  import { mongoApp } from './api/mongodb'
+  import {
+    loadUserData,
+    markBookmarksImported,
+    mongoApp
+  } from './api/mongodb'
 
   export default {
     name: 'app',
@@ -18,6 +22,14 @@
           type: 'SYNC_BOOKMARKS',
           num: 5000
         })
+      },
+      async firstLogin () {
+        const userData = await loadUserData()
+        if (!userData || !userData.is_chrome_imported) {
+          await this.$store.dispatch('IMPORT_BROWSER_BOOKMARKS')
+          await markBookmarksImported()
+        }
+        this.syncBookmarks()
       }
     },
 
@@ -27,7 +39,7 @@
         this.syncBookmarks()
       }
       auth.addAuthListener({
-        onUserLoggedIn: this.syncBookmarks,
+        onUserLoggedIn: this.firstLogin,
       })
     },
   }

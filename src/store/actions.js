@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import { router } from '../router'
 
-import { searchBookmarks } from '../api'
+import {getBookmarks, searchBookmarks} from '../api'
 
 import {
   importBookmarks,
@@ -200,9 +200,10 @@ export default {
     })
   },
 
-  EXPORT_BOOKMARKS: async ({ state }) => {
-    let bookmarks = Object.values(state.bookmarks).map(({ id, title, url, dateAdded, tags }) => {
-      return { chrome_id: id, title, url, dateAdded, tags }
+  IMPORT_BROWSER_BOOKMARKS: async () => {
+    let browserBookmarks = await getBookmarks(5000)
+    let bookmarks = browserBookmarks.map(({ id, title, url, dateAdded }) => {
+      return { chrome_id: id, title, url, dateAdded }
     })
     console.log('Starting import...')
     for (const chunk of _.chunk(bookmarks, 100)) {
