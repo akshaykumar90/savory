@@ -33,10 +33,23 @@ Set `DEVTOOLS=true` to use [vue-devtools][1].
 DEVTOOLS=true npm run dev
 ```
 
-Use the standalone Electron app
+The chrome extension for `vue-devtools` does not work with chrome extensions.
+Instead, use the standalone Electron app for vue-devtools.
 
 ```bash
 ./node_modules/.bin/vue-devtools
 ```
 
 [1]:https://github.com/vuejs/vue-devtools
+
+## Backend
+
+Savory uses [MongoDB Stitch][2] as its serverless backend.
+
+To deploy changes:
+
+```bash
+./node_modules/.bin/stitch-cli import --app-id savory-backend-ailsq --path src/stitch
+```
+
+[2]: https://www.mongodb.com/cloud/stitch
