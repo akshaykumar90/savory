@@ -6,11 +6,7 @@
     "deployment_model": "GLOBAL",
     "security": {},
     "custom_user_data_config": {
-        "enabled": true,
-        "mongo_service_id": "5e50bd2060233f621eee4523",
-        "database_name": "savory",
-        "collection_name": "stitch_user_data",
-        "user_id_field": "user_id"
+        "enabled": false
     },
     "sync": {
         "development_mode_enabled": false
