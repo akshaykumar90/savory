@@ -7,7 +7,7 @@
             "name": "owner",
             "apply_when": {
                 "owner_id": {
-                    "%in": "%%user.identities.id"
+                    "$in": "%%user.identities.id"
                 }
             },
             "read": true,
