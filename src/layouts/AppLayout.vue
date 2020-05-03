@@ -7,7 +7,7 @@
         </router-link>
       </div>
       <div class="flex-1 flex items-center justify-between px-6">
-        <div class="w-128">
+        <div class="w-full max-w-lg">
           <SearchBar ref="searchInput"></SearchBar>
         </div>
         <!-- Check that the SDK client is not currently loading before accessing is methods -->
@@ -24,7 +24,7 @@
         <SideBar class="fixed"/>
       </div>
       <main class="flex-1">
-        <div class="px-6 mt-4 w-full max-w-lg">
+        <div class="px-6 mt-4 w-full max-w-3xl">
           <slot></slot>
         </div>
       </main>
