@@ -130,7 +130,7 @@ export default {
     }
     let activeFilters = drillDown ? [...state.filter.active, newFilter] : [newFilter]
     let filtersParam = getQueryStringFromFilters(activeFilters)
-    router.push(`/filter/${filtersParam}`)
+    router.push(`/u/filter/${filtersParam}`)
   },
 
   FILTER_REMOVED: async ({ state }, index) => {
@@ -144,7 +144,7 @@ export default {
       // end of filters, go home
       router.push('/')
     } else {
-      router.push(`/filter/${filtersParam}`)
+      router.push(`/u/filter/${filtersParam}`)
     }
   },
 
@@ -173,13 +173,13 @@ export default {
     Event.$emit('newItems')
 
     // Go to home page, if not already there
-    if (router.currentRoute.name !== 'home') {
-      router.push('/')
+    if (router.currentRoute.name !== 'app') {
+      router.push('/u')
     }
   },
 
   FETCH_DATA_FOR_APP_VIEW: async ({ dispatch, commit }, { name, params }) => {
-    if (name === 'home') {
+    if (name === 'app') {
       // Remove any filters, aka go to home page
       commit('CLEAR_FILTERED')
     } else if (name === 'filter') {

@@ -2,7 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import BookmarkList from '../components/BookmarkList.vue'
 import AppLayout from '../layouts/AppLayout.vue'
-import LogoutCallback from '../components/LogoutCallback.vue'
+import LandingPage from '../pages/LandingPage.vue'
+import { authGuard } from '../auth'
 
 Vue.use(Router)
 
@@ -17,24 +18,39 @@ function createRouter () {
     },
     routes: [
       {
-        path: '/filter/:filter*',
+        path: '/u/filter/:filter*',
         name: 'filter',
         component: BookmarkList,
+        beforeEnter: authGuard,
         meta: {
-          layout: AppLayout
+          layout: AppLayout,
+          requiredAuthState: 'login'
         }
       },
       {
         path: '/logout',
         name: 'logout',
-        component: LogoutCallback,
+        beforeEnter: (to, from, next) => {
+          next({ name: 'home' })
+        }
+      },
+      {
+        path: '/u',
+        name: 'app',
+        component: BookmarkList,
+        beforeEnter: authGuard,
+        meta: {
+          layout: AppLayout,
+          requiredAuthState: 'login'
+        }
       },
       {
         path: '/',
         name: 'home',
-        component: BookmarkList,
+        component: LandingPage,
+        beforeEnter: authGuard,
         meta: {
-          layout: AppLayout
+          requiredAuthState: 'logout'
         }
       }
     ]

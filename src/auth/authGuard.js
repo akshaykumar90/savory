@@ -4,18 +4,25 @@ export const authGuard = (to, from, next) => {
   const authService = getInstance()
 
   const fn = () => {
-    if (authService.isAuthenticated) {
+    let requiredAuthState = to.meta.requiredAuthState
+    let currentAuthState = authService.isAuthenticated ? 'login' : 'logout'
+
+    if (currentAuthState === requiredAuthState) {
       return next()
     }
 
-    authService.loginWithRedirect({ appState: { targetUrl: to.fullPath } })
-  };
+    if (requiredAuthState === 'login') {
+      return next({ name: 'home', replace: true })
+    }
+
+    return next({ name: 'app', replace: true })
+  }
 
   if (!authService.loading) {
     return fn()
   }
 
-  authService.$watch("loading", loading => {
+  authService.$watch('loading', loading => {
     if (loading === false) {
       return fn()
     }
