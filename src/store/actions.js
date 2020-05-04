@@ -142,7 +142,7 @@ export default {
     let filtersParam = getQueryStringFromFilters(activeFilters)
     if (!filtersParam) {
       // end of filters, go home
-      router.push('/')
+      router.push('/u')
     } else {
       router.push(`/u/filter/${filtersParam}`)
     }
