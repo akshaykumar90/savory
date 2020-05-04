@@ -39,6 +39,7 @@
     "mongodb-stitch-cli": "^1.11.0",
     "postcss-loader": "^3.0.0",
     "rimraf": "^2.6.2",
+    "spinkit": "^2.0.1",
     "style-loader": "^0.23.1",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.1",
