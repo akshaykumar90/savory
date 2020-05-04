@@ -3,13 +3,14 @@ import Router from 'vue-router'
 import BookmarkList from '../components/BookmarkList.vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import LandingPage from '../pages/LandingPage.vue'
+import WelcomePage from '../pages/WelcomePage.vue'
 import { authGuard } from '../auth'
 
 Vue.use(Router)
 
-function createRouter () {
+function createRouter() {
   return new Router({
-    scrollBehavior (to, from, savedPosition) {
+    scrollBehavior(to, from, savedPosition) {
       if (savedPosition) {
         return savedPosition
       } else {
@@ -41,6 +42,15 @@ function createRouter () {
         beforeEnter: authGuard,
         meta: {
           layout: AppLayout,
+          requiredAuthState: 'login'
+        }
+      },
+      {
+        path: '/welcome',
+        name: 'welcome',
+        component: WelcomePage,
+        beforeEnter: authGuard,
+        meta: {
           requiredAuthState: 'login'
         }
       },

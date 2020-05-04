@@ -27,6 +27,7 @@ module.exports = {
 
     backgroundColor: theme => ({
       default: 'var(--color-bg-default)',
+      primary: 'var(--color-primary)',
       grey: 'var(--color-grey)',
       'grey-100': 'var(--color-grey-100)',
       'grey-200': 'var(--color-grey-200)',

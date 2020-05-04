@@ -23,6 +23,7 @@ function createStore () {
         active: [/* { type: string, name: string } */],
         items: [/* number */],
       },
+      importPercent: 0,
     },
     actions,
     mutations,

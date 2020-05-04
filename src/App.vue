@@ -16,7 +16,6 @@
 </template>
 
 <script>
-import { loadUserData, markBookmarksImported, mongoApp } from './api/mongodb'
 import LoadingSpinner from './components/LoadingSpinner.vue'
 
 export default {
@@ -24,33 +23,6 @@ export default {
 
   components: {
     LoadingSpinner
-  },
-
-  methods: {
-    syncBookmarks() {
-      this.$store.dispatch({
-        type: 'SYNC_BOOKMARKS',
-        num: 5000
-      })
-    },
-    async firstLogin() {
-      const userData = await loadUserData()
-      if (!userData || !userData.is_chrome_imported) {
-        await this.$store.dispatch('IMPORT_BROWSER_BOOKMARKS')
-        await markBookmarksImported()
-      }
-      this.syncBookmarks()
-    }
-  },
-
-  created() {
-    const { auth } = mongoApp
-    if (auth.isLoggedIn) {
-      this.syncBookmarks()
-    }
-    auth.addAuthListener({
-      onUserLoggedIn: this.firstLogin
-    })
   }
 }
 </script>

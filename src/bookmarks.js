@@ -7,8 +7,9 @@ import { Auth0Plugin } from './auth'
 
 import { domain, clientId, audience } from '../auth_config.json'
 import {
+  mongoApp,
   onLogin as mongoAppLogin,
-  onLogout as mongoAppLogout,
+  onLogout as mongoAppLogout
 } from './api/mongodb'
 
 const isDev = process.env.NODE_ENV === 'development'
@@ -40,7 +41,7 @@ Vue.use(Auth0Plugin, {
   domain,
   clientId,
   audience,
-  onLoginCallback: (token) => {
+  onLoginCallback: token => {
     Event.$emit('login', { token })
     chrome.runtime.sendMessage({ type: 'login', token })
   },
@@ -49,6 +50,12 @@ Vue.use(Auth0Plugin, {
     chrome.runtime.sendMessage({ type: 'logout' })
   }
 })
+
+const { auth } = mongoApp
+
+if (auth.isLoggedIn) {
+  store.dispatch('SYNC_BOOKMARKS')
+}
 
 new Vue({
   router,

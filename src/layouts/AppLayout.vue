@@ -33,6 +33,7 @@
   import SearchBar from '../components/SearchBar.vue'
   import SideBar from '../components/SideBar.vue'
   import _ from 'lodash'
+  import { stitchLoggedIn } from '../api/mongodb'
 
   export default {
     name: 'app-layout',

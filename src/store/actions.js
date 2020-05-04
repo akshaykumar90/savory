@@ -14,6 +14,8 @@ import {
   deleteBookmark,
 } from '../api/mongodb'
 
+const NUM_SYNC_BOOKMARKS = 5000
+
 function getDrillDownFunction(getters) {
   return async function drillDownFilter(currentItems, { type, name }) {
     let bookmarkIds = []
@@ -47,11 +49,11 @@ function getQueryStringFromFilters(filters) {
 }
 
 export default {
-  SYNC_BOOKMARKS: async ({ state, dispatch, commit }, { num }) => {
+  SYNC_BOOKMARKS: async ({ state, commit }) => {
     const initialLoadNum = 50
     let getCountPromise = getCount()
     let fetchTopBookmarksPromise = fetchRecent(initialLoadNum)
-    let fetchAllBookmarksPromise = fetchRecent(num)
+    let fetchAllBookmarksPromise = fetchRecent(NUM_SYNC_BOOKMARKS)
     let headBookmarks = await fetchTopBookmarksPromise
     for (let bookmark of headBookmarks) {
       bookmark.id = bookmark.chrome_id
@@ -200,14 +202,20 @@ export default {
     })
   },
 
-  IMPORT_BROWSER_BOOKMARKS: async () => {
-    let browserBookmarks = await getBookmarks(5000)
+  IMPORT_BROWSER_BOOKMARKS: async ({ commit }) => {
+    let browserBookmarks = await getBookmarks(NUM_SYNC_BOOKMARKS)
+    const totalBookmarks = browserBookmarks.length
     let bookmarks = browserBookmarks.map(({ id, title, url, dateAdded }) => {
       return { chrome_id: id, title, url, dateAdded }
     })
     console.log('Starting import...')
+    let importedBookmarks = 0
     for (const chunk of _.chunk(bookmarks, 100)) {
       await importBookmarks(chunk)
+      importedBookmarks += chunk.length
+      let percent = importedBookmarks / totalBookmarks
+      commit('UPDATE_IMPORT_PROGRESS', { percent })
+      console.log(`${Math.floor(percent * 100)}%`)
     }
     console.log('...done!')
   },

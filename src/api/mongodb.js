@@ -17,6 +17,14 @@ const bookmarksCollection = mongoClient.db('savory').collection('bookmarks')
 const bookmarksCountCollection = mongoClient.db('savory').collection('bookmarks_count')
 const userDataCollection = mongoClient.db('savory').collection('user_data')
 
+export function stitchLoggedIn() {
+  if (auth.isLoggedIn) {
+    return Promise.resolve()
+  } else {
+    return new Promise(resolve => auth.addAuthListener({ onUserLoggedIn: resolve }))
+  }
+}
+
 export async function onLogin ({ token }) {
   if (!auth.isLoggedIn) {
     console.log('[stitch] login')

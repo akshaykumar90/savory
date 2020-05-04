@@ -16,7 +16,7 @@
         <div class="mt-6 select-none">
           <a href="#" @click="login" class="block w-full rounded-lg px-6 py-4 text-lg leading-6 bg-indigo-900 text-gray-300 text-center">Create an Account</a>
         </div>
-        <p class="text-sm leading-5 mt-4 font-medium text-gray-200">Already have an account? <a href="#" @click="login"class="underline">Sign In</a></p>
+        <p class="text-sm leading-5 mt-4 font-medium text-gray-200">Already have an account? <a href="#" @click="login" class="underline">Sign In</a></p>
       </div>
     </main>
   </div>
@@ -31,7 +31,7 @@
         await this.$auth.loginWithPopup()
         if (this.$auth.isAuthenticated) {
           this.$router.push({
-            name: 'app'
+            name: 'welcome'
           })
         }
       }

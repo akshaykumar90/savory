@@ -87,5 +87,9 @@ export default {
   REMOVE_FROM_SELECTED: (state, { id }) => {
     let currSelected = state.lists['selected']
     state.lists['selected'] = currSelected.filter(t => t !== id)
+  },
+
+  UPDATE_IMPORT_PROGRESS: (state, { percent }) => {
+    state.importPercent = percent
   }
 }
