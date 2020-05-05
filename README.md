@@ -46,6 +46,13 @@ Instead, use the standalone Electron app for vue-devtools.
 
 Savory uses [MongoDB Stitch][2] as its serverless backend.
 
+To sync current snapshot:
+
+```bash
+rm -rf src/stitch
+./node_modules/.bin/stitch-cli export --app-id savory-backend-ailsq --output src/stitch
+```
+
 To deploy changes:
 
 ```bash
