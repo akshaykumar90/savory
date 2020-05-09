@@ -200,7 +200,7 @@ export default {
     let browserBookmarks = await getBookmarks(NUM_SYNC_BOOKMARKS)
     const totalBookmarks = browserBookmarks.length
     let bookmarks = browserBookmarks.map(({ id, title, url, dateAdded }) => {
-      return { chrome_id: id, title, url, dateAdded }
+      return { chrome_id: id, title, url, dateAdded, tags: [] }
     })
     console.log('Starting import...')
     let importedBookmarks = 0
