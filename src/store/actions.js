@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import { router } from '../router'
 
-import {getBookmarks, searchBookmarks} from '../api'
+import { getBookmarks, searchBookmarks } from '../api'
 
 import {
   importBookmarks,
@@ -11,7 +11,7 @@ import {
   fetchRecent,
   getCount,
   setCount,
-  deleteBookmark,
+  deleteBookmark
 } from '../api/mongodb'
 
 const NUM_SYNC_BOOKMARKS = 6000
@@ -29,7 +29,9 @@ function getDrillDownFunction(getters) {
       return currentItems
     }
     let currFiltered = new Set(currentItems)
-    return currFiltered.size ? bookmarkIds.filter(x => currFiltered.has(x)) : bookmarkIds
+    return currFiltered.size
+      ? bookmarkIds.filter(x => currFiltered.has(x))
+      : bookmarkIds
   }
 }
 
@@ -61,7 +63,9 @@ export default {
     commit('SET_BOOKMARKS', { items: headBookmarks })
     Event.$emit('newItems')
     let countResponse = await getCountPromise
-    commit('SET_BOOKMARKS_COUNT', { count: countResponse ? countResponse.count : 0 })
+    commit('SET_BOOKMARKS_COUNT', {
+      count: countResponse ? countResponse.count : 0
+    })
     let allBookmarks = await fetchAllBookmarksPromise
     let tailBookmarks = allBookmarks.slice(initialLoadNum)
     for (let bookmark of tailBookmarks) {
@@ -98,7 +102,9 @@ export default {
     let currSelected = [...state.lists['selected']]
     currSelected.map(id => commit('REMOVE_BOOKMARK', { id }))
     Event.$emit('newItems')
-    commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks - currSelected.length })
+    commit('SET_BOOKMARKS_COUNT', {
+      count: state.numBookmarks - currSelected.length
+    })
     currSelected.map(async id => await deleteBookmark(id))
     return setCount(state.numBookmarks)
   },
@@ -126,11 +132,15 @@ export default {
 
   FILTER_ADDED: async ({ state }, { type, name, drillDown }) => {
     let newFilter = { type, name }
-    const filterAlreadyExists = state.filter.active.some(x => _.isEqual(x, newFilter))
+    const filterAlreadyExists = state.filter.active.some(x =>
+      _.isEqual(x, newFilter)
+    )
     if (filterAlreadyExists) {
       return Promise.resolve()
     }
-    let activeFilters = drillDown ? [...state.filter.active, newFilter] : [newFilter]
+    let activeFilters = drillDown
+      ? [...state.filter.active, newFilter]
+      : [newFilter]
     let filtersParam = getQueryStringFromFilters(activeFilters)
     return router.push(`/u/filter/${filtersParam}`)
   },
@@ -140,9 +150,14 @@ export default {
     if (index < 0) {
       index += currFilters.length
     }
-    let activeFilters = [...currFilters.slice(0, index), ...currFilters.slice(index+1)]
+    let activeFilters = [
+      ...currFilters.slice(0, index),
+      ...currFilters.slice(index + 1)
+    ]
     let filtersParam = getQueryStringFromFilters(activeFilters)
-    return filtersParam ? router.push(`/u/filter/${filtersParam}`) : router.push('/u')
+    return filtersParam
+      ? router.push(`/u/filter/${filtersParam}`)
+      : router.push('/u')
   },
 
   SEARCH_QUERY: async ({ state, commit, getters }, query) => {
@@ -156,7 +171,9 @@ export default {
     } else {
       let searchResults = await searchBookmarks(query)
       let currFiltered = new Set(state.filter.items)
-      const filteredIds = currFiltered.size ? searchResults.filter(x => currFiltered.has(x)) : searchResults
+      const filteredIds = currFiltered.size
+        ? searchResults.filter(x => currFiltered.has(x))
+        : searchResults
       commit('SET_FILTERED', filteredIds)
     }
     Event.$emit('newItems')
@@ -170,7 +187,9 @@ export default {
     Event.$emit('newItems')
 
     // Go to home page, if not already there
-    return router.currentRoute.name === 'app' ? Promise.resolve() : router.push('/u')
+    return router.currentRoute.name === 'app'
+      ? Promise.resolve()
+      : router.push('/u')
   },
 
   FETCH_DATA_FOR_APP_VIEW: async ({ dispatch, commit }, { name, params }) => {
@@ -186,13 +205,13 @@ export default {
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tags: newTags }) => {
     return addNewTags(id, newTags).then(({ tags }) => {
-      commit('SET_TAGS', { id, tags });
+      commit('SET_TAGS', { id, tags })
     })
   },
 
   REMOVE_TAG_FROM_BOOKMARK: ({ commit }, { id, tag }) => {
     return removeTag(id, tag).then(({ tags }) => {
-      commit('SET_TAGS', { id, tags });
+      commit('SET_TAGS', { id, tags })
     })
   },
 
@@ -212,5 +231,5 @@ export default {
       console.log(`${Math.floor(percent * 100)}%`)
     }
     console.log('...done!')
-  },
+  }
 }
