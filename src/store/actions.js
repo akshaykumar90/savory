@@ -91,7 +91,6 @@ export default {
   },
 
   ON_BOOKMARK_CREATED: ({ state, commit }, { bookmark }) => {
-    const { id, title, url, dateAdded } = bookmark
     commit('ADD_BOOKMARK', bookmark)
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })
@@ -130,7 +129,7 @@ export default {
     }
   },
 
-  FILTER_ADDED: async ({ state }, { type, name, drillDown }) => {
+  FILTER_ADDED: ({ state }, { type, name, drillDown }) => {
     let newFilter = { type, name }
     const filterAlreadyExists = state.filter.active.some(x =>
       _.isEqual(x, newFilter)
@@ -145,7 +144,7 @@ export default {
     return router.push(`/u/filter/${filtersParam}`)
   },
 
-  FILTER_REMOVED: async ({ state }, index) => {
+  FILTER_REMOVED: ({ state }, index) => {
     let currFilters = state.filter.active
     if (index < 0) {
       index += currFilters.length
@@ -192,7 +191,7 @@ export default {
       : router.push('/u')
   },
 
-  FETCH_DATA_FOR_APP_VIEW: async ({ dispatch, commit }, { name, params }) => {
+  FETCH_DATA_FOR_APP_VIEW: ({ dispatch, commit }, { name, params }) => {
     if (name === 'app') {
       // Remove any filters, aka go to home page
       commit('CLEAR_FILTERED')
