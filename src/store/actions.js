@@ -14,7 +14,7 @@ import {
   deleteBookmark,
 } from '../api/mongodb'
 
-const NUM_SYNC_BOOKMARKS = 5000
+const NUM_SYNC_BOOKMARKS = 6000
 
 function getDrillDownFunction(getters) {
   return async function drillDownFilter(currentItems, { type, name }) {
