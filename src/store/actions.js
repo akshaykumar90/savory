@@ -70,7 +70,7 @@ export default {
     commit('SET_BOOKMARKS', { items: tailBookmarks })
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: allBookmarks.length })
-    await setCount(state.numBookmarks)
+    return setCount(state.numBookmarks)
   },
 
   LOAD_MORE_BOOKMARKS: ({ state, commit }) => {
@@ -86,12 +86,12 @@ export default {
     })
   },
 
-  ON_BOOKMARK_CREATED: async ({ state, commit }, { bookmark }) => {
+  ON_BOOKMARK_CREATED: ({ state, commit }, { bookmark }) => {
     const { id, title, url, dateAdded } = bookmark
     commit('ADD_BOOKMARK', bookmark)
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })
-    await setCount(state.numBookmarks)
+    return setCount(state.numBookmarks)
   },
 
   BULK_DELETE_BOOKMARKS: async ({ state, commit }) => {
@@ -100,14 +100,14 @@ export default {
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks - currSelected.length })
     currSelected.map(async id => await deleteBookmark(id))
-    await setCount(state.numBookmarks)
+    return setCount(state.numBookmarks)
   },
 
-  ON_BOOKMARK_REMOVED: async ({ state, commit }, { bookmark }) => {
+  ON_BOOKMARK_REMOVED: ({ state, commit }, { bookmark }) => {
     commit('REMOVE_BOOKMARK', bookmark)
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks - 1 })
-    await setCount(state.numBookmarks)
+    return setCount(state.numBookmarks)
   },
 
   ON_FILTER_UPDATE: async ({ state, commit, getters }, filters) => {
@@ -128,11 +128,11 @@ export default {
     let newFilter = { type, name }
     const filterAlreadyExists = state.filter.active.some(x => _.isEqual(x, newFilter))
     if (filterAlreadyExists) {
-      return
+      return Promise.resolve()
     }
     let activeFilters = drillDown ? [...state.filter.active, newFilter] : [newFilter]
     let filtersParam = getQueryStringFromFilters(activeFilters)
-    router.push(`/u/filter/${filtersParam}`)
+    return router.push(`/u/filter/${filtersParam}`)
   },
 
   FILTER_REMOVED: async ({ state }, index) => {
@@ -142,12 +142,7 @@ export default {
     }
     let activeFilters = [...currFilters.slice(0, index), ...currFilters.slice(index+1)]
     let filtersParam = getQueryStringFromFilters(activeFilters)
-    if (!filtersParam) {
-      // end of filters, go home
-      router.push('/u')
-    } else {
-      router.push(`/u/filter/${filtersParam}`)
-    }
+    return filtersParam ? router.push(`/u/filter/${filtersParam}`) : router.push('/u')
   },
 
   SEARCH_QUERY: async ({ state, commit, getters }, query) => {
@@ -175,29 +170,28 @@ export default {
     Event.$emit('newItems')
 
     // Go to home page, if not already there
-    if (router.currentRoute.name !== 'app') {
-      router.push('/u')
-    }
+    return router.currentRoute.name === 'app' ? Promise.resolve() : router.push('/u')
   },
 
   FETCH_DATA_FOR_APP_VIEW: async ({ dispatch, commit }, { name, params }) => {
     if (name === 'app') {
       // Remove any filters, aka go to home page
       commit('CLEAR_FILTERED')
+      return Promise.resolve()
     } else if (name === 'filter') {
       let filters = getFiltersFromQueryString(params.filter)
-      await dispatch('ON_FILTER_UPDATE', filters)
+      return dispatch('ON_FILTER_UPDATE', filters)
     }
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tags: newTags }) => {
-    addNewTags(id, newTags).then(({ tags }) => {
+    return addNewTags(id, newTags).then(({ tags }) => {
       commit('SET_TAGS', { id, tags });
     })
   },
 
   REMOVE_TAG_FROM_BOOKMARK: ({ commit }, { id, tag }) => {
-    removeTag(id, tag).then(({ tags }) => {
+    return removeTag(id, tag).then(({ tags }) => {
       commit('SET_TAGS', { id, tags });
     })
   },
