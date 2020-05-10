@@ -16,7 +16,7 @@
       <a v-if="editMode || filterMode" class="tag-link"
          v-bind:class="[editMode ? 'remove': 'add']"></a>
     </button>
-    <input ref="input" type="text" title="new-tag"
+    <input ref="input" type="text" title="Click to add or remove tags"
            v-model="newTag" @keydown.tab.prevent="addNewTag" @keyup.enter="addNewTag"
            v-bind:class="{'flex-grow': editMode}"
            @focus="enterEditMode"
