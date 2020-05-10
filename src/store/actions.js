@@ -5,13 +5,13 @@ import { getBookmarks, searchBookmarks } from '../api'
 
 import {
   importBookmarks,
-  addNewTags,
   removeTag,
   fetchBookmarksWithTag,
   fetchRecent,
   getCount,
   setCount,
-  deleteBookmark
+  deleteBookmark,
+  addTag
 } from '../api/mongodb'
 
 const NUM_SYNC_BOOKMARKS = 6000
@@ -202,16 +202,12 @@ export default {
     }
   },
 
-  ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tags: newTags }) => {
-    return addNewTags(id, newTags).then(({ tags }) => {
-      commit('SET_TAGS', { id, tags })
-    })
+  ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tag }) => {
+    return addTag(id, tag)
   },
 
   REMOVE_TAG_FROM_BOOKMARK: ({ commit }, { id, tag }) => {
-    return removeTag(id, tag).then(({ tags }) => {
-      commit('SET_TAGS', { id, tags })
-    })
+    return removeTag(id, tag)
   },
 
   IMPORT_BROWSER_BOOKMARKS: async ({ commit }) => {

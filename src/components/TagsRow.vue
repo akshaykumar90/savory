@@ -25,120 +25,124 @@
 </template>
 
 <script>
-  export default {
-    name: 'tags-row',
+export default {
+  name: 'tags-row',
 
-    props: {
-      bookmarkId: String
-    },
+  props: {
+    bookmarkId: String
+  },
 
-    data: function () {
-      return {
-        editMode: false,
-        newTag: ''
+  data: function() {
+    return {
+      editMode: false,
+      newTag: ''
+    }
+  },
+
+  methods: {
+    tagClicked({ tagType, tagName }) {
+      if (this.editMode) {
+        this.removeTag(tagName)
+        // We can only delete a tag when we put focus on the input box. When
+        // we delete a tag, the input box should not lose focus.
+        this.$refs.input.focus()
+        return
+      }
+      let dataObj = { type: tagType, drillDown: this.filterMode }
+      if (tagType === 'site') {
+        this.$store.dispatch('FILTER_ADDED', {
+          ...dataObj,
+          name: this.bookmark.site
+        })
+      } else if (tagType === 'tag') {
+        this.$store.dispatch('FILTER_ADDED', { ...dataObj, name: tagName })
       }
     },
+    addNewTag() {
+      if (!this.newTag.trim()) {
+        return
+      }
 
-    methods: {
-      tagClicked ({ tagType, tagName }) {
-        if (this.editMode) {
-          this.removeTag(tagName)
-          // We can only delete a tag when we put focus on the input box. When
-          // we delete a tag, the input box should not lose focus.
-          this.$refs.input.focus()
-          return
-        }
-        let dataObj = { type: tagType, drillDown: this.filterMode }
-        if (tagType === 'site') {
-          this.$store.dispatch('FILTER_ADDED', { ...dataObj, name: this.bookmark.site })
-        } else if (tagType === 'tag') {
-          this.$store.dispatch('FILTER_ADDED', { ...dataObj, name: tagName })
-        }
-      },
-      addNewTag () {
-        if (!this.newTag.trim()) {
-          return
-        }
+      let tag = this.newTag.trim().replace(/\s+/g, ' ')
+      let dataObj = { id: this.bookmarkId, tag }
+      // Sync commit to refresh UI
+      this.$store.commit('ADD_TAG', dataObj)
+      // Async flush to DB
+      this.$store.dispatch('ADD_TAG_FOR_BOOKMARK', dataObj)
 
-        let tag = this.newTag.trim().replace(/\s+/g, ' ')
-        let dataObj = { id: this.bookmarkId, tags: [tag] }
-        // Sync commit to refresh UI
-        this.$store.commit('ADD_TAG', dataObj)
-        // Async flush to DB
-        this.$store.dispatch('ADD_TAG_FOR_BOOKMARK', dataObj)
-
+      this.newTag = ''
+    },
+    removeTag(tagName) {
+      if (!tagName) {
+        return
+      }
+      let dataObj = { id: this.bookmarkId, tag: tagName }
+      // Sync commit to refresh UI
+      this.$store.commit('REMOVE_TAG', dataObj)
+      // Async flush to DB
+      this.$store.dispatch('REMOVE_TAG_FROM_BOOKMARK', dataObj)
+    },
+    enterEditMode() {
+      this.editMode = true
+      Event.$on('exitEditMode', this.exitEditMode)
+    },
+    exitEditMode({ currFocusId }) {
+      if (this.bookmarkId !== currFocusId) {
+        this.editMode = false
         this.newTag = ''
-      },
-      removeTag (tagName) {
-        if (!tagName) {
-          return
-        }
-        let dataObj = { id: this.bookmarkId, tag: tagName }
-        // Sync commit to refresh UI
-        this.$store.commit('REMOVE_TAG', dataObj)
-        // Async flush to DB
-        this.$store.dispatch('REMOVE_TAG_FROM_BOOKMARK', dataObj)
-      },
-      enterEditMode () {
-        this.editMode = true
-        Event.$on('exitEditMode', this.exitEditMode)
-      },
-      exitEditMode ({ currFocusId }) {
-        if (this.bookmarkId !== currFocusId) {
-          this.editMode = false
-          this.newTag = ''
-          Event.$off('exitEditMode', this.exitEditMode)
-        }
-      },
-      collapseSiblings () {
-        Event.$emit('exitEditMode', { currFocusId: this.bookmarkId })
+        Event.$off('exitEditMode', this.exitEditMode)
       }
     },
+    collapseSiblings() {
+      Event.$emit('exitEditMode', { currFocusId: this.bookmarkId })
+    }
+  },
 
-    computed: {
-      bookmark () {
-        return this.$store.getters.getBookmarkById(this.bookmarkId)
-      },
-      filterMode () {
-        return !!this.$store.state.filter.active.length
-      }
+  computed: {
+    bookmark() {
+      return this.$store.getters.getBookmarkById(this.bookmarkId)
+    },
+    filterMode() {
+      return !!this.$store.state.filter.active.length
     }
   }
+}
 </script>
 
 <style scoped>
-  .tag-link {
-    cursor: pointer;
-    position: relative;
-    display: inline-block;
-    width: 0.5rem;
-    height: 0.5rem;
-    overflow: hidden;
-    margin-left: 0.25rem;
-  }
+.tag-link {
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  overflow: hidden;
+  margin-left: 0.25rem;
+}
 
-  .tag-link:before, .tag-link:after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    top: 50%;
-    left: 0;
-    background: var(--color-primary);
-    height: 2px;
-    margin-top: -1px;
-  }
+.tag-link:before,
+.tag-link:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  left: 0;
+  background: var(--color-primary);
+  height: 2px;
+  margin-top: -1px;
+}
 
-  .remove:before {
-    transform: rotate(45deg);
-  }
-  .remove:after {
-    transform: rotate(-45deg);
-  }
+.remove:before {
+  transform: rotate(45deg);
+}
+.remove:after {
+  transform: rotate(-45deg);
+}
 
-  .add:before {
-    transform: rotate(90deg);
-  }
-  .add:after {
-    transform: rotate(0deg);
-  }
+.add:before {
+  transform: rotate(90deg);
+}
+.add:after {
+  transform: rotate(0deg);
+}
 </style>

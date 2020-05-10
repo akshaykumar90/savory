@@ -1,45 +1,53 @@
-import {CustomCredential, RemoteMongoClient, Stitch} from 'mongodb-stitch-browser-sdk'
+import {
+  CustomCredential,
+  RemoteMongoClient,
+  Stitch
+} from 'mongodb-stitch-browser-sdk'
 
-import {app_id} from '../stitch/stitch.json'
+import { app_id } from '../stitch/stitch.json'
 
 const mongoApp = Stitch.hasAppClient(app_id)
-    ? Stitch.getAppClient(app_id)
-    : Stitch.initializeAppClient(app_id)
+  ? Stitch.getAppClient(app_id)
+  : Stitch.initializeAppClient(app_id)
 
 const { auth } = mongoApp
 
 const mongoClient = mongoApp.getServiceClient(
-    RemoteMongoClient.factory,
-    'savorydb'
+  RemoteMongoClient.factory,
+  'savorydb'
 )
 
 const bookmarksCollection = mongoClient.db('savory').collection('bookmarks')
-const bookmarksCountCollection = mongoClient.db('savory').collection('bookmarks_count')
+const bookmarksCountCollection = mongoClient
+  .db('savory')
+  .collection('bookmarks_count')
 const userDataCollection = mongoClient.db('savory').collection('user_data')
 
 export function stitchLoggedIn() {
   if (auth.isLoggedIn) {
     return Promise.resolve()
   } else {
-    return new Promise(resolve => auth.addAuthListener({ onUserLoggedIn: resolve }))
+    return new Promise(resolve =>
+      auth.addAuthListener({ onUserLoggedIn: resolve })
+    )
   }
 }
 
-export async function onLogin ({ token }) {
+export async function onLogin({ token }) {
   if (!auth.isLoggedIn) {
     console.log('[stitch] login')
     await auth.loginWithCredential(new CustomCredential(token))
   }
 }
 
-export async function onLogout () {
+export async function onLogout() {
   if (auth.isLoggedIn) {
     console.log('[stitch] logout')
     await auth.logout()
   }
 }
 
-export async function importBookmarks (chunk) {
+export async function importBookmarks(chunk) {
   const userId = auth.user.identities[0].id
   for (const bookmark of chunk) {
     bookmark.owner_id = userId
@@ -47,79 +55,74 @@ export async function importBookmarks (chunk) {
   await bookmarksCollection.insertMany(chunk)
 }
 
-export function fetchRecent (num) {
+export function fetchRecent(num) {
   const userId = auth.user.identities[0].id
-  return bookmarksCollection.find({ owner_id: userId }, { limit: num, sort: { dateAdded: -1 }}).toArray()
+  return bookmarksCollection
+    .find({ owner_id: userId }, { limit: num, sort: { dateAdded: -1 } })
+    .toArray()
 }
 
-export function getCount () {
+export function getCount() {
   const userId = auth.user.identities[0].id
-  return bookmarksCountCollection.findOne( { owner_id: userId })
+  return bookmarksCountCollection.findOne({ owner_id: userId })
 }
 
-export function setCount (newCount) {
+export function setCount(newCount) {
   const userId = auth.user.identities[0].id
   return bookmarksCountCollection.updateOne(
     { owner_id: userId },
-    { $set: { count: newCount }},
+    { $set: { count: newCount } },
     { upsert: true }
   )
 }
 
-export async function createBookmark (bookmark) {
+export async function createBookmark(bookmark) {
   const userId = auth.user.identities[0].id
   bookmark.owner_id = userId
   await bookmarksCollection.insertOne(bookmark)
 }
 
-export async function deleteBookmark (chromeId) {
+export async function deleteBookmark(chromeId) {
   const userId = auth.user.identities[0].id
   await bookmarksCollection.deleteOne({ owner_id: userId, chrome_id: chromeId })
 }
 
-async function updateTags(chromeId, modifyFn) {
+export function addTag(chromeId, newTag) {
   const userId = auth.user.identities[0].id
-  let bookmark = await bookmarksCollection.findOne({ owner_id: userId, chrome_id: chromeId })
-  let updatedTags = modifyFn(bookmark.tags)
-  await bookmarksCollection.updateOne(
+  return bookmarksCollection.updateOne(
     { owner_id: userId, chrome_id: chromeId },
-    { $set: { tags: updatedTags } }
+    { $addToSet: { tags: newTag } }
   )
-  return { tags: updatedTags }
 }
 
-export function addNewTags (chromeId, newTags) {
-  return updateTags(chromeId, existingTags => {
-    let tagsList = [...existingTags, ...newTags]
-    return [...new Set(tagsList)]
-  })
-}
-
-export function removeTag (chromeId, tagToRemove) {
-  // Tag names are unique, so we can filter by value
-  return updateTags(chromeId, existingTags => {
-    return existingTags.filter(t => t !== tagToRemove)
-  })
-}
-
-export function fetchBookmarksWithTag (tag) {
+export function removeTag(chromeId, tagToRemove) {
   const userId = auth.user.identities[0].id
-  return bookmarksCollection.find(
-    { owner_id: userId, tags: tag },
-    { projection: { chrome_id: 1 }, sort: { dateAdded: -1 } },
-  ).toArray()
+  return bookmarksCollection.updateOne(
+    { owner_id: userId, chrome_id: chromeId },
+    { $pullAll: { tags: [tagToRemove] } }
+  )
 }
 
-export async function loadUserData () {
+export function fetchBookmarksWithTag(tag) {
   const userId = auth.user.identities[0].id
-  return await userDataCollection.findOne({owner_id: userId})
+  return bookmarksCollection
+    .find(
+      { owner_id: userId, tags: tag },
+      { projection: { chrome_id: 1 }, sort: { dateAdded: -1 } }
+    )
+    .toArray()
 }
 
-export function markBookmarksImported () {
+export async function loadUserData() {
+  const userId = auth.user.identities[0].id
+  return await userDataCollection.findOne({ owner_id: userId })
+}
+
+export function markBookmarksImported() {
   const userId = auth.user.identities[0].id
   return userDataCollection.updateOne(
     { owner_id: userId },
-    { $set: { is_chrome_imported: true }},
+    { $set: { is_chrome_imported: true } },
     { upsert: true }
   )
 }

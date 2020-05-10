@@ -1,13 +1,13 @@
 import Vue from 'vue'
 const { getDomain } = require('tldjs')
 
-function domainName (bookmarkURL) {
+function domainName(bookmarkURL) {
   const url = new URL(bookmarkURL)
   // Drop the subdomain, e.g. news.ycombinator.com -> ycombinator.com
   return getDomain(url.hostname)
 }
 
-function scrubFromList (state, type, id) {
+function scrubFromList(state, type, id) {
   let currList = state.lists[type]
   state.lists[type] = currList.filter(x => x !== id)
 }
@@ -28,7 +28,7 @@ export default {
 
   ADD_BOOKMARK: (state, { id, title, url }) => {
     let site = domainName(url)
-    Vue.set(state.bookmarks, id, { id, title, url, site, tags:[] })
+    Vue.set(state.bookmarks, id, { id, title, url, site, tags: [] })
     state.lists['new'] = [id, ...state.lists['new']]
   },
 
@@ -50,7 +50,7 @@ export default {
     state.filter = filter
   },
 
-  CLEAR_FILTERED: (state) => {
+  CLEAR_FILTERED: state => {
     state.lists['filtered'] = []
     state.lists['selected'] = []
     state.filter = { active: [], items: [] }
@@ -58,7 +58,7 @@ export default {
     state.page = 1
   },
 
-  INCR_PAGE: (state) => {
+  INCR_PAGE: state => {
     state.page += 1
   },
 
@@ -70,9 +70,10 @@ export default {
     state.bookmarks[id].tags = tags
   },
 
-  ADD_TAG: (state, { id, tags }) => {
-    // Multiple tags can be added together
-    state.bookmarks[id].tags = [...state.bookmarks[id].tags, ...tags]
+  ADD_TAG: (state, { id, tag }) => {
+    if (!state.bookmarks[id].tags.includes(tag)) {
+      state.bookmarks[id].tags = [...state.bookmarks[id].tags, tag]
+    }
   },
 
   REMOVE_TAG: (state, { id, tag: tagToRemove }) => {
