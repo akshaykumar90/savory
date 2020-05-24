@@ -4,6 +4,7 @@ const { VueLoaderPlugin } = require('vue-loader')
 const webpack = require('webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const Dotenv = require('dotenv-webpack')
 
 module.exports = {
   entry: {
@@ -83,6 +84,7 @@ module.exports = {
         from: 'src/assets/icons/*.png',
         flatten: true
       }
-    ])
+    ]),
+    new Dotenv()
   ]
 }

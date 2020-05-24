@@ -5,7 +5,6 @@ import { store } from './store'
 import { router } from './router'
 import { Auth0Plugin } from './auth'
 
-import { domain, clientId, audience } from '../auth_config.json'
 import {
   mongoApp,
   onLogin as mongoAppLogin,
@@ -38,9 +37,9 @@ Event.$on('login', mongoAppLogin)
 Event.$on('logout', mongoAppLogout)
 
 Vue.use(Auth0Plugin, {
-  domain,
-  clientId,
-  audience,
+  domain: process.env.AUTH0_DOMAIN,
+  clientId: process.env.AUTH0_CLIENTID,
+  audience: process.env.AUTH0_AUDIENCE,
   onLoginCallback: token => {
     Event.$emit('login', { token })
     chrome.runtime.sendMessage({ type: 'login', token })
