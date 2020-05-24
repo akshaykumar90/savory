@@ -9,6 +9,7 @@
     },
     "secret_config": {
         "signingKeys": [
+            "auth0-prod-savory",
             "auth0-dev-i59k7dih"
         ]
     },
