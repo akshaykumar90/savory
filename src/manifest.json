@@ -3,14 +3,18 @@
   "name": "Savory",
   "version": "0.1.0",
   "description": "Bookmark Manager Extension for Chrome",
-  "permissions": [
-    "bookmarks"
-  ],
-  "chrome_url_overrides": {
-    "bookmarks": "bookmarks.html"
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   },
   "background": {
     "scripts": ["background.js"],
     "persistent": false
-  }
+  },
+  "chrome_url_overrides": {
+    "bookmarks": "bookmarks.html"
+  },
+  "permissions": ["bookmarks"]
 }

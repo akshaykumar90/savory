@@ -1,4 +1,4 @@
-const path = require("path")
+const path = require('path')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
 const webpack = require('webpack')
@@ -8,10 +8,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
   entry: {
     background: ['@babel/polyfill', './src/background.js'],
-    bookmarks: ['@babel/polyfill', './src/bookmarks.js'],
+    bookmarks: ['@babel/polyfill', './src/bookmarks.js']
   },
   output: {
-    path: path.join(__dirname, "build"),
+    path: path.join(__dirname, 'build'),
     filename: '[name].js'
   },
   module: {
@@ -43,12 +43,12 @@ module.exports = {
         exclude: /node_modules/,
         use: [
           {
-            loader: 'style-loader',
+            loader: 'style-loader'
           },
           {
             loader: 'css-loader',
             options: {
-              importLoaders: 1,
+              importLoaders: 1
             }
           },
           {
@@ -65,18 +65,24 @@ module.exports = {
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development', // use 'development' unless process.env.NODE_ENV is defined
-      DEVTOOLS: 'false', // Disable devtools by default
+      DEVTOOLS: 'false' // Disable devtools by default
     }),
     new VueLoaderPlugin(),
     new FriendlyErrorsPlugin(),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', 'bookmarks.html'),
       chunks: ['bookmarks'],
-      filename: 'bookmarks.html',
+      filename: 'bookmarks.html'
     }),
-    new CopyWebpackPlugin([{
-      from: 'src/manifest.json',
-      to: 'manifest.json'
-    }]),
+    new CopyWebpackPlugin([
+      {
+        from: 'src/manifest.json',
+        to: 'manifest.json'
+      },
+      {
+        from: 'src/assets/icons/*.png',
+        flatten: true
+      }
+    ])
   ]
 }
