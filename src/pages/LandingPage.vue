@@ -19,7 +19,8 @@
           Get started for free and re-discover your bookmarks with the power
           of Savory.
         </p>
-        <button class="mt-4 bg-primary hover:bg-blue-700 text-lg tracking-wide text-white py-2 px-4 rounded select-none focus:outline-none" @click="login">
+        <button class="mt-4 bg-primary hover:bg-blue-700 text-lg tracking-wide text-white py-2 px-4 rounded select-none focus:outline-none"
+                @click="login('signUp')">
           Create an Account
         </button>
         <p class="text-xs leading-5 mt-4 text-gray-700">Already have an account? <a href="#" @click="login" class="underline">Sign In</a></p>
@@ -29,18 +30,18 @@
 </template>
 
 <script>
-  export default {
-    name: 'landing-page',
+export default {
+  name: 'landing-page',
 
-    methods: {
-      async login () {
-        await this.$auth.loginWithPopup()
-        if (this.$auth.isAuthenticated) {
-          this.$router.push({
-            name: 'welcome'
-          })
-        }
+  methods: {
+    async login(initialScreen) {
+      await this.$auth.loginWithPopup(initialScreen)
+      if (this.$auth.isAuthenticated) {
+        this.$router.push({
+          name: 'welcome'
+        })
       }
     }
   }
+}
 </script>

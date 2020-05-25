@@ -25,11 +25,16 @@ export const useAuth0 = ({
       }
     },
     methods: {
-      async loginWithPopup() {
+      async loginWithPopup(initialScreen) {
+        // https://community.auth0.com/t/how-to-change-initial-screen-to-sign-up-using-auth0-spa-js-universal-login/32941/9
+        const loginOptions = {
+          ...(initialScreen === 'signUp' && { screen_hint: 'signup' })
+        }
+
         this.popupOpen = true
 
         try {
-          await this.auth0Client.loginWithPopup()
+          await this.auth0Client.loginWithPopup(loginOptions)
           this.user = await this.auth0Client.getUser()
           this.isAuthenticated = await this.auth0Client.isAuthenticated()
           this.error = null
@@ -47,19 +52,21 @@ export const useAuth0 = ({
         // The URL where Auth0 will redirect the browser to after the logout.
         // This will re-load the extension hence any in-memory state would be
         // lost. I think this is _ok_ for a logout scenario.
-        const returnTo = `chrome-extension://${chrome.runtime.id}/bookmarks.html#/logout`
+        const returnTo = `chrome-extension://${
+          chrome.runtime.id
+        }/bookmarks.html#/logout`
         // Give some time for any async logout callbacks to finish
         setTimeout(() => {
           this.auth0Client.logout({ returnTo })
         }, 1000)
-      },
+      }
     },
     async created() {
       this.auth0Client = await createAuth0Client({
         domain: options.domain,
         client_id: options.clientId,
         audience: options.audience,
-        redirect_uri: redirectUri,
+        redirect_uri: redirectUri
       })
 
       this.isAuthenticated = await this.auth0Client.isAuthenticated()
