@@ -5,6 +5,7 @@ const webpack = require('webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 module.exports = {
   entry: {
@@ -64,8 +65,8 @@ module.exports = {
     ]
   },
   plugins: [
+    new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'development', // use 'development' unless process.env.NODE_ENV is defined
       DEVTOOLS: 'false' // Disable devtools by default
     }),
     new VueLoaderPlugin(),
