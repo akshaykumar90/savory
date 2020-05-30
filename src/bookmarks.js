@@ -11,7 +11,7 @@ import {
   onLogout as mongoAppLogout
 } from './api/mongodb'
 
-const isDev = process.env.NODE_ENV === 'development'
+const isDev = process.env.NODE_ENV !== 'production'
 const enableDevtools = process.env.DEVTOOLS === 'true'
 
 if (isDev && enableDevtools) {
