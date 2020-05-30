@@ -12,10 +12,25 @@ function scrubFromList(state, type, id) {
   state.lists[type] = currList.filter(x => x !== id)
 }
 
+function addTag(state, tag) {
+  let count = state.tags[tag] || 0
+  Vue.set(state.tags, tag, ++count)
+}
+
+function deleteTag(state, tag) {
+  let count = state.tags[tag]
+  if (--count === 0) {
+    Vue.delete(state.tags, tag)
+  } else {
+    Vue.set(state.tags, tag, count)
+  }
+}
+
 export default {
   SET_BOOKMARKS: (state, { items }) => {
     items.forEach(({ id, title, dateAdded, url, tags }) => {
       let site = domainName(url)
+      tags.forEach(t => addTag(state, t))
       Vue.set(state.bookmarks, id, { id, title, dateAdded, url, site, tags })
     })
     let newIds = items.map(({ id }) => id)
@@ -33,6 +48,8 @@ export default {
   },
 
   REMOVE_BOOKMARK: (state, { id: idToDelete }) => {
+    let existingTags = state.bookmarks[idToDelete].tags
+    existingTags.forEach(t => deleteTag(state, t))
     Vue.delete(state.bookmarks, idToDelete)
     scrubFromList(state, 'new', idToDelete)
     scrubFromList(state, 'filtered', idToDelete)
@@ -66,17 +83,15 @@ export default {
     state.page = page
   },
 
-  SET_TAGS: (state, { id, tags }) => {
-    state.bookmarks[id].tags = tags
-  },
-
   ADD_TAG: (state, { id, tag }) => {
     if (!state.bookmarks[id].tags.includes(tag)) {
+      addTag(state, tag)
       state.bookmarks[id].tags = [...state.bookmarks[id].tags, tag]
     }
   },
 
   REMOVE_TAG: (state, { id, tag: tagToRemove }) => {
+    deleteTag(state, tagToRemove)
     let existingTags = state.bookmarks[id].tags
     state.bookmarks[id].tags = existingTags.filter(t => t !== tagToRemove)
   },

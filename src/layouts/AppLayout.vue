@@ -10,14 +10,14 @@
         <div class="w-full max-w-lg">
           <SearchBar ref="searchInput"></SearchBar>
         </div>
-        <div v-if="!$auth.loading">
+        <div v-if="!$auth.loading" class="text-xs text-muted">
           <button v-if="!$auth.isAuthenticated" @click="login">Sign In</button>
           <button v-if="$auth.isAuthenticated" @click="logout">Sign Out</button>
         </div>
       </div>
     </header>
     <div class="flex flex-1">
-      <div class="w-64 p-6 flex-shrink-0 ">
+      <div class="w-64 pt-6 pl-8 flex-shrink-0">
         <SideBar class="fixed"/>
       </div>
       <main class="flex-1">
@@ -25,60 +25,65 @@
           <slot></slot>
         </div>
       </main>
+      <div class="w-64 pt-6 flex-shrink-0">
+        <RightBar/>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-  import SearchBar from '../components/SearchBar.vue'
-  import SideBar from '../components/SideBar.vue'
-  import _ from 'lodash'
+import SearchBar from '../components/SearchBar.vue'
+import SideBar from '../components/SideBar.vue'
+import RightBar from '../components/RightBar.vue'
+import _ from 'lodash'
 
-  export default {
-    name: 'app-layout',
+export default {
+  name: 'app-layout',
 
-    components: {
-      SearchBar,
-      SideBar,
+  components: {
+    SearchBar,
+    SideBar,
+    RightBar
+  },
+
+  computed: {
+    hasMore() {
+      return this.$store.state.page < this.$store.getters.maxPage
+    }
+  },
+
+  methods: {
+    bottomVisible() {
+      const scrollY = window.scrollY
+      const visible = document.documentElement.clientHeight
+      const pageHeight = document.documentElement.scrollHeight
+      // Some wiggle room (.9) to allow time to load content before user
+      // reaches bottom
+      const bottomOfPage = visible + scrollY >= 0.9 * pageHeight
+      return bottomOfPage || pageHeight < visible
     },
-
-    computed: {
-      hasMore () {
-        return this.$store.state.page < this.$store.getters.maxPage
-      },
-    },
-
-    methods: {
-      bottomVisible() {
-        const scrollY = window.scrollY
-        const visible = document.documentElement.clientHeight
-        const pageHeight = document.documentElement.scrollHeight
-        // Some wiggle room (.9) to allow time to load content before user
-        // reaches bottom
-        const bottomOfPage = visible + scrollY >= .9 * pageHeight
-        return bottomOfPage || pageHeight < visible
-      },
-      onScroll() {
-        if (this.bottomVisible() && this.hasMore) {
-          Event.$emit('loadItems')
-        }
-      },
-      login() {
-        this.$auth.loginWithPopup()
-      },
-      logout() {
-        this.$auth.logout()
+    onScroll() {
+      if (this.bottomVisible() && this.hasMore) {
+        Event.$emit('loadItems')
       }
     },
-
-    destroyed() {
-      window.removeEventListener('scroll', this.scrollHandler)
+    login() {
+      this.$auth.loginWithPopup()
     },
+    logout() {
+      this.$auth.logout()
+    }
+  },
 
-    mounted() {
-      this.scrollHandler = _.throttle(this.onScroll, 200)
-      window.addEventListener('scroll', this.scrollHandler)
-      this.$refs.searchInput.focus()
-    },
+  destroyed() {
+    window.removeEventListener('scroll', this.scrollHandler)
+  },
+
+  mounted() {
+    this.scrollHandler = _.throttle(this.onScroll, 200)
+    window.addEventListener('scroll', this.scrollHandler)
+    this.$refs.searchInput.focus()
   }
+}
 </script>

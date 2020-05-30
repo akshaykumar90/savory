@@ -1,5 +1,5 @@
 <template>
-  <nav class="py-4">
+  <nav>
     <p class="text-xs text-muted">{{ pluralized }}</p>
     <p class="text-2xl text-muted font-bold mt-2">{{ numBookmarks.toLocaleString('en') }}</p>
     <div v-if="numSelected" class="flex items-end mt-4">
@@ -12,25 +12,25 @@
 </template>
 
 <script>
-  export default {
-    name: 'side-bar',
+export default {
+  name: 'side-bar',
 
-    computed: {
-      numBookmarks () {
-        return this.$store.getters.numBookmarks
-      },
-      pluralized () {
-        return this.numBookmarks === 1 ? 'Bookmark' : 'Bookmarks'
-      },
-      numSelected () {
-        return this.$store.state.lists['selected'].length
-      },
+  computed: {
+    numBookmarks() {
+      return this.$store.getters.numBookmarks
     },
+    pluralized() {
+      return this.numBookmarks === 1 ? 'Bookmark' : 'Bookmarks'
+    },
+    numSelected() {
+      return this.$store.state.lists['selected'].length
+    }
+  },
 
-    methods: {
-      deleteSelected () {
-        this.$store.dispatch('BULK_DELETE_BOOKMARKS')
-      }
-    },
+  methods: {
+    deleteSelected() {
+      this.$store.dispatch('BULK_DELETE_BOOKMARKS')
+    }
   }
+}
 </script>
