@@ -6,6 +6,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const GitRevisionPlugin = require('git-revision-webpack-plugin')
+
+const gitRevisionPlugin = new GitRevisionPlugin()
 
 module.exports = {
   entry: {
@@ -66,8 +69,10 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
+    gitRevisionPlugin,
     new webpack.EnvironmentPlugin({
-      DEVTOOLS: 'false' // Disable devtools by default
+      DEVTOOLS: 'false', // Disable devtools by default
+      VERSION: gitRevisionPlugin.version()
     }),
     new VueLoaderPlugin(),
     new FriendlyErrorsPlugin(),

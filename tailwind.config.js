@@ -1,8 +1,6 @@
 module.exports = {
-  purge: [
-    './src/**/*.html',
-    './src/**/*.vue'
-  ],
+  purge: ['./src/**/*.html', './src/**/*.vue'],
+
   theme: {
     fontFamily: {
       sans: [
@@ -22,37 +20,34 @@ module.exports = {
       ]
     },
 
-    textColor: theme => ({
-      default: 'var(--color-grey-800)',
-      primary: 'var(--color-primary)',
-      muted: 'var(--color-grey-600)',
-      ...theme('colors')
-    }),
+    extend: {
+      textColor: {
+        default: 'var(--color-grey-800)',
+        primary: 'var(--color-primary)',
+        muted: 'var(--color-grey-600)'
+      },
 
-    backgroundColor: theme => ({
-      default: 'var(--color-bg-default)',
-      primary: 'var(--color-primary)',
-      grey: 'var(--color-grey)',
-      'grey-100': 'var(--color-grey-100)',
-      'grey-200': 'var(--color-grey-200)',
-      'grey-300': 'var(--color-grey-300)',
-      ...theme('colors')
-    }),
+      backgroundColor: {
+        default: 'var(--color-bg-default)',
+        primary: 'var(--color-primary)',
+        grey: 'var(--color-grey)',
+        'grey-100': 'var(--color-grey-100)',
+        'grey-200': 'var(--color-grey-200)',
+        'grey-300': 'var(--color-grey-300)'
+      },
 
-    borderColor: theme => ({
-      default: theme('colors.grey-light'),
-      primary: 'var(--color-primary)',
-      ...theme('colors')
-    }),
+      borderColor: {
+        default: 'var(--color-grey-800)',
+        primary: 'var(--color-primary)'
+      },
 
-    inset: {
-      '0': '0',
-      auto: 'auto',
-      '1/2': '50%'
-    },
+      inset: {
+        '1/2': '50%'
+      },
 
-    opacity: {
-      '90': '0.9'
+      opacity: {
+        '90': '0.9'
+      }
     }
   },
 

@@ -47,6 +47,12 @@ export default {
     RightBar
   },
 
+  data: function() {
+    return {
+      version: process.env.VERSION
+    }
+  },
+
   computed: {
     hasMore() {
       return this.$store.state.page < this.$store.getters.maxPage
