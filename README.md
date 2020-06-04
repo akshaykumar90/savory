@@ -20,12 +20,26 @@ In Chrome:
 
 ## Development
 
+### pre-commit
+
+Install [pre-commit](https://pre-commit.com/).
+
+```bash
+brew install pre-commit
+```
+
+Run `pre-commit install` to set up the git hook scripts so that `pre-commit` can run automatically on `git commit`.
+
+### webpack watch
+
 Instead of manually running `npm run build` every time, use the `dev` command
 to automatically compile code whenever it changes.
 
 ```bash
 npm run dev
 ```
+
+### vue devtools
 
 Set `DEVTOOLS=true` to use [vue-devtools][1].
 
