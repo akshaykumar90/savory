@@ -24,7 +24,6 @@ function createStore() {
           /* number */
         ],
         filtered: [],
-        selected: []
       },
       filter: {
         active: [
@@ -32,13 +31,13 @@ function createStore() {
         ],
         items: [
           /* number */
-        ]
+        ],
       },
-      importPercent: 0
+      importPercent: 0,
     },
     actions,
     mutations,
-    getters
+    getters,
   })
 }
 

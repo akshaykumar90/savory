@@ -11,7 +11,7 @@ import {
   getCount,
   setCount,
   deleteBookmark,
-  addTag
+  addTag,
 } from '../api/mongodb'
 
 const NUM_SYNC_BOOKMARKS = 6000
@@ -30,13 +30,13 @@ function getDrillDownFunction(getters) {
     }
     let currFiltered = new Set(currentItems)
     return currFiltered.size
-      ? bookmarkIds.filter(x => currFiltered.has(x))
+      ? bookmarkIds.filter((x) => currFiltered.has(x))
       : bookmarkIds
   }
 }
 
 function getFiltersFromQueryString(filterString) {
-  return filterString.split('/').map(filter => {
+  return filterString.split('/').map((filter) => {
     let peeled = filter.split(':')
     const type = peeled[0] === 's' ? 'site' : 'tag'
     const name = peeled[1]
@@ -64,7 +64,7 @@ export default {
     Event.$emit('newItems')
     let countResponse = await getCountPromise
     commit('SET_BOOKMARKS_COUNT', {
-      count: countResponse ? countResponse.count : 0
+      count: countResponse ? countResponse.count : 0,
     })
     let allBookmarks = await fetchAllBookmarksPromise
     let tailBookmarks = allBookmarks.slice(initialLoadNum)
@@ -78,7 +78,7 @@ export default {
   },
 
   LOAD_MORE_BOOKMARKS: ({ state, commit }) => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       // The setTimeout simulates async remote api call to load more content
       setTimeout(() => {
         commit('INCR_PAGE')
@@ -98,13 +98,18 @@ export default {
   },
 
   BULK_DELETE_BOOKMARKS: async ({ state, commit }) => {
-    let currSelected = [...state.lists['selected']]
-    currSelected.map(id => commit('REMOVE_BOOKMARK', { id }))
+    let currSelected = []
+    _.forOwn(state.bookmarks, (val, key) => {
+      if (val.selected) {
+        currSelected.push(key)
+      }
+    })
+    currSelected.map((id) => commit('REMOVE_BOOKMARK', { id }))
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', {
-      count: state.numBookmarks - currSelected.length
+      count: state.numBookmarks - currSelected.length,
     })
-    currSelected.map(async id => await deleteBookmark(id))
+    currSelected.map(async (id) => await deleteBookmark(id))
     return setCount(state.numBookmarks)
   },
 
@@ -131,7 +136,7 @@ export default {
 
   FILTER_ADDED: ({ state }, { type, name, drillDown }) => {
     let newFilter = { type, name }
-    const filterAlreadyExists = state.filter.active.some(x =>
+    const filterAlreadyExists = state.filter.active.some((x) =>
       _.isEqual(x, newFilter)
     )
     if (filterAlreadyExists) {
@@ -151,7 +156,7 @@ export default {
     }
     let activeFilters = [
       ...currFilters.slice(0, index),
-      ...currFilters.slice(index + 1)
+      ...currFilters.slice(index + 1),
     ]
     let filtersParam = getQueryStringFromFilters(activeFilters)
     return filtersParam
@@ -171,7 +176,7 @@ export default {
       let searchResults = await searchBookmarks(query)
       let currFiltered = new Set(state.filter.items)
       const filteredIds = currFiltered.size
-        ? searchResults.filter(x => currFiltered.has(x))
+        ? searchResults.filter((x) => currFiltered.has(x))
         : searchResults
       commit('SET_FILTERED', filteredIds)
     }
@@ -226,5 +231,5 @@ export default {
       console.log(`${Math.floor(percent * 100)}%`)
     }
     console.log('...done!')
-  }
+  },
 }
