@@ -33,7 +33,9 @@ function addTag(state, tag) {
 }
 
 function clearSelected(state) {
-  _.forOwn(state.bookmarks, (val) => (val.selected = false))
+  _.forOwn(state.bookmarks, (val, id) => {
+    state.bookmarks[id].selected = false
+  })
 }
 
 function deleteTag(state, tag) {
