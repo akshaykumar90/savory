@@ -48,18 +48,37 @@ class EventProcessor {
 
   consume() {
     const mutations = []
+    const matchedUrls = []
 
-    this.urlsCreated.forEach((new_chrome_id, url) => {
-      if (this.urlsDeleted.has(url)) {
-        const old_chrome_id = this.urlsDeleted.get(url)
+    let copyUrlsCreated = new Map(this.urlsCreated)
+    let copyUrlsDeleted = new Map(this.urlsDeleted)
+
+    copyUrlsCreated.forEach((new_chrome_id, url) => {
+      if (copyUrlsDeleted.has(url)) {
+        const old_chrome_id = copyUrlsDeleted.get(url)
         if (new_chrome_id !== old_chrome_id) {
+          matchedUrls.push(url)
           mutations.push({ old_chrome_id, new_chrome_id })
         }
       }
     })
 
-    this.urlsCreated = new Map()
-    this.urlsDeleted = new Map()
+    /**
+     * Only remove urls that matched in this run. The idea is that urls that
+     * were not matched may find a match in the next run. This should therefore
+     * reliably record all mutations even when they are split between
+     * consecutive time windows.
+     *
+     * The catch is that the map may grow indefinitely with valid (i.e. user
+     * initiated) bookmark created and removed events. That is ok because the
+     * background script is automatically suspended after a few seconds of
+     * inactivity and therefore that memory should be eventually garbage
+     * collected.
+     */
+    for (const url of matchedUrls) {
+      this.urlsCreated.delete(url)
+      this.urlsDeleted.delete(url)
+    }
 
     return mutations.length ? saveChromeUpdates(mutations) : Promise.resolve()
   }

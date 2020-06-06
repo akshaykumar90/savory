@@ -4,6 +4,8 @@ import {
   Stitch,
 } from 'mongodb-stitch-browser-sdk'
 
+import moment from 'moment'
+
 const APP_ID = process.env.STITCH_APP_ID
 
 const mongoApp = Stitch.hasAppClient(APP_ID)
@@ -62,6 +64,7 @@ export function saveChromeUpdates(mutations) {
   const userId = auth.user.identities[0].id
   for (const mut of mutations) {
     mut.owner_id = userId
+    mut.timestamp = moment.now()
   }
   return chromeMutationsCollection.insertMany(mutations)
 }
