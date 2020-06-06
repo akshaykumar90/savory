@@ -8,7 +8,7 @@ import { Auth0Plugin } from './auth'
 import {
   mongoApp,
   onLogin as mongoAppLogin,
-  onLogout as mongoAppLogout
+  onLogout as mongoAppLogout,
 } from './api/mongodb'
 
 const isDev = process.env.NODE_ENV !== 'production'
@@ -18,9 +18,7 @@ if (isDev && enableDevtools) {
   devtools.connect(/* host, port */)
 }
 
-chrome.runtime.onMessage.addListener(({ type, bookmark }) => {
-  store.dispatch({ type, bookmark })
-})
+chrome.runtime.onMessage.addListener((p) => store.dispatch(p))
 
 // This is the event hub we'll use in every
 // component to communicate between them.
@@ -29,7 +27,7 @@ window.Event = new Vue()
 // Clicking outside tags row input should exit edit mode
 // Inspired from: https://stackoverflow.com/a/36180348/7003143
 // Also see `collapseSiblings` in TagsRow.vue
-document.body.addEventListener('click', event => {
+document.body.addEventListener('click', (event) => {
   Event.$emit('exitEditMode', {})
 })
 
@@ -40,14 +38,14 @@ Vue.use(Auth0Plugin, {
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
   audience: process.env.AUTH0_AUDIENCE,
-  onLoginCallback: token => {
+  onLoginCallback: (token) => {
     Event.$emit('login', { token })
     chrome.runtime.sendMessage({ type: 'login', token })
   },
   onLogoutCallback: () => {
     Event.$emit('logout')
     chrome.runtime.sendMessage({ type: 'logout' })
-  }
+  },
 })
 
 const { auth } = mongoApp
@@ -59,5 +57,5 @@ if (auth.isLoggedIn) {
 new Vue({
   router,
   store,
-  render: h => h(App)
+  render: (h) => h(App),
 }).$mount('#app')

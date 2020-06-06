@@ -1,7 +1,7 @@
 import {
   CustomCredential,
   RemoteMongoClient,
-  Stitch
+  Stitch,
 } from 'mongodb-stitch-browser-sdk'
 
 import { app_id } from '../stitch/stitch.json'
@@ -22,12 +22,15 @@ const bookmarksCountCollection = mongoClient
   .db('savory')
   .collection('bookmarks_count')
 const userDataCollection = mongoClient.db('savory').collection('user_data')
+const chromeMutationsCollection = mongoClient
+  .db('savory')
+  .collection('chrome_mutations')
 
 export function stitchLoggedIn() {
   if (auth.isLoggedIn) {
     return Promise.resolve()
   } else {
-    return new Promise(resolve =>
+    return new Promise((resolve) =>
       auth.addAuthListener({ onUserLoggedIn: resolve })
     )
   }
@@ -53,6 +56,14 @@ export async function importBookmarks(chunk) {
     bookmark.owner_id = userId
   }
   await bookmarksCollection.insertMany(chunk)
+}
+
+export function saveChromeUpdates(mutations) {
+  const userId = auth.user.identities[0].id
+  for (const mut of mutations) {
+    mut.owner_id = userId
+  }
+  return chromeMutationsCollection.insertMany(mutations)
 }
 
 export function fetchRecent(num) {

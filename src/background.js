@@ -1,32 +1,114 @@
 import {
   createBookmark,
-  deleteBookmark,
   onLogin as mongoAppLogin,
-  onLogout as mongoAppLogout
+  onLogout as mongoAppLogout,
+  saveChromeUpdates,
 } from './api/mongodb'
+import moment from 'moment'
+import _ from 'lodash'
 
-function setupListeners (callback) {
-    // https://developer.chrome.com/extensions/bookmarks#event-onCreated
-    chrome.bookmarks.onCreated.addListener((id, bookmark) => callback({
-        type: 'ON_BOOKMARK_CREATED',
-        bookmark
-    }))
-    // https://developer.chrome.com/extensions/bookmarks#event-onRemoved
-    chrome.bookmarks.onRemoved.addListener((id, { node }) => callback({
-        type: 'ON_BOOKMARK_REMOVED',
-        bookmark: node
-    }))
+/**
+ * This class is a hack to work around Chrome's sporadic reshuffling of
+ * bookmarks. It practice, it looks like Chrome deletes a bookmark with an old
+ * id, and then inserts the same bookmark with a new id. When this happens, it
+ * usually happens in bulk with a lot of bookmarks being created and deleted
+ * rapidly.
+ *
+ * We care about this because Savory relies on Chrome bookmark search (see
+ * api/index.js). Therefore, we need to keep the ids stored in MongoDB
+ * up-to-date with the Chrome-internal ids and reliably relay any updates when
+ * they happen. We have lost updates in the past where we have received 1000s of
+ * such events in a couple of minutes. This class implements a batching
+ * mechanism to record such mutations and store them in MongoDB with a bulk
+ * insert request.
+ *
+ * Worth noting is that we do not actually update the bookmarks in Savory. We
+ * are simply storing a log of mutations in the database so that we can recover
+ * *manually* when this happens. There are a couple of reasons for this: 1) This
+ * is a hack. And we don't want to over-invest in this *fix*. The actual fix is
+ * to move away from Chrome search, which is already planned. 2) Stitch SDK does
+ * not expose a bulk update request method. Making a ton of requests to MongoDB
+ * defeats the purpose of batching and might result in similar data-loss when we
+ * are not able to keep up with incoming events.
+ */
+class EventProcessor {
+  constructor() {
+    this.urlsCreated = new Map()
+    this.urlsDeleted = new Map()
+    this.throttledConsume = _.throttle(this.consume, 5000, { leading: false })
+  }
+
+  bookmarkCreated(id, url) {
+    this.urlsCreated.set(url, id)
+  }
+
+  bookmarkRemoved(id, url) {
+    this.urlsDeleted.set(url, id)
+  }
+
+  consume() {
+    const mutations = []
+
+    this.urlsCreated.forEach((new_chrome_id, url) => {
+      if (this.urlsDeleted.has(url)) {
+        const old_chrome_id = this.urlsDeleted.get(url)
+        if (new_chrome_id !== old_chrome_id) {
+          mutations.push({ old_chrome_id, new_chrome_id })
+        }
+      }
+    })
+
+    this.urlsCreated = new Map()
+    this.urlsDeleted = new Map()
+
+    return mutations.length ? saveChromeUpdates(mutations) : Promise.resolve()
+  }
+
+  push({ type, id, url }) {
+    if (type === 'created') {
+      this.bookmarkCreated(id, url)
+    } else if (type === 'removed') {
+      this.bookmarkRemoved(id, url)
+    }
+    this.throttledConsume()
+  }
 }
 
-setupListeners(async function ({ type, bookmark }) {
-    if (type === 'ON_BOOKMARK_CREATED') {
-        const { id, title, url, dateAdded } = bookmark
-        await createBookmark({ chrome_id: id, title, url, dateAdded, tags: [] })
-        chrome.runtime.sendMessage({ type: 'ON_BOOKMARK_CREATED', bookmark })
-    } else if (type === 'ON_BOOKMARK_REMOVED') {
-        await deleteBookmark(bookmark.id)
-        chrome.runtime.sendMessage({ type: 'ON_BOOKMARK_REMOVED', bookmark })
-    }
+const ep = new EventProcessor()
+
+chrome.bookmarks.onCreated.addListener((id, { url }) =>
+  ep.push({ type: 'created', id, url })
+)
+chrome.bookmarks.onRemoved.addListener((id, { node: { url } }) =>
+  ep.push({ type: 'removed', id, url })
+)
+
+/**
+ * This is the real event handler for listening to Chrome's bookmark created
+ * events. We ignore any events with an old (more than 10 seconds ago) timestamp
+ * to avoid getting stuck in the event storm related to the sporadic reshuffling
+ * which Chrome does sometimes (see EventProcessor above).
+ *
+ * Notably, we do not handle Chrome's bookmark removed events. There are a
+ * couple of reasons: 1) We do not have a way to distinguish between real
+ * human-initiated events vs. events originating from Chrome shuffle. We can not
+ * use the dateAdded timestamp similar to created events. 2) Even if we were
+ * able to reliably follow the event storm resulting from Chrome's shuffling of
+ * bookmarks, we would actually lose any tags stored on the bookmarks being
+ * deleted. :( 3) We already have a delete button in Savory and it's probably a
+ * good idea to decouple from Chrome as much as possible.
+ *
+ * Eventually, we will roll out our own popup for adding/removing bookmarks from
+ * the browser's UI so that we can support adding tags right when we add a
+ * bookmark (and to generally have more control over the behavior). This will
+ * make this event handler and its associated hacks unnecessary.
+ */
+chrome.bookmarks.onCreated.addListener(async (__, bookmark) => {
+  const { id, title, url, dateAdded } = bookmark
+  if (moment(dateAdded).isAfter(moment().subtract(10, 'seconds'))) {
+    await createBookmark({ chrome_id: id, title, url, dateAdded, tags: [] })
+    chrome.runtime.sendMessage({ type: 'ON_BOOKMARK_CREATED', bookmark })
+  }
 })
 
 chrome.runtime.onMessage.addListener(({ type, ...args }) => {
