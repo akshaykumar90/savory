@@ -4,11 +4,11 @@ import {
   Stitch,
 } from 'mongodb-stitch-browser-sdk'
 
-import { app_id } from '../stitch/stitch.json'
+const APP_ID = process.env.STITCH_APP_ID
 
-const mongoApp = Stitch.hasAppClient(app_id)
-  ? Stitch.getAppClient(app_id)
-  : Stitch.initializeAppClient(app_id)
+const mongoApp = Stitch.hasAppClient(APP_ID)
+  ? Stitch.getAppClient(APP_ID)
+  : Stitch.initializeAppClient(APP_ID)
 
 const { auth } = mongoApp
 

@@ -4,7 +4,7 @@ Bookmark Manager Extension for Chrome
 
 ## Setup
 
-``` bash
+```bash
 # install dependencies
 yarn install
 
@@ -54,23 +54,4 @@ Instead, use the standalone Electron app for vue-devtools.
 ./node_modules/.bin/vue-devtools
 ```
 
-[1]:https://github.com/vuejs/vue-devtools
-
-## Backend
-
-Savory uses [MongoDB Stitch][2] as its serverless backend.
-
-To sync current snapshot:
-
-```bash
-rm -rf src/stitch
-./node_modules/.bin/stitch-cli export --app-id savory-backend-ailsq --output src/stitch
-```
-
-To deploy changes:
-
-```bash
-./node_modules/.bin/stitch-cli import --app-id savory-backend-ailsq --path src/stitch
-```
-
-[2]: https://www.mongodb.com/cloud/stitch
+[1]: https://github.com/vuejs/vue-devtools
