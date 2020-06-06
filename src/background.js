@@ -109,8 +109,8 @@ chrome.bookmarks.onRemoved.addListener((id, { node: { url } }) =>
  * which Chrome does sometimes (see EventProcessor above).
  *
  * Notably, we do not handle Chrome's bookmark removed events. There are a
- * couple of reasons: 1) We do not have a way to distinguish between real
- * human-initiated events vs. events originating from Chrome shuffle. We can not
+ * few reasons for this: 1) We do not have a way to distinguish between real
+ * user-initiated events vs. events originating from Chrome shuffle. We cannot
  * use the dateAdded timestamp similar to created events. 2) Even if we were
  * able to reliably follow the event storm resulting from Chrome's shuffling of
  * bookmarks, we would actually lose any tags stored on the bookmarks being
@@ -119,7 +119,7 @@ chrome.bookmarks.onRemoved.addListener((id, { node: { url } }) =>
  *
  * Eventually, we will roll out our own popup for adding/removing bookmarks from
  * the browser's UI so that we can support adding tags right when we add a
- * bookmark (and to generally have more control over the behavior). This will
+ * bookmark (and to have more control over the behavior in general). This will
  * make this event handler and its associated hacks unnecessary.
  */
 chrome.bookmarks.onCreated.addListener(async (__, bookmark) => {
