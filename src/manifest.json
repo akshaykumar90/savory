@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Savory",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Bookmark Manager Extension for Chrome",
   "icons": {
     "16": "icon16.png",
