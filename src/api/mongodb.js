@@ -82,6 +82,11 @@ export function getCount() {
 }
 
 export function setCount(newCount) {
+  // FIXME: This check should be done at a common place since it applies to
+  //  ~all methods trying to talk to MongoDB.
+  if (!auth.isLoggedIn) {
+    return Promise.resolve()
+  }
   const userId = auth.user.identities[0].id
   return bookmarksCountCollection.updateOne(
     { owner_id: userId },

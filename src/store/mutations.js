@@ -90,6 +90,14 @@ export default {
     clearSelected(state)
   },
 
+  CLEAR_STATE: (state) => {
+    // FIXME: This only clears state set during the SYNC_BOOKMARKS action.
+    state.bookmarks = {}
+    state.tags = {}
+    state.numBookmarks = 0
+    state.lists['new'] = []
+  },
+
   INCR_PAGE: (state) => {
     state.page += 1
   },

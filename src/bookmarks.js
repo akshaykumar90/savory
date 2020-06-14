@@ -31,8 +31,14 @@ document.body.addEventListener('click', (event) => {
   Event.$emit('exitEditMode', {})
 })
 
-Event.$on('login', mongoAppLogin)
-Event.$on('logout', mongoAppLogout)
+Event.$on('login', ({ token }) => {
+  mongoAppLogin({ token })
+  chrome.runtime.sendMessage({ type: 'login', token })
+})
+Event.$on('logout', () => {
+  mongoAppLogout()
+  chrome.runtime.sendMessage({ type: 'logout' })
+})
 
 Vue.use(Auth0Plugin, {
   domain: process.env.AUTH0_DOMAIN,
@@ -40,11 +46,9 @@ Vue.use(Auth0Plugin, {
   audience: process.env.AUTH0_AUDIENCE,
   onLoginCallback: (token) => {
     Event.$emit('login', { token })
-    chrome.runtime.sendMessage({ type: 'login', token })
   },
   onLogoutCallback: () => {
     Event.$emit('logout')
-    chrome.runtime.sendMessage({ type: 'logout' })
   },
 })
 
