@@ -2,8 +2,12 @@
   <div class="flex flex-col">
     <header class="flex bg-grey-300 flex-shrink-0 sticky top-0 z-10">
       <div class="w-64 flex-shrink-0 px-4 py-3">
-        <router-link to="/">
-          <img class="block w-32 ml-6" src="../assets/logo_light.svg" alt="logo">
+        <router-link to="/u">
+          <img
+            class="block w-32 ml-6"
+            src="../assets/logo_light.svg"
+            alt="logo"
+          />
         </router-link>
       </div>
       <div class="flex-1 flex items-center justify-between px-6">
@@ -18,7 +22,7 @@
     </header>
     <div class="flex flex-1">
       <div class="w-64 pt-6 pl-8 flex-shrink-0">
-        <SideBar class="fixed"/>
+        <SideBar class="fixed" />
       </div>
       <main class="flex-1">
         <div class="px-6 mt-4 w-full max-w-3xl">
@@ -26,7 +30,7 @@
         </div>
       </main>
       <div class="w-64 pt-6 flex-shrink-0">
-        <RightBar/>
+        <RightBar />
       </div>
     </div>
   </div>
@@ -44,19 +48,19 @@ export default {
   components: {
     SearchBar,
     SideBar,
-    RightBar
+    RightBar,
   },
 
-  data: function() {
+  data: function () {
     return {
-      version: process.env.VERSION
+      version: process.env.VERSION,
     }
   },
 
   computed: {
     hasMore() {
       return this.$store.state.page < this.$store.getters.maxPage
-    }
+    },
   },
 
   methods: {
@@ -79,7 +83,7 @@ export default {
     },
     logout() {
       this.$auth.logout()
-    }
+    },
   },
 
   destroyed() {
@@ -90,6 +94,6 @@ export default {
     this.scrollHandler = _.throttle(this.onScroll, 200)
     window.addEventListener('scroll', this.scrollHandler)
     this.$refs.searchInput.focus()
-  }
+  },
 }
 </script>
