@@ -1,41 +1,69 @@
 <template>
-  <div class="flex flex-wrap items-end py-1 mt-2" @click.stop="collapseSiblings"
-       v-bind:class="[editMode ? 'border-0 bg-grey-100 rounded -ml-1 pl-1': '']">
-    <button class="text-primary p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
-            v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
-            v-if="bookmark.site"
-            @click="tagClicked({tagType: 'site'})">
+  <div
+    class="flex flex-wrap items-end py-1 mt-2"
+    @click.stop="collapseSiblings"
+    v-bind:class="[editMode ? 'border-0 bg-grey-100 rounded -ml-1 pl-1' : '']"
+  >
+    <button
+      class="text-primary p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
+      v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
+      v-if="bookmark.site"
+      @click="tagClicked({ tagType: 'site' })"
+    >
       {{ bookmark.site }}
       <a v-if="filterMode && !editMode" class="tag-link add"></a>
     </button>
-    <button v-for="(tag, index) in bookmark.tags" :key="index"
-            class="text-primary p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
-            v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
-            @click="tagClicked({tagType: 'tag', tagName: tag})">
+    <button
+      v-for="(tag, index) in bookmark.tags"
+      :key="index"
+      class="text-primary p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
+      v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
+      @click="tagClicked({ tagType: 'tag', tagName: tag })"
+    >
       {{ tag }}
-      <a v-if="editMode || filterMode" class="tag-link"
-         v-bind:class="[editMode ? 'remove': 'add']"></a>
+      <a
+        v-if="editMode || filterMode"
+        class="tag-link"
+        v-bind:class="[editMode ? 'remove' : 'add']"
+      ></a>
     </button>
-    <input ref="input" type="text" title="Click to add or remove tags"
-           v-model="newTag" @keydown.tab.prevent="addNewTag" @keyup.enter="addNewTag"
-           v-bind:class="{'flex-grow': editMode}"
-           @focus="enterEditMode"
-           class="block text-default text-xs bg-grey-100 border border-transparent focus:outline-none rounded my-1 py-2 h-6">
+    <div class="relative" v-bind:class="{ 'flex-grow': editMode }">
+      <input
+        type="text"
+        tabindex="-1"
+        :placeholder="placeholder"
+        class="block placeholder-default text-xs bg-grey-100 border border-transparent focus:outline-none rounded my-1 py-2 h-6 w-full"
+      />
+      <input
+        ref="input"
+        type="text"
+        title="Click to add or remove tags"
+        v-model="newTag"
+        @keydown.tab.prevent="onTab"
+        @keyup.enter="onEnter"
+        @focus="enterEditMode"
+        class="tt-input block absolute top-0 left-0 text-default text-xs border border-transparent focus:outline-none rounded my-1 py-2 h-6 w-full"
+      />
+    </div>
   </div>
 </template>
 
 <script>
+const typeaheadActivationThreshold = 3
+const caseSensitiveTags = false
+
 export default {
   name: 'tags-row',
 
   props: {
-    bookmarkId: String
+    bookmarkId: String,
   },
 
-  data: function() {
+  data: function () {
     return {
       editMode: false,
-      newTag: ''
+      newTag: '',
+      tagSuggestion: '',
     }
   },
 
@@ -52,18 +80,28 @@ export default {
       if (tagType === 'site') {
         this.$store.dispatch('FILTER_ADDED', {
           ...dataObj,
-          name: this.bookmark.site
+          name: this.bookmark.site,
         })
       } else if (tagType === 'tag') {
         this.$store.dispatch('FILTER_ADDED', { ...dataObj, name: tagName })
       }
     },
-    addNewTag() {
-      if (!this.newTag.trim()) {
+    onTab() {
+      const tagToAdd = this.tagSuggestion.length
+        ? this.tagSuggestion
+        : this.newTag
+      this.addNewTag(tagToAdd)
+    },
+    onEnter() {
+      const tagToAdd = this.newTag
+      this.addNewTag(tagToAdd)
+    },
+    addNewTag(tagToAdd) {
+      if (!tagToAdd.trim()) {
         return
       }
 
-      let tag = this.newTag.trim().replace(/\s+/g, ' ')
+      let tag = tagToAdd.trim().replace(/\s+/g, ' ')
       let dataObj = { id: this.bookmarkId, tag }
       // Sync commit to refresh UI
       this.$store.commit('ADD_TAG', dataObj)
@@ -82,6 +120,28 @@ export default {
       // Async flush to DB
       this.$store.dispatch('REMOVE_TAG_FROM_BOOKMARK', dataObj)
     },
+    doSearch(searchQuery) {
+      let searchResults = []
+
+      const allTags = Array.from(Object.keys(this.$store.state.tags))
+      for (let tag of allTags) {
+        const compareable = caseSensitiveTags ? tag : tag.toLowerCase()
+        if (
+          compareable.startsWith(searchQuery) &&
+          !this.bookmark.tags.includes(compareable)
+        ) {
+          searchResults.push(tag)
+        }
+      }
+
+      // Sort the search results by length
+      searchResults.sort((a, b) => {
+        return a.length - b.length
+      })
+
+      return searchResults
+    },
+
     enterEditMode() {
       this.editMode = true
       Event.$on('exitEditMode', this.exitEditMode)
@@ -95,7 +155,7 @@ export default {
     },
     collapseSiblings() {
       Event.$emit('exitEditMode', { currFocusId: this.bookmarkId })
-    }
+    },
   },
 
   computed: {
@@ -104,8 +164,34 @@ export default {
     },
     filterMode() {
       return !!this.$store.state.filter.active.length
-    }
-  }
+    },
+    placeholder() {
+      if (
+        !this.newTag.length ||
+        this.newTag.length < typeaheadActivationThreshold
+      ) {
+        this.tagSuggestion = ''
+        return ''
+      }
+      const searchQuery = caseSensitiveTags
+        ? this.newTag
+        : this.newTag.toLowerCase()
+      const results = this.doSearch(searchQuery)
+      if (!results.length) {
+        this.tagSuggestion = ''
+        return ''
+      }
+      this.tagSuggestion = results[0]
+      let suggestion = results[0].split('')
+      let userInput = this.newTag.split('')
+      userInput.forEach((letter, key) => {
+        if (letter !== suggestion[key]) {
+          suggestion[key] = letter
+        }
+      })
+      return suggestion.join('')
+    },
+  },
 }
 </script>
 
@@ -144,5 +230,9 @@ export default {
 }
 .add:after {
   transform: rotate(0deg);
+}
+
+.tt-input {
+  background: rgba(255, 255, 255, 0);
 }
 </style>

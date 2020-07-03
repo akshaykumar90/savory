@@ -16,15 +16,19 @@ module.exports = {
         'Fira Sans',
         'Droid Sans',
         'Helvetica Neue',
-        'sans-serif'
-      ]
+        'sans-serif',
+      ],
     },
 
     extend: {
       textColor: {
         default: 'var(--color-grey-800)',
         primary: 'var(--color-primary)',
-        muted: 'var(--color-grey-600)'
+        muted: 'var(--color-grey-600)',
+      },
+
+      placeholderColor: {
+        default: 'var(--color-grey)',
       },
 
       backgroundColor: {
@@ -33,23 +37,23 @@ module.exports = {
         grey: 'var(--color-grey)',
         'grey-100': 'var(--color-grey-100)',
         'grey-200': 'var(--color-grey-200)',
-        'grey-300': 'var(--color-grey-300)'
+        'grey-300': 'var(--color-grey-300)',
       },
 
       borderColor: {
         default: 'var(--color-grey-800)',
-        primary: 'var(--color-primary)'
+        primary: 'var(--color-primary)',
       },
 
       inset: {
-        '1/2': '50%'
+        '1/2': '50%',
       },
 
       opacity: {
-        '90': '0.9'
-      }
-    }
+        '90': '0.9',
+      },
+    },
   },
 
-  plugins: [require('@tailwindcss/custom-forms')]
+  plugins: [require('@tailwindcss/custom-forms')],
 }
