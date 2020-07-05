@@ -1,7 +1,8 @@
 import _ from 'lodash'
 import { router } from '../router'
 
-import { getBookmarks, searchBookmarks } from '../api'
+import { getBookmarks } from '../api'
+import { searchBookmarks } from '../api/search'
 
 import {
   importBookmarks,
