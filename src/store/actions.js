@@ -2,7 +2,11 @@ import _ from 'lodash'
 import { router } from '../router'
 
 import { getBookmarks } from '../api'
-import { searchBookmarks } from '../api/search'
+import {
+  incrementAndGet,
+  searchBookmarks,
+  isRequestSuperseded,
+} from '../api/search'
 
 import {
   importBookmarks,
@@ -166,6 +170,7 @@ export default {
   },
 
   SEARCH_QUERY: async ({ state, commit, getters }, query) => {
+    let requestId = incrementAndGet()
     if (!query) {
       // Empty query is valid input if there are active filters
       if (state.filter.active.length) {
@@ -175,6 +180,9 @@ export default {
       }
     } else {
       let searchResults = await searchBookmarks(query)
+      if (isRequestSuperseded(requestId)) {
+        return
+      }
       let currFiltered = new Set(state.filter.items)
       const filteredIds = currFiltered.size
         ? searchResults.filter((x) => currFiltered.has(x))
