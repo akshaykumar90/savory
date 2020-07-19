@@ -103,9 +103,6 @@ export default {
 
       let tag = tagToAdd.trim().replace(/\s+/g, ' ')
       let dataObj = { id: this.bookmarkId, tag }
-      // Sync commit to refresh UI
-      this.$store.commit('ADD_TAG', dataObj)
-      // Async flush to DB
       this.$store.dispatch('ADD_TAG_FOR_BOOKMARK', dataObj)
 
       this.newTag = ''
@@ -115,15 +112,12 @@ export default {
         return
       }
       let dataObj = { id: this.bookmarkId, tag: tagName }
-      // Sync commit to refresh UI
-      this.$store.commit('REMOVE_TAG', dataObj)
-      // Async flush to DB
       this.$store.dispatch('REMOVE_TAG_FROM_BOOKMARK', dataObj)
     },
     doSearch(searchQuery) {
       let searchResults = []
 
-      const allTags = Array.from(Object.keys(this.$store.state.tags))
+      const allTags = Array.from(Object.keys(this.$store.state.bookmarks.tags))
       for (let tag of allTags) {
         const compareable = caseSensitiveTags ? tag : tag.toLowerCase()
         if (
@@ -163,7 +157,7 @@ export default {
       return this.$store.getters.getBookmarkById(this.bookmarkId)
     },
     filterMode() {
-      return !!this.$store.state.filter.active.length
+      return !!this.$store.state.list.filter.active.length
     },
     placeholder() {
       if (

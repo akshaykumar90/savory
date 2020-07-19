@@ -1,25 +1,10 @@
 import _ from 'lodash'
-import { router } from '../router'
-
-import { getBookmarks } from '../api'
+import { router } from '../../router'
 import {
   incrementAndGet,
-  searchBookmarks,
   isRequestSuperseded,
-} from '../api/search'
-
-import {
-  importBookmarks,
-  removeTag,
-  fetchBookmarksWithTag,
-  fetchRecent,
-  getCount,
-  setCount,
-  deleteBookmark,
-  addTag,
-} from '../api/mongodb'
-
-const NUM_SYNC_BOOKMARKS = 6000
+  searchBookmarks,
+} from '../../api/search'
 
 function getDrillDownFunction(getters) {
   return async function drillDownFilter(currentItems, { type, name }) {
@@ -27,8 +12,7 @@ function getDrillDownFunction(getters) {
     if (type === 'site') {
       bookmarkIds = getters.getBookmarkIdsWithSite(name)
     } else if (type === 'tag') {
-      let bookmarksWithTag = await fetchBookmarksWithTag(name)
-      bookmarkIds = bookmarksWithTag.map(({ chrome_id }) => chrome_id)
+      bookmarkIds = getters.getBookmarkIdsWithTag(name)
     } else {
       /* bad input */
       return currentItems
@@ -55,33 +39,52 @@ function getQueryStringFromFilters(filters) {
     .join('/')
 }
 
-export default {
-  SYNC_BOOKMARKS: async ({ state, commit }) => {
-    const initialLoadNum = 50
-    let getCountPromise = getCount()
-    let fetchTopBookmarksPromise = fetchRecent(initialLoadNum)
-    let fetchAllBookmarksPromise = fetchRecent(NUM_SYNC_BOOKMARKS)
-    let headBookmarks = await fetchTopBookmarksPromise
-    for (let bookmark of headBookmarks) {
-      bookmark.id = bookmark.chrome_id
-    }
-    commit('SET_BOOKMARKS', { items: headBookmarks })
-    Event.$emit('newItems')
-    let countResponse = await getCountPromise
-    commit('SET_BOOKMARKS_COUNT', {
-      count: countResponse ? countResponse.count : 0,
-    })
-    let allBookmarks = await fetchAllBookmarksPromise
-    let tailBookmarks = allBookmarks.slice(initialLoadNum)
-    for (let bookmark of tailBookmarks) {
-      bookmark.id = bookmark.chrome_id
-    }
-    commit('SET_BOOKMARKS', { items: tailBookmarks })
-    Event.$emit('newItems')
-    commit('SET_BOOKMARKS_COUNT', { count: allBookmarks.length })
-    return setCount(state.numBookmarks)
+const state = () => ({
+  activeType: 'new',
+  itemsPerPage: 100,
+  page: 1,
+  lists: {
+    new: [
+      /* number */
+    ],
+    filtered: [],
+  },
+  filter: {
+    active: [
+      /* { type: string, name: string } */
+    ],
+    items: [
+      /* number */
+    ],
+  },
+})
+
+const getters = {
+  maxPage(state) {
+    const { activeType, itemsPerPage, lists } = state
+    return Math.ceil(lists[activeType].length / itemsPerPage)
   },
 
+  activeIds(state) {
+    const { activeType, itemsPerPage, page, lists } = state
+
+    // const start = (page - 1) * itemsPerPage
+    const end = page * itemsPerPage
+
+    return lists[activeType].slice(0 /* start */, end)
+  },
+
+  numBookmarks(state, getters, rootState) {
+    const { activeType, lists } = state
+    if (activeType === 'new') {
+      return rootState.bookmarks.numBookmarks
+    } else {
+      return lists[activeType].length
+    }
+  },
+}
+
+const actions = {
   LOAD_MORE_BOOKMARKS: ({ state, commit }) => {
     return new Promise((resolve) => {
       // The setTimeout simulates async remote api call to load more content
@@ -95,41 +98,11 @@ export default {
     })
   },
 
-  ON_BOOKMARK_CREATED: ({ state, commit }, { bookmark }) => {
-    commit('ADD_BOOKMARK', bookmark)
-    Event.$emit('newItems')
-    commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })
-    return setCount(state.numBookmarks)
-  },
-
-  BULK_DELETE_BOOKMARKS: async ({ state, commit }) => {
-    let currSelected = []
-    _.forOwn(state.bookmarks, (val, key) => {
-      if (val.selected) {
-        currSelected.push(key)
-      }
-    })
-    currSelected.map((id) => commit('REMOVE_BOOKMARK', { id }))
-    Event.$emit('newItems')
-    commit('SET_BOOKMARKS_COUNT', {
-      count: state.numBookmarks - currSelected.length,
-    })
-    currSelected.map(async (id) => await deleteBookmark(id))
-    return setCount(state.numBookmarks)
-  },
-
-  ON_BOOKMARK_REMOVED: ({ state, commit }, { bookmark }) => {
-    commit('REMOVE_BOOKMARK', bookmark)
-    Event.$emit('newItems')
-    commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks - 1 })
-    return setCount(state.numBookmarks)
-  },
-
-  ON_FILTER_UPDATE: async ({ state, commit, getters }, filters) => {
+  ON_FILTER_UPDATE: async ({ commit, rootGetters }, filters) => {
     if (!filters.length) {
       commit('CLEAR_FILTERED')
     } else {
-      let drillDownFilter = getDrillDownFunction(getters)
+      let drillDownFilter = getDrillDownFunction(rootGetters)
       let filteredIds = []
       for (const filter of filters) {
         filteredIds = await drillDownFilter(filteredIds, filter)
@@ -137,6 +110,7 @@ export default {
       commit('UPDATE_SEARCH_FILTER', { active: filters, items: filteredIds })
       commit('SET_FILTERED', filteredIds)
     }
+    commit('CLEAR_SELECTED')
   },
 
   FILTER_ADDED: ({ state }, { type, name, drillDown }) => {
@@ -169,7 +143,7 @@ export default {
       : router.push('/u')
   },
 
-  SEARCH_QUERY: async ({ state, commit, getters }, query) => {
+  SEARCH_QUERY: async ({ state, commit }, query) => {
     let requestId = incrementAndGet()
     if (!query) {
       // Empty query is valid input if there are active filters
@@ -189,12 +163,14 @@ export default {
         : searchResults
       commit('SET_FILTERED', filteredIds)
     }
+    commit('CLEAR_SELECTED')
     Event.$emit('newItems')
   },
 
   CLEAR_SEARCH: ({ commit }) => {
     // Remove any filters
     commit('CLEAR_FILTERED')
+    commit('CLEAR_SELECTED')
 
     // Notify app view of changes
     Event.$emit('newItems')
@@ -209,6 +185,7 @@ export default {
     if (name === 'app') {
       // Remove any filters, aka go to home page
       commit('CLEAR_FILTERED')
+      commit('CLEAR_SELECTED')
       return Promise.resolve()
     } else if (name === 'filter') {
       let filters = getFiltersFromQueryString(params.filter)
@@ -216,29 +193,60 @@ export default {
     }
   },
 
-  ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tag }) => {
-    return addTag(id, tag)
+  SCRUB_LISTS: ({ commit }, { ids }) => {
+    commit('SCRUB_FROM_LIST', { type: 'new', ids })
+    commit('SCRUB_FROM_LIST', { type: 'filtered', ids })
+  },
+}
+
+const mutations = {
+  ADD_TO_FRONT: (state, { ids }) => {
+    state.lists['new'] = [...ids, ...state.lists['new']]
   },
 
-  REMOVE_TAG_FROM_BOOKMARK: ({ commit }, { id, tag }) => {
-    return removeTag(id, tag)
+  ADD_TO_BACK: (state, { ids }) => {
+    state.lists['new'] = [...state.lists['new'], ...ids]
   },
 
-  IMPORT_BROWSER_BOOKMARKS: async ({ commit }) => {
-    let browserBookmarks = await getBookmarks(NUM_SYNC_BOOKMARKS)
-    const totalBookmarks = browserBookmarks.length
-    let bookmarks = browserBookmarks.map(({ id, title, url, dateAdded }) => {
-      return { chrome_id: id, title, url, dateAdded, tags: [] }
-    })
-    console.log('Starting import...')
-    let importedBookmarks = 0
-    for (const chunk of _.chunk(bookmarks, 100)) {
-      await importBookmarks(chunk)
-      importedBookmarks += chunk.length
-      let percent = importedBookmarks / totalBookmarks
-      commit('UPDATE_IMPORT_PROGRESS', { percent })
-      console.log(`${Math.floor(percent * 100)}%`)
-    }
-    console.log('...done!')
+  SET_FILTERED: (state, ids) => {
+    state.lists['filtered'] = ids
+    state.page = 1
+    state.activeType = 'filtered'
   },
+
+  UPDATE_SEARCH_FILTER: (state, filter) => {
+    state.filter = filter
+  },
+
+  CLEAR_FILTERED: (state) => {
+    state.lists['filtered'] = []
+    state.filter = { active: [], items: [] }
+    state.activeType = 'new'
+    state.page = 1
+  },
+
+  SCRUB_FROM_LIST: (state, { type, ids }) => {
+    let currList = state.lists[type]
+    state.lists[type] = currList.filter((x) => !ids.includes(x))
+  },
+
+  CLEAR_STATE: (state) => {
+    // FIXME: This only clears state set during the SYNC_BOOKMARKS action.
+    state.lists['new'] = []
+  },
+
+  INCR_PAGE: (state) => {
+    state.page += 1
+  },
+
+  SET_PAGE: (state, page) => {
+    state.page = page
+  },
+}
+
+export default {
+  state,
+  getters,
+  actions,
+  mutations,
 }

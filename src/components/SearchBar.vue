@@ -101,7 +101,7 @@ export default {
 
   computed: {
     filters: function () {
-      return this.$store.state.filter.active.map(({ name }) => name)
+      return this.$store.state.list.filter.active.map(({ name }) => name)
     },
   },
 

@@ -59,7 +59,7 @@ export default {
 
   computed: {
     hasMore() {
-      return this.$store.state.page < this.$store.getters.maxPage
+      return this.$store.state.list.page < this.$store.getters.maxPage
     },
   },
 

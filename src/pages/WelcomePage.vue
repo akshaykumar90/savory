@@ -1,5 +1,5 @@
 <template>
-  <ProgressBar ref="bar"/>
+  <ProgressBar ref="bar" />
 </template>
 
 <script>
@@ -7,14 +7,14 @@ import ProgressBar from '../components/ProgressBar.vue'
 import {
   loadUserData,
   markBookmarksImported,
-  stitchLoggedIn
+  stitchLoggedIn,
 } from '../api/mongodb'
 
 export default {
   name: 'welcome-page',
 
   components: {
-    ProgressBar
+    ProgressBar,
   },
 
   async mounted() {
@@ -26,8 +26,8 @@ export default {
     const importStartPercent = 25
     const importFinishPercent = 90
     this.unwatch = this.$store.watch(
-      state => state.importPercent,
-      newValue => {
+      (state) => state.browser.importPercent,
+      (newValue) => {
         this.$refs.bar.set(
           importStartPercent +
             newValue * (importFinishPercent - importStartPercent)
@@ -46,6 +46,6 @@ export default {
 
   beforeDestroy() {
     this.unwatch()
-  }
+  },
 }
 </script>
