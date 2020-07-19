@@ -2,14 +2,14 @@
   <div>
     <p class="text-muted text-sm">Tags</p>
     <ul class="text-muted text-xs mt-4">
-      <li class="mb-2" v-for="kv in tags" :key="kv[0]">
+      <li class="mb-2" v-for="[name, count] in tags" :key="name">
         <button
-          @click="tagClicked(kv[0])"
+          @click="tagClicked(name)"
           class="hover:underline focus:outline-none"
         >
-          {{ kv[0] }}
+          {{ name }}
         </button>
-        ({{ kv[1] }})
+        ({{ count }})
       </li>
     </ul>
   </div>
