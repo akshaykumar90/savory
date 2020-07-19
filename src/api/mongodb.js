@@ -2,6 +2,7 @@ import {
   CustomCredential,
   RemoteMongoClient,
   Stitch,
+  BSON,
 } from 'mongodb-stitch-browser-sdk'
 
 import moment from 'moment'
@@ -57,7 +58,7 @@ export async function importBookmarks(chunk) {
   for (const bookmark of chunk) {
     bookmark.owner_id = userId
   }
-  await bookmarksCollection.insertMany(chunk)
+  return bookmarksCollection.insertMany(chunk)
 }
 
 export function saveChromeUpdates(mutations) {
@@ -74,6 +75,12 @@ export function fetchRecent(num) {
   return bookmarksCollection
     .find({ owner_id: userId }, { limit: num, sort: { dateAdded: -1 } })
     .toArray()
+    .then((bookmarks) => {
+      for (const bookmark of bookmarks) {
+        bookmark.id = bookmark._id.toString()
+      }
+      return bookmarks
+    })
 }
 
 export function getCount() {
@@ -98,38 +105,31 @@ export function setCount(newCount) {
 export async function createBookmark(bookmark) {
   const userId = auth.user.identities[0].id
   bookmark.owner_id = userId
-  await bookmarksCollection.insertOne(bookmark)
+  let result = await bookmarksCollection.insertOne(bookmark)
+  return bookmarksCollection
+    .findOne({ _id: result.insertedId })
+    .then((bookmark) => {
+      bookmark.id = bookmark._id.toString()
+      return bookmark
+    })
 }
 
-export async function deleteBookmark(chromeId) {
-  const userId = auth.user.identities[0].id
-  await bookmarksCollection.deleteOne({ owner_id: userId, chrome_id: chromeId })
+export async function deleteBookmark(bookmarkId) {
+  return bookmarksCollection.deleteOne({ _id: new BSON.ObjectId(bookmarkId) })
 }
 
-export function addTag(chromeId, newTag) {
-  const userId = auth.user.identities[0].id
+export function addTag(bookmarkId, newTag) {
   return bookmarksCollection.updateOne(
-    { owner_id: userId, chrome_id: chromeId },
+    { _id: new BSON.ObjectId(bookmarkId) },
     { $addToSet: { tags: newTag } }
   )
 }
 
-export function removeTag(chromeId, tagToRemove) {
-  const userId = auth.user.identities[0].id
+export function removeTag(bookmarkId, tagToRemove) {
   return bookmarksCollection.updateOne(
-    { owner_id: userId, chrome_id: chromeId },
+    { _id: new BSON.ObjectId(bookmarkId) },
     { $pullAll: { tags: [tagToRemove] } }
   )
-}
-
-export function fetchBookmarksWithTag(tag) {
-  const userId = auth.user.identities[0].id
-  return bookmarksCollection
-    .find(
-      { owner_id: userId, tags: tag },
-      { projection: { chrome_id: 1 }, sort: { dateAdded: -1 } }
-    )
-    .toArray()
 }
 
 export async function loadUserData() {

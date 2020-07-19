@@ -13,11 +13,11 @@ const gitRevisionPlugin = new GitRevisionPlugin()
 module.exports = {
   entry: {
     background: ['@babel/polyfill', './src/background.js'],
-    bookmarks: ['@babel/polyfill', './src/bookmarks.js']
+    bookmarks: ['@babel/polyfill', './src/index.js'],
   },
   output: {
     path: path.join(__dirname, 'build'),
-    filename: '[name].js'
+    filename: '[name].js',
   },
   module: {
     rules: [
@@ -26,71 +26,71 @@ module.exports = {
         loader: 'vue-loader',
         options: {
           compilerOptions: {
-            preserveWhitespace: false
-          }
-        }
+            preserveWhitespace: false,
+          },
+        },
       },
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: '[name].[ext]?[hash]'
-        }
+          name: '[name].[ext]?[hash]',
+        },
       },
       {
         test: /\.css$/,
         exclude: /node_modules/,
         use: [
           {
-            loader: 'style-loader'
+            loader: 'style-loader',
           },
           {
             loader: 'css-loader',
             options: {
-              importLoaders: 1
-            }
+              importLoaders: 1,
+            },
           },
           {
-            loader: 'postcss-loader'
-          }
-        ]
+            loader: 'postcss-loader',
+          },
+        ],
       },
       {
         test: /\.styl(us)?$/,
-        use: ['vue-style-loader', 'css-loader', 'stylus-loader']
-      }
-    ]
+        use: ['vue-style-loader', 'css-loader', 'stylus-loader'],
+      },
+    ],
   },
   plugins: [
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
     gitRevisionPlugin,
     new webpack.EnvironmentPlugin({
       DEVTOOLS: 'false', // Disable devtools by default
-      VERSION: gitRevisionPlugin.version()
+      VERSION: gitRevisionPlugin.version(),
     }),
     new VueLoaderPlugin(),
     new FriendlyErrorsPlugin(),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', 'bookmarks.html'),
       chunks: ['bookmarks'],
-      filename: 'bookmarks.html'
+      filename: 'bookmarks.html',
     }),
     new CopyWebpackPlugin([
       {
         from: 'src/manifest.json',
-        to: 'manifest.json'
+        to: 'manifest.json',
       },
       {
         from: 'src/assets/icons/*.png',
-        flatten: true
-      }
+        flatten: true,
+      },
     ]),
-    new Dotenv()
-  ]
+    new Dotenv(),
+  ],
 }

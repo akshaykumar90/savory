@@ -49,7 +49,7 @@ function addBookmark(state, { id, title, dateAdded, url, tags }) {
 
 const state = () => ({
   bookmarks: {
-    /* [id: number]: Bookmark */
+    /* [id: string]: Bookmark */
   },
   tags: {
     /* [name: string]: [ BookmarkId ] */
@@ -90,32 +90,27 @@ const getters = {
 
 const actions = {
   SYNC_BOOKMARKS: async ({ state, commit }) => {
-    const initialLoadNum = 50
+    const firstLoadNum = 50
     let getCountPromise = getCount()
-    let fetchTopBookmarksPromise = fetchRecent(initialLoadNum)
-    let fetchAllBookmarksPromise = fetchRecent(NUM_SYNC_BOOKMARKS)
-    let headBookmarks = await fetchTopBookmarksPromise
-    for (let bookmark of headBookmarks) {
-      bookmark.id = bookmark.chrome_id
+    const fetchReqs = [
+      fetchRecent(firstLoadNum),
+      fetchRecent(NUM_SYNC_BOOKMARKS),
+    ]
+    let loadedCount = 0
+    for (const req of fetchReqs) {
+      let bookmarks = await req
+      bookmarks = bookmarks.slice(loadedCount)
+      commit('SET_BOOKMARKS', { items: bookmarks })
+      loadedCount += bookmarks.length
+      let ids = bookmarks.map(({ id }) => id)
+      commit('ADD_TO_BACK', { ids })
+      Event.$emit('newItems')
+      let countResponse = await getCountPromise
+      commit('SET_BOOKMARKS_COUNT', {
+        count: countResponse ? countResponse.count : 0,
+      })
     }
-    commit('SET_BOOKMARKS', { items: headBookmarks })
-    let headIds = headBookmarks.map(({ id }) => id)
-    commit('ADD_TO_BACK', { ids: headIds })
-    Event.$emit('newItems')
-    let countResponse = await getCountPromise
-    commit('SET_BOOKMARKS_COUNT', {
-      count: countResponse ? countResponse.count : 0,
-    })
-    let allBookmarks = await fetchAllBookmarksPromise
-    let tailBookmarks = allBookmarks.slice(initialLoadNum)
-    for (let bookmark of tailBookmarks) {
-      bookmark.id = bookmark.chrome_id
-    }
-    commit('SET_BOOKMARKS', { items: tailBookmarks })
-    let tailIds = tailBookmarks.map(({ id }) => id)
-    commit('ADD_TO_BACK', { ids: tailIds })
-    Event.$emit('newItems')
-    commit('SET_BOOKMARKS_COUNT', { count: allBookmarks.length })
+    commit('SET_BOOKMARKS_COUNT', { count: loadedCount })
     return setCount(state.numBookmarks)
   },
 

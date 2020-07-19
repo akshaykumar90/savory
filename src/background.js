@@ -125,8 +125,14 @@ chrome.bookmarks.onRemoved.addListener((id, { node: { url } }) =>
 chrome.bookmarks.onCreated.addListener(async (__, bookmark) => {
   const { id, title, url, dateAdded } = bookmark
   if (moment(dateAdded).isAfter(moment().subtract(10, 'seconds'))) {
-    await createBookmark({ chrome_id: id, title, url, dateAdded, tags: [] })
-    chrome.runtime.sendMessage({ type: 'ON_BOOKMARK_CREATED', bookmark })
+    let dbBookmark = await createBookmark({
+      chrome_id: id,
+      title,
+      url,
+      dateAdded,
+      tags: [],
+    })
+    chrome.runtime.sendMessage({ type: 'ON_BOOKMARK_CREATED', dbBookmark })
   }
 })
 
