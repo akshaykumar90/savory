@@ -132,7 +132,10 @@ chrome.bookmarks.onCreated.addListener(async (__, bookmark) => {
       dateAdded,
       tags: [],
     })
-    chrome.runtime.sendMessage({ type: 'ON_BOOKMARK_CREATED', dbBookmark })
+    chrome.runtime.sendMessage({
+      type: 'ON_BOOKMARK_CREATED',
+      bookmark: dbBookmark,
+    })
   }
 })
 
