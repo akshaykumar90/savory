@@ -12,10 +12,10 @@ const { getDomain } = require('tldjs')
 
 export const NUM_SYNC_BOOKMARKS = 6000
 
-function addTag(state, tag, bookmarkId) {
-  let existingIds = state.tags[tag] || []
-  const bookmarkIdsWithTag = [bookmarkId, ...existingIds]
-  Vue.set(state.tags, tag, bookmarkIdsWithTag)
+function addTag(state, tag, { id, dateAdded }) {
+  let tagIndex = state.tags[tag] || new Set()
+  tagIndex.add({ dateAdded, id })
+  Vue.set(state.tags, tag, tagIndex)
 }
 
 function deleteTag(state, tag, bookmarkId) {
@@ -35,7 +35,7 @@ function domainName(bookmarkURL) {
 }
 
 function addBookmark(state, { id, title, dateAdded, url, tags }) {
-  tags.forEach((t) => addTag(state, t, id))
+  tags.forEach((t) => addTag(state, t, { id, dateAdded }))
   Vue.set(state.bookmarks, id, {
     id,
     title,
@@ -52,7 +52,7 @@ const state = () => ({
     /* [id: string]: Bookmark */
   },
   tags: {
-    /* [name: string]: [ BookmarkId ] */
+    /* [name: string]: Set({ id: string, dateAdded: number }) */
   },
   numBookmarks: 0,
 })
@@ -69,13 +69,18 @@ const getters = {
   },
 
   getBookmarkIdsWithTag: (state) => (tag) => {
-    return state.tags[tag]
+    const unsortedTags = Array.from(state.tags[tag])
+    return _.orderBy(unsortedTags, ['dateAdded'], ['desc']).map(({ id }) => id)
+  },
+
+  tagNames: (state) => {
+    return Array.from(Object.keys(state.tags))
   },
 
   tagsCount: (state) => {
     return Object.entries(state.tags).map(([tag, bookmarkIds]) => [
       tag,
-      bookmarkIds.length,
+      bookmarkIds.size,
     ])
   },
 
@@ -171,7 +176,7 @@ const mutations = {
 
   ADD_TAG: (state, { id, tag }) => {
     if (!state.bookmarks[id].tags.includes(tag)) {
-      addTag(state, tag, id)
+      addTag(state, tag, { id, dateAdded: state.bookmarks[id].dateAdded })
       state.bookmarks[id].tags = [...state.bookmarks[id].tags, tag]
     }
   },

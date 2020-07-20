@@ -117,7 +117,7 @@ export default {
     doSearch(searchQuery) {
       let searchResults = []
 
-      const allTags = Array.from(Object.keys(this.$store.state.bookmarks.tags))
+      const allTags = this.$store.getters.tagNames
       for (let tag of allTags) {
         const compareable = caseSensitiveTags ? tag : tag.toLowerCase()
         if (
