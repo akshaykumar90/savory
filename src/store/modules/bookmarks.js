@@ -13,8 +13,8 @@ const { getDomain } = require('tldjs')
 export const NUM_SYNC_BOOKMARKS = 6000
 
 function addTag(state, tag, bookmarkId) {
-  let bookmarkIdsWithTag = state.tags[tag] || []
-  bookmarkIdsWithTag.push(bookmarkId)
+  let existingIds = state.tags[tag] || []
+  const bookmarkIdsWithTag = [bookmarkId, ...existingIds]
   Vue.set(state.tags, tag, bookmarkIdsWithTag)
 }
 
