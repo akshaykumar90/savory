@@ -19,12 +19,16 @@ function addTag(state, tag, { id, dateAdded }) {
 }
 
 function deleteTag(state, tag, bookmarkId) {
-  const updatedTags = state.tags[tag].filter((id) => id !== bookmarkId)
-  let count = updatedTags.length
-  if (count === 0) {
+  let tagIndex = state.tags[tag]
+  tagIndex.forEach((x) => {
+    if (x.id === bookmarkId) {
+      tagIndex.delete(x)
+    }
+  })
+  if (tagIndex.size === 0) {
     Vue.delete(state.tags, tag)
   } else {
-    Vue.set(state.tags, tag, updatedTags)
+    Vue.set(state.tags, tag, tagIndex)
   }
 }
 
