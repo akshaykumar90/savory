@@ -51,7 +51,6 @@ function addTag(state, tag, { id, dateAdded }) {
  * ```
  *
  * We need to assign a new Set object to trigger reactivity.
- *
  */
 function deleteTag(state, tag, bookmarkId) {
   const newTagIndex = new Set()
