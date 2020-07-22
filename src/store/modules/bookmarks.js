@@ -12,23 +12,57 @@ const { getDomain } = require('tldjs')
 
 export const NUM_SYNC_BOOKMARKS = 6000
 
+/**
+ * Vue cannot detect changes in a set naively. For example, the following
+ * would not work:
+ *
+ * ```
+ * state.tags[tag].add({ dateAdded, id })
+ * ```
+ *
+ * Also, this does not help:
+ *
+ * ```
+ * Vue.set(state.tags, tag, tagIndex)
+ * ```
+ *
+ * since the object reference is the same.
+ *
+ * Instead, we must assign a new set object to trigger reactivity.
+ */
 function addTag(state, tag, { id, dateAdded }) {
-  let tagIndex = state.tags[tag] || new Set()
-  tagIndex.add({ dateAdded, id })
-  Vue.set(state.tags, tag, tagIndex)
+  const newTagIndex = new Set(state.tags[tag])
+  newTagIndex.add({ dateAdded, id })
+  Vue.set(state.tags, tag, newTagIndex)
 }
 
+/**
+ * Deletes are similar. We cannot just remove an item from the set and expect
+ * the change to be propagated to the view. The following does not work:
+ *
+ * ```
+ * tagIndex.forEach((x) => {
+ *   if (x.id === bookmarkId) {
+ *     tagIndex.delete(x)
+ *   }
+ * })
+ *
+ * Vue.set(state.tags, tag, tagIndex)
+ * ```
+ *
+ * We need to assign a new Set object to trigger reactivity.
+ *
+ */
 function deleteTag(state, tag, bookmarkId) {
-  let tagIndex = state.tags[tag]
-  tagIndex.forEach((x) => {
-    if (x.id === bookmarkId) {
-      tagIndex.delete(x)
+  const newTagIndex = new Set()
+  state.tags[tag].forEach((x) => {
+    if (x.id !== bookmarkId) {
+      newTagIndex.add(x)
     }
   })
-  if (tagIndex.size === 0) {
+  state.tags[tag] = newTagIndex
+  if (state.tags[tag].size === 0) {
     Vue.delete(state.tags, tag)
-  } else {
-    Vue.set(state.tags, tag, tagIndex)
   }
 }
 
