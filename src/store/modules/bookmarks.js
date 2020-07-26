@@ -99,9 +99,12 @@ const getters = {
     return state.bookmarks[id]
   },
 
-  getBookmarkIdsWithSite: (state) => (site) => {
-    return Object.keys(state.bookmarks).filter(
-      (id) => state.bookmarks[id].site === site
+  getBookmarkIdsWithSite: (state) => (qsite) => {
+    const unsortedBookmarks = Object.values(state.bookmarks).filter(
+      ({ site }) => qsite === site
+    )
+    return _.orderBy(unsortedBookmarks, ['dateAdded'], ['desc']).map(
+      ({ id }) => id
     )
   },
 
