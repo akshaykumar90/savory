@@ -109,6 +109,9 @@ const getters = {
   },
 
   getBookmarkIdsWithTag: (state) => (tag) => {
+    if (!state.tags.hasOwnProperty(tag)) {
+      return []
+    }
     const unsortedTags = Array.from(state.tags[tag])
     return _.orderBy(unsortedTags, ['dateAdded'], ['desc']).map(({ id }) => id)
   },
