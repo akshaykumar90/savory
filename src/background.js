@@ -27,6 +27,9 @@ import moment from 'moment'
  */
 chrome.bookmarks.onCreated.addListener(async (__, bookmark) => {
   const { id, title, url, dateAdded } = bookmark
+  if (!url) {
+    return
+  }
   if (moment(dateAdded).isAfter(moment().subtract(10, 'seconds'))) {
     let dbBookmark = await createBookmark({
       chrome_id: id,
