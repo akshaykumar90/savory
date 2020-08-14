@@ -4,11 +4,7 @@
 
 <script>
 import ProgressBar from '../components/ProgressBar.vue'
-import {
-  loadUserData,
-  markBookmarksImported,
-  stitchLoggedIn,
-} from '../api/mongodb'
+import { loadUserData, markBookmarksImported } from '../api/mongodb'
 
 export default {
   name: 'welcome-page',
@@ -19,7 +15,6 @@ export default {
 
   async mounted() {
     this.$refs.bar.set(5)
-    await stitchLoggedIn()
     this.$refs.bar.increase(10)
     const userData = await loadUserData()
     this.$refs.bar.increase(10)

@@ -31,7 +31,7 @@ const actions = {
     console.log('Starting import...')
     let importedBookmarks = 0
     for (const chunk of _.chunk(bookmarks, 100)) {
-      await importBookmarks(chunk)
+      await importBookmarks({ chunk })
       importedBookmarks += chunk.length
       let percent = importedBookmarks / totalBookmarks
       commit('UPDATE_IMPORT_PROGRESS', { percent })

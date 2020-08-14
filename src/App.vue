@@ -1,31 +1,34 @@
 <template>
   <div id="app">
-    <!--
-    FIXME: This is not a general purpose spinner. We are relying on
-    `this.$route` to be unresolved to show the spinner. Therefore, we can only
-    ever show the spinner on first load, since it will always have some route
-    after that point?
-    -->
-    <div v-if="!this.$route.name" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-      <LoadingSpinner/>
+    <div
+      v-if="this.$auth.loading"
+      class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+    >
+      <LoadingSpinner />
     </div>
-    <component :is="this.$route.meta.layout || 'div'">
-      <router-view/>
+    <component v-else :is="this.$route.meta.layout || 'div'">
+      <router-view />
     </component>
   </div>
 </template>
 
 <script>
 import LoadingSpinner from './components/LoadingSpinner.vue'
+import { store } from './store'
 
 export default {
   name: 'app',
 
   components: {
-    LoadingSpinner
-  }
+    LoadingSpinner,
+  },
+
+  created() {
+    if (this.$auth.isAuthenticated) {
+      store.dispatch('SYNC_BOOKMARKS')
+    }
+  },
 }
 </script>
 
-<style src="./assets/app.css">
-</style>
+<style src="./assets/app.css"></style>

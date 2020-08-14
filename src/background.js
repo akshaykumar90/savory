@@ -1,9 +1,10 @@
-import {
-  createBookmark,
-  onLogin as mongoAppLogin,
-  onLogout as mongoAppLogout,
-} from './api/mongodb'
+import { createBookmark } from './api/mongodb'
 import moment from 'moment'
+import { authWrapper } from './auth'
+
+const auth = authWrapper({
+  background: true,
+})
 
 /**
  * This is the real event handler for listening to Chrome's bookmark created
@@ -31,13 +32,14 @@ chrome.bookmarks.onCreated.addListener(async (__, bookmark) => {
     return
   }
   if (moment(dateAdded).isAfter(moment().subtract(10, 'seconds'))) {
-    let dbBookmark = await createBookmark({
+    const savoryBookmark = {
       chrome_id: id,
       title,
       url,
       dateAdded,
       tags: [],
-    })
+    }
+    let dbBookmark = await createBookmark({ bookmark: savoryBookmark })
     chrome.runtime.sendMessage({
       type: 'ON_BOOKMARK_CREATED',
       bookmark: dbBookmark,
@@ -47,8 +49,9 @@ chrome.bookmarks.onCreated.addListener(async (__, bookmark) => {
 
 chrome.runtime.onMessage.addListener(({ type, ...args }) => {
   if (type === 'login') {
-    mongoAppLogin(args)
+    const { token } = args
+    auth.loginStitch(token)
   } else if (type === 'logout') {
-    mongoAppLogout(args)
+    auth.logoutStitch()
   }
 })

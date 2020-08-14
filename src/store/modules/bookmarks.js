@@ -141,8 +141,8 @@ const actions = {
     const firstLoadNum = 50
     let getCountPromise = getCount()
     const fetchReqs = [
-      fetchRecent(firstLoadNum),
-      fetchRecent(NUM_SYNC_BOOKMARKS),
+      fetchRecent({ num: firstLoadNum }),
+      fetchRecent({ num: NUM_SYNC_BOOKMARKS }),
     ]
     let loadedCount = 0
     for (const req of fetchReqs) {
@@ -159,7 +159,7 @@ const actions = {
       })
     }
     commit('SET_BOOKMARKS_COUNT', { count: loadedCount })
-    return setCount(state.numBookmarks)
+    return setCount({ newCount: state.numBookmarks })
   },
 
   ON_BOOKMARK_CREATED: ({ state, commit }, { bookmark }) => {
@@ -167,7 +167,7 @@ const actions = {
     commit('ADD_TO_FRONT', { ids: [bookmark.id] })
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })
-    return setCount(state.numBookmarks)
+    return setCount({ newCount: state.numBookmarks })
   },
 
   BULK_DELETE_BOOKMARKS: async ({ state, commit, dispatch }) => {
@@ -183,18 +183,18 @@ const actions = {
     commit('SET_BOOKMARKS_COUNT', {
       count: state.numBookmarks - currSelected.length,
     })
-    currSelected.map(async (id) => await deleteBookmark(id))
-    return setCount(state.numBookmarks)
+    currSelected.map(async (id) => await deleteBookmark({ bookmarkId: id }))
+    return setCount({ newCount: state.numBookmarks })
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tag }) => {
     commit('ADD_TAG', { id, tag })
-    return dbAddTag(id, tag)
+    return dbAddTag({ bookmarkId: id, newTag: tag })
   },
 
   REMOVE_TAG_FROM_BOOKMARK: ({ commit }, { id, tag }) => {
     commit('REMOVE_TAG', { id, tag })
-    return dbRemoveTag(id, tag)
+    return dbRemoveTag({ bookmarkId: id, tagToRemove: tag })
   },
 }
 
@@ -234,12 +234,6 @@ const mutations = {
     _.forOwn(state.bookmarks, (val, id) => {
       state.bookmarks[id].selected = false
     })
-  },
-
-  CLEAR_STATE: (state) => {
-    state.bookmarks = {}
-    state.tags = {}
-    state.numBookmarks = 0
   },
 }
 

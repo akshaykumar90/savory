@@ -1,10 +1,7 @@
 import _ from 'lodash'
 import { router } from '../../router'
-import {
-  incrementAndGet,
-  isRequestSuperseded,
-  searchBookmarks,
-} from '../../api/search'
+import { incrementAndGet, isRequestSuperseded } from '../../api/search'
+import { searchBookmarks } from '../../api/mongodb'
 
 function getDrillDownFunction(getters) {
   return async function drillDownFilter(currentItems, { type, name }) {
@@ -153,7 +150,7 @@ const actions = {
         commit('CLEAR_FILTERED')
       }
     } else {
-      let searchResults = await searchBookmarks(query)
+      let searchResults = await searchBookmarks({ query })
       if (isRequestSuperseded(requestId)) {
         return
       }
@@ -228,11 +225,6 @@ const mutations = {
   SCRUB_FROM_LIST: (state, { type, ids }) => {
     let currList = state.lists[type]
     state.lists[type] = currList.filter((x) => !ids.includes(x))
-  },
-
-  CLEAR_STATE: (state) => {
-    // FIXME: This only clears state set during the SYNC_BOOKMARKS action.
-    state.lists['new'] = []
   },
 
   INCR_PAGE: (state) => {

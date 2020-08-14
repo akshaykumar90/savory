@@ -35,11 +35,6 @@
 </template>
 
 <script>
-import { mongoApp } from '../api/mongodb'
-import { store } from '../store'
-
-const { auth } = mongoApp
-
 export default {
   name: 'landing-page',
 
@@ -47,45 +42,11 @@ export default {
     async login(initialScreen) {
       await this.$auth.loginWithPopup(initialScreen)
       if (this.$auth.isAuthenticated) {
-        /**
-         * On launch, we speculatively start fetching bookmarks from the
-         * database before having a valid auth token from Auth0. It works
-         * because MongoDB auth tokens (used for fetching bookmarks) are
-         * separate from Auth0-issued tokens.
-         *
-         * It is a useful "hack" because it greatly speeds up our
-         * time-to-interactive. We are effectively able to parallelize the two
-         * network operations. And it works most of the times since both the
-         * tokens are valid anyway.
-         *
-         * Until they are not. Auth0 has a stricter upper limit for the
-         * validity of its token such that after some time, the user _has_ to
-         * log in manually.
-         *
-         * > the unfortunate side-effect of that is that refresh tokens are not
-         * > really suitable for browser-based applications.
-         * >
-         * > https://community.auth0.com/t/renewauth-silent-auth-session-expiration/6929/2
-         *
-         * Long story short, we might have dirty state by the time we realize
-         * that Auth0 has logged us out. We must start from a clean slate
-         * before proceeding to the app.
-         */
-        store.commit('CLEAR_STATE')
         this.$router.push({
           name: 'welcome',
         })
       }
     },
-  },
-
-  created() {
-    if (auth.isLoggedIn) {
-      // MongoDB auth tokens have their own lifecycle and may outlast Auth0
-      // tokens. We end up on the landing page when Auth0 token expires. We
-      // must invalidate mongodb auth token when the user is logged out.
-      Event.$emit('logout')
-    }
   },
 }
 </script>

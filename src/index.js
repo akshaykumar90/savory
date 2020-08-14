@@ -3,13 +3,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import { store } from './store'
 import { router } from './router'
-import { Auth0Plugin } from './auth'
-
-import {
-  mongoApp,
-  onLogin as mongoAppLogin,
-  onLogout as mongoAppLogout,
-} from './api/mongodb'
+import { AuthPlugin } from './auth'
 
 const isDev = process.env.NODE_ENV !== 'production'
 const enableDevtools = process.env.DEVTOOLS === 'true'
@@ -31,35 +25,32 @@ document.body.addEventListener('click', (event) => {
   Event.$emit('exitEditMode', {})
 })
 
-Event.$on('login', ({ token }) => {
-  mongoAppLogin({ token })
-  chrome.runtime.sendMessage({ type: 'login', token })
-})
-Event.$on('logout', () => {
-  mongoAppLogout()
-  chrome.runtime.sendMessage({ type: 'logout' })
-})
-
-Vue.use(Auth0Plugin, {
+Vue.use(AuthPlugin, {
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
   audience: process.env.AUTH0_AUDIENCE,
   onLoginCallback: (token) => {
-    Event.$emit('login', { token })
+    chrome.runtime.sendMessage({ type: 'login', token })
   },
   onLogoutCallback: () => {
-    Event.$emit('logout')
+    chrome.runtime.sendMessage({ type: 'logout' })
   },
 })
 
-const { auth } = mongoApp
-
-if (auth.isLoggedIn) {
-  store.dispatch('SYNC_BOOKMARKS')
-}
-
-new Vue({
+const app = new Vue({
   router,
   store,
   render: (h) => h(App),
-}).$mount('#app')
+})
+
+// This cannot happen from within $auth since it is shared by the user-facing
+// app and the background extension. This is a no-op in the background
+// extension since it cannot prompt the user to log back in (yet). It will
+// just become useless and print error messages in the console.
+app.$auth.$watch('tokenExpiredBeacon', (beacon) => {
+  if (beacon) {
+    app.$auth.logout()
+  }
+})
+
+app.$mount('#app')

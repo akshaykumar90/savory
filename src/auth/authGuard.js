@@ -1,7 +1,7 @@
-import { getInstance } from './authWrapper'
+import { getAuthWrapper } from './authWrapper'
 
 export const authGuard = (to, from, next) => {
-  const authService = getInstance()
+  const authService = getAuthWrapper()
 
   const fn = () => {
     let requiredAuthState = to.meta.requiredAuthState
@@ -22,7 +22,7 @@ export const authGuard = (to, from, next) => {
     return fn()
   }
 
-  authService.$watch('loading', loading => {
+  authService.$watch('loading', (loading) => {
     if (loading === false) {
       return fn()
     }
