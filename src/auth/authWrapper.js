@@ -118,6 +118,7 @@ export const authWrapper = ({
         await mongoApp.auth.loginWithCredential(new CustomCredential(token))
         this.user = mongoApp.auth.user
         this.isAuthenticated = !!this.user
+        this.tokenExpiredBeacon = null
         this.error = null
       },
 
