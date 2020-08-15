@@ -16,5 +16,8 @@
   "chrome_url_overrides": {
     "bookmarks": "bookmarks.html"
   },
+  "externally_connectable": {
+    "matches": ["http://localhost:8080/*"]
+  },
   "permissions": ["bookmarks"]
 }

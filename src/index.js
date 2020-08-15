@@ -44,13 +44,19 @@ Vue.use(AuthPlugin, {
   callbackUrl: auth0CallbackUrl,
   logoutUrl: auth0LogoutUrl,
   onLoginCallback: (token) => {
+    const message = { type: 'login', token }
     if (process.env.RUNTIME_CONTEXT === 'webext') {
-      chrome.runtime.sendMessage({ type: 'login', token })
+      chrome.runtime.sendMessage(message)
+    } else {
+      chrome.runtime.sendMessage(process.env.EXTENSION_ID, message)
     }
   },
   onLogoutCallback: () => {
+    const message = { type: 'logout' }
     if (process.env.RUNTIME_CONTEXT === 'webext') {
-      chrome.runtime.sendMessage({ type: 'logout' })
+      chrome.runtime.sendMessage(message)
+    } else {
+      chrome.runtime.sendMessage(process.env.EXTENSION_ID, message)
     }
   },
 })

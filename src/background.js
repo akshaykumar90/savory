@@ -1,6 +1,7 @@
 import { createBookmark } from './api/mongodb'
 import moment from 'moment'
 import { authWrapper } from './auth'
+import { importBrowserBookmarks } from './api/browser'
 
 const auth = authWrapper({
   background: true,
@@ -47,11 +48,37 @@ chrome.bookmarks.onCreated.addListener(async (__, bookmark) => {
   }
 })
 
-chrome.runtime.onMessage.addListener(({ type, ...args }) => {
+function onAuthMessage({ type, ...args }) {
   if (type === 'login') {
     const { token } = args
     auth.loginStitch(token)
   } else if (type === 'logout') {
     auth.logoutStitch()
   }
+}
+
+function onImportBookmarksMessage(port) {
+  // FIXME: give up after a minute!
+  if (!auth.isAuthenticated) {
+    console.log('Not logged in yet... sleeping for 1s.')
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log('Woke!')
+        resolve(onImportBookmarksMessage(port))
+      }, 1000)
+    })
+  }
+  return importBrowserBookmarks(({ percent }) => {
+    port.postMessage({ percent })
+  })
+}
+
+chrome.runtime.onMessage.addListener(onAuthMessage)
+chrome.runtime.onMessageExternal.addListener(onAuthMessage)
+
+chrome.runtime.onConnectExternal.addListener(function (port) {
+  console.assert(port.name === 'import_bookmarks')
+  port.onMessage.addListener(async function () {
+    await onImportBookmarksMessage(port)
+  })
 })

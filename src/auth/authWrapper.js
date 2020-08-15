@@ -115,6 +115,7 @@ export const authWrapper = ({
        * @param token: A valid Auth0 access token
        */
       async loginStitch(token) {
+        console.log('Logging in...')
         await mongoApp.auth.loginWithCredential(new CustomCredential(token))
         this.user = mongoApp.auth.user
         this.isAuthenticated = !!this.user
@@ -126,6 +127,7 @@ export const authWrapper = ({
        * Used by the background extension for logout
        */
       async logoutStitch() {
+        console.log('Logging out...')
         await mongoApp.auth.logout()
         this.user = null
         this.isAuthenticated = false

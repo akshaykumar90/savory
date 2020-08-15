@@ -1,21 +1,4 @@
-import _ from 'lodash'
-import { importBookmarks } from '../../api/mongodb'
-import { NUM_SYNC_BOOKMARKS } from './bookmarks'
-
-/**
- * Retrieve at most `num` recently added bookmarks
- *
- * https://developer.chrome.com/extensions/bookmarks#method-getRecent
- */
-function chromeLoadBookmarks(num) {
-  return new Promise((resolve) => chrome.bookmarks.getRecent(num, resolve))
-}
-
-export async function getBookmarks(num) {
-  let chromeResults = await chromeLoadBookmarks(num)
-  // Exclude folders
-  return chromeResults.filter((b) => !!b.url)
-}
+import { importBrowserBookmarks } from '../../api/browser'
 
 const state = () => ({
   importPercent: 0,
@@ -23,21 +6,25 @@ const state = () => ({
 
 const actions = {
   IMPORT_BROWSER_BOOKMARKS: async ({ commit }) => {
-    let browserBookmarks = await getBookmarks(NUM_SYNC_BOOKMARKS)
-    const totalBookmarks = browserBookmarks.length
-    let bookmarks = browserBookmarks.map(({ id, title, url, dateAdded }) => {
-      return { chrome_id: id, title, url, dateAdded, tags: [] }
-    })
-    console.log('Starting import...')
-    let importedBookmarks = 0
-    for (const chunk of _.chunk(bookmarks, 100)) {
-      await importBookmarks({ chunk })
-      importedBookmarks += chunk.length
-      let percent = importedBookmarks / totalBookmarks
-      commit('UPDATE_IMPORT_PROGRESS', { percent })
-      console.log(`${Math.floor(percent * 100)}%`)
+    if (process.env.RUNTIME_CONTEXT === 'webapp') {
+      // fixme: add a timeout reject
+      return new Promise((resolve) => {
+        const port = chrome.runtime.connect(process.env.EXTENSION_ID, {
+          name: 'import_bookmarks',
+        })
+        port.onMessage.addListener(({ percent }) => {
+          commit('UPDATE_IMPORT_PROGRESS', { percent })
+          if (percent === 1.0) {
+            resolve()
+          }
+        })
+        port.postMessage({})
+      })
+    } else {
+      return importBrowserBookmarks(({ percent }) =>
+        commit('UPDATE_IMPORT_PROGRESS', { percent })
+      )
     }
-    console.log('...done!')
   },
 }
 
