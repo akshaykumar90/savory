@@ -8,11 +8,13 @@ import { AuthPlugin } from './auth'
 const isDev = process.env.NODE_ENV !== 'production'
 const enableDevtools = process.env.DEVTOOLS === 'true'
 
-if (isDev && enableDevtools) {
+if (process.env.RUNTIME_CONTEXT === 'webext' && isDev && enableDevtools) {
   devtools.connect(/* host, port */)
 }
 
-chrome.runtime.onMessage.addListener((p) => store.dispatch(p))
+if (process.env.RUNTIME_CONTEXT === 'webext') {
+  chrome.runtime.onMessage.addListener((p) => store.dispatch(p))
+}
 
 // This is the event hub we'll use in every
 // component to communicate between them.
@@ -25,15 +27,31 @@ document.body.addEventListener('click', (event) => {
   Event.$emit('exitEditMode', {})
 })
 
+const auth0CallbackUrl =
+  process.env.RUNTIME_CONTEXT === 'webapp'
+    ? 'http://localhost:8080'
+    : `chrome-extension://${chrome.runtime.id}/provider_cb`
+
+const auth0LogoutUrl =
+  process.env.RUNTIME_CONTEXT === 'webapp'
+    ? 'http://localhost:8080'
+    : `chrome-extension://${chrome.runtime.id}/bookmarks.html#/logout`
+
 Vue.use(AuthPlugin, {
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
   audience: process.env.AUTH0_AUDIENCE,
+  callbackUrl: auth0CallbackUrl,
+  logoutUrl: auth0LogoutUrl,
   onLoginCallback: (token) => {
-    chrome.runtime.sendMessage({ type: 'login', token })
+    if (process.env.RUNTIME_CONTEXT === 'webext') {
+      chrome.runtime.sendMessage({ type: 'login', token })
+    }
   },
   onLogoutCallback: () => {
-    chrome.runtime.sendMessage({ type: 'logout' })
+    if (process.env.RUNTIME_CONTEXT === 'webext') {
+      chrome.runtime.sendMessage({ type: 'logout' })
+    }
   },
 })
 

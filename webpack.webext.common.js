@@ -73,6 +73,7 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       DEVTOOLS: 'false', // Disable devtools by default
       VERSION: gitRevisionPlugin.version(),
+      RUNTIME_CONTEXT: 'webext',
     }),
     new VueLoaderPlugin(),
     new FriendlyErrorsPlugin(),

@@ -16,7 +16,8 @@ export const getAuthWrapper = () => instance
 export const authWrapper = ({
   onLoginCallback,
   onLogoutCallback,
-  redirectUri = `chrome-extension://${chrome.runtime.id}/provider_cb`,
+  callbackUrl,
+  logoutUrl,
   ...options
 }) => {
   if (instance) return instance
@@ -99,10 +100,9 @@ export const authWrapper = ({
         this.user = null
         this.isAuthenticated = false
         onLogoutCallback()
-        const returnTo = `chrome-extension://${chrome.runtime.id}/bookmarks.html#/logout`
         // Give some time for any async logout callbacks to finish
         setTimeout(() => {
-          this.auth0Client.logout({ returnTo })
+          this.auth0Client.logout({ returnTo: logoutUrl })
         }, 1000)
       },
 
@@ -185,7 +185,7 @@ export const authWrapper = ({
           domain: options.domain,
           client_id: options.clientId,
           audience: options.audience,
-          redirect_uri: redirectUri,
+          redirect_uri: callbackUrl,
         })
       }
     },
