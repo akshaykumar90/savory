@@ -39,12 +39,15 @@ export default {
   name: 'landing-page',
 
   methods: {
-    async login(initialScreen) {
-      await this.$auth.loginWithPopup(initialScreen)
-      if (this.$auth.isAuthenticated) {
-        this.$router.push({
-          name: 'welcome',
+    login(initialScreen) {
+      if (process.env.RUNTIME_CONTEXT === 'webext') {
+        this.$auth.loginWithPopup(initialScreen).then(() => {
+          this.$router.push({
+            name: 'welcome',
+          })
         })
+      } else {
+        this.$auth.loginWithRedirect(initialScreen)
       }
     },
   },

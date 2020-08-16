@@ -17,6 +17,8 @@ module.exports = {
   devtool: 'inline-source-map',
   devServer: {
     contentBase: './dist',
+    // fixme: Howto do this for production?
+    historyApiFallback: true,
   },
   output: {
     path: path.join(__dirname, 'dist'),

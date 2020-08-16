@@ -31,7 +31,7 @@ document.body.addEventListener('click', (event) => {
 
 const auth0CallbackUrl =
   process.env.RUNTIME_CONTEXT === 'webapp'
-    ? 'http://localhost:8080'
+    ? 'http://localhost:8080/provider_cb'
     : `chrome-extension://${browser.runtime.id}/provider_cb`
 
 const auth0LogoutUrl =

@@ -3,6 +3,10 @@ import createAuth0Client from '@auth0/auth0-spa-js'
 import { CustomCredential, Stitch } from 'mongodb-stitch-browser-sdk'
 import { StitchServiceError } from 'mongodb-stitch-core-sdk'
 
+/** Define a default action to perform after authentication */
+const DEFAULT_REDIRECT_CALLBACK = () =>
+  window.history.replaceState({}, document.title, window.location.pathname)
+
 const APP_ID = process.env.STITCH_APP_ID
 
 const mongoApp = Stitch.hasAppClient(APP_ID)
@@ -14,6 +18,7 @@ let instance
 export const getAuthWrapper = () => instance
 
 export const authWrapper = ({
+  onRedirectCallback = DEFAULT_REDIRECT_CALLBACK,
   onLoginCallback,
   onLogoutCallback,
   callbackUrl,
@@ -27,7 +32,10 @@ export const authWrapper = ({
   instance = new Vue({
     data() {
       return {
-        loading: mongoApp.auth.isLoggedIn,
+        loading:
+          mongoApp.auth.isLoggedIn ||
+          (window.location.search.includes('code=') &&
+            window.location.search.includes('state=')),
         popupOpen: false,
         isAuthenticated: mongoApp.auth.isLoggedIn,
         user: mongoApp.auth.user,
@@ -74,12 +82,21 @@ export const authWrapper = ({
           this.isAuthenticated = true
           onLoginCallback(token)
         } catch (e) {
-          console.error(e)
           this.error = e
+          throw e
         } finally {
           this.popupOpen = false
           this.loading = false
         }
+      },
+
+      /** Authenticates the user using the redirect method */
+      loginWithRedirect(initialScreen) {
+        const loginOptions = {
+          redirect_uri: callbackUrl,
+          ...(initialScreen === 'signUp' && { screen_hint: 'signup' }),
+        }
+        return this.auth0Client.loginWithRedirect(loginOptions)
       },
 
       /**
@@ -189,6 +206,29 @@ export const authWrapper = ({
           audience: options.audience,
           redirect_uri: callbackUrl,
         })
+        try {
+          // If the user is returning to the app after authentication..
+          if (
+            window.location.search.includes('code=') &&
+            window.location.search.includes('state=')
+          ) {
+            // handle the redirect and retrieve tokens
+            const { appState } = await this.auth0Client.handleRedirectCallback()
+            this.error = null
+            const token = await this.auth0Client.getTokenSilently()
+            await mongoApp.auth.loginWithCredential(new CustomCredential(token))
+            this.user = mongoApp.auth.user
+            this.isAuthenticated = true
+            onLoginCallback(token)
+            // Notify subscribers that the redirect callback has happened, passing the appState
+            // (useful for retrieving any pre-authentication state)
+            onRedirectCallback(appState)
+          }
+        } catch (e) {
+          this.error = e
+        } finally {
+          this.loading = false
+        }
       }
     },
   })
