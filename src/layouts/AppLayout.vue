@@ -2,7 +2,7 @@
   <div class="flex flex-col">
     <header class="flex bg-grey-300 flex-shrink-0 sticky top-0 z-10">
       <div class="w-64 flex-shrink-0 px-4 py-3">
-        <router-link to="/u">
+        <router-link to="/">
           <img
             class="block w-32 ml-6"
             src="../assets/logo_light.svg"

@@ -12,7 +12,7 @@ export const authGuard = (to, from, next) => {
     }
 
     if (requiredAuthState === 'login') {
-      return next({ name: 'home', replace: true })
+      return next({ name: 'landing', replace: true })
     }
 
     return next({ name: 'app', replace: true })

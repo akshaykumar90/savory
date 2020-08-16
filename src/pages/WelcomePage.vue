@@ -36,7 +36,7 @@ export default {
     }
     this.$refs.bar.finish()
     this.$store.dispatch('SYNC_BOOKMARKS')
-    this.$router.push({ name: 'app' })
+    this.$router.replace({ name: 'app' })
   },
 
   beforeDestroy() {

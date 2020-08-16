@@ -10,6 +10,7 @@ Vue.use(Router)
 
 function createRouter() {
   return new Router({
+    mode: 'history',
     scrollBehavior(to, from, savedPosition) {
       if (savedPosition) {
         return savedPosition
@@ -19,31 +20,38 @@ function createRouter() {
     },
     routes: [
       {
-        path: '/u/filter/:filter*',
-        name: 'filter',
+        path: '/bookmarks.html',
+        name: 'webext-entry',
+        beforeEnter: (to, from, next) => {
+          next({ name: 'app' })
+        },
+      },
+      {
+        path: '/tags/:tag*',
+        name: 'tags',
         component: BookmarkList,
         beforeEnter: authGuard,
         meta: {
           layout: AppLayout,
-          requiredAuthState: 'login'
-        }
+          requiredAuthState: 'login',
+        },
       },
       {
         path: '/logout',
         name: 'logout',
         beforeEnter: (to, from, next) => {
-          next({ name: 'home' })
-        }
+          next({ name: 'landing' })
+        },
       },
       {
-        path: '/u',
+        path: '/',
         name: 'app',
         component: BookmarkList,
         beforeEnter: authGuard,
         meta: {
           layout: AppLayout,
-          requiredAuthState: 'login'
-        }
+          requiredAuthState: 'login',
+        },
       },
       {
         path: '/welcome',
@@ -51,19 +59,19 @@ function createRouter() {
         component: WelcomePage,
         beforeEnter: authGuard,
         meta: {
-          requiredAuthState: 'login'
-        }
+          requiredAuthState: 'login',
+        },
       },
       {
-        path: '/',
-        name: 'home',
+        path: '/landing',
+        name: 'landing',
         component: LandingPage,
         beforeEnter: authGuard,
         meta: {
-          requiredAuthState: 'logout'
-        }
-      }
-    ]
+          requiredAuthState: 'logout',
+        },
+      },
+    ],
   })
 }
 

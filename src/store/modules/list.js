@@ -32,7 +32,7 @@ function getFiltersFromQueryString(filterString) {
 
 function getQueryStringFromFilters(filters) {
   return filters
-    .map(({ type, name }) => encodeURIComponent(`${type[0]}:${name}`))
+    .map(({ type, name }) => `${type[0]}:${encodeURIComponent(name)}`)
     .join('/')
 }
 
@@ -122,7 +122,7 @@ const actions = {
       ? [...state.filter.active, newFilter]
       : [newFilter]
     let filtersParam = getQueryStringFromFilters(activeFilters)
-    return router.push(`/u/filter/${filtersParam}`)
+    return router.push(`/tags/${filtersParam}`)
   },
 
   FILTER_REMOVED: ({ state }, index) => {
@@ -136,8 +136,8 @@ const actions = {
     ]
     let filtersParam = getQueryStringFromFilters(activeFilters)
     return filtersParam
-      ? router.push(`/u/filter/${filtersParam}`)
-      : router.push('/u')
+      ? router.push(`/tags/${filtersParam}`)
+      : router.push('/')
   },
 
   SEARCH_QUERY: async ({ state, commit }, query) => {
@@ -175,7 +175,7 @@ const actions = {
     // Go to home page, if not already there
     return router.currentRoute.name === 'app'
       ? Promise.resolve()
-      : router.push('/u')
+      : router.push('/')
   },
 
   FETCH_DATA_FOR_APP_VIEW: ({ dispatch, commit }, { name, params }) => {
@@ -184,8 +184,8 @@ const actions = {
       commit('CLEAR_FILTERED')
       commit('CLEAR_SELECTED')
       return Promise.resolve()
-    } else if (name === 'filter') {
-      let filters = getFiltersFromQueryString(params.filter)
+    } else if (name === 'tags') {
+      let filters = getFiltersFromQueryString(params.tag)
       return dispatch('ON_FILTER_UPDATE', filters)
     }
   },
