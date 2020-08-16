@@ -12,8 +12,10 @@ if (process.env.RUNTIME_CONTEXT === 'webext' && isDev && enableDevtools) {
   devtools.connect(/* host, port */)
 }
 
+const browser = window.browser || window.chrome
+
 if (process.env.RUNTIME_CONTEXT === 'webext') {
-  chrome.runtime.onMessage.addListener((p) => store.dispatch(p))
+  browser.runtime.onMessage.addListener((p) => store.dispatch(p))
 }
 
 // This is the event hub we'll use in every
@@ -30,12 +32,12 @@ document.body.addEventListener('click', (event) => {
 const auth0CallbackUrl =
   process.env.RUNTIME_CONTEXT === 'webapp'
     ? 'http://localhost:8080'
-    : `chrome-extension://${chrome.runtime.id}/provider_cb`
+    : `chrome-extension://${browser.runtime.id}/provider_cb`
 
 const auth0LogoutUrl =
   process.env.RUNTIME_CONTEXT === 'webapp'
     ? 'http://localhost:8080'
-    : `chrome-extension://${chrome.runtime.id}/bookmarks.html#/logout`
+    : `chrome-extension://${browser.runtime.id}/bookmarks.html#/logout`
 
 Vue.use(AuthPlugin, {
   domain: process.env.AUTH0_DOMAIN,
@@ -46,17 +48,17 @@ Vue.use(AuthPlugin, {
   onLoginCallback: (token) => {
     const message = { type: 'login', token }
     if (process.env.RUNTIME_CONTEXT === 'webext') {
-      chrome.runtime.sendMessage(message)
-    } else {
-      chrome.runtime.sendMessage(process.env.EXTENSION_ID, message)
+      browser.runtime.sendMessage(message)
+    } else if (browser !== undefined) {
+      browser.runtime.sendMessage(process.env.EXTENSION_ID, message)
     }
   },
   onLogoutCallback: () => {
     const message = { type: 'logout' }
     if (process.env.RUNTIME_CONTEXT === 'webext') {
-      chrome.runtime.sendMessage(message)
-    } else {
-      chrome.runtime.sendMessage(process.env.EXTENSION_ID, message)
+      browser.runtime.sendMessage(message)
+    } else if (browser !== undefined) {
+      browser.runtime.sendMessage(process.env.EXTENSION_ID, message)
     }
   },
 })
