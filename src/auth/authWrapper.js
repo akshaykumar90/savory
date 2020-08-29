@@ -2,10 +2,20 @@ import Vue from 'vue'
 import createAuth0Client from '@auth0/auth0-spa-js'
 import { CustomCredential, Stitch } from 'mongodb-stitch-browser-sdk'
 import { StitchServiceError } from 'mongodb-stitch-core-sdk'
+import { browser } from '../api/browser'
 
-/** Define a default action to perform after authentication */
-const DEFAULT_REDIRECT_CALLBACK = () =>
-  window.history.replaceState({}, document.title, window.location.pathname)
+const DEFAULT_LOGIN_CALLBACK = () => console.log('login...')
+const DEFAULT_LOGOUT_CALLBACK = () => console.log('...logout')
+
+const callbackUrl =
+  process.env.RUNTIME_CONTEXT === 'webapp'
+    ? 'http://localhost:8080/provider_cb'
+    : `chrome-extension://${browser.runtime.id}/provider_cb`
+
+const logoutUrl =
+  process.env.RUNTIME_CONTEXT === 'webapp'
+    ? 'http://localhost:8080'
+    : `chrome-extension://${browser.runtime.id}/bookmarks.html#/logout`
 
 const APP_ID = process.env.STITCH_APP_ID
 
@@ -18,11 +28,8 @@ let instance
 export const getAuthWrapper = () => instance
 
 export const authWrapper = ({
-  onRedirectCallback = DEFAULT_REDIRECT_CALLBACK,
-  onLoginCallback,
-  onLogoutCallback,
-  callbackUrl,
-  logoutUrl,
+  onLoginCallback = DEFAULT_LOGIN_CALLBACK,
+  onLogoutCallback = DEFAULT_LOGOUT_CALLBACK,
   ...options
 }) => {
   if (instance) return instance
@@ -55,10 +62,10 @@ export const authWrapper = ({
       },
 
       /**
-       * This is the main entrypoint for user-facing login
+       * Login via popup. Used by extension to login.
        *
-       * Should not be called from the background extension. See `loginStitch`
-       * below for how to login in background.
+       * Should not be called from the website, since popups are usually
+       * blocked.
        *
        * We retrieve both Auth0 as well as MongoDB Stitch access tokens here.
        *
@@ -90,7 +97,13 @@ export const authWrapper = ({
         }
       },
 
-      /** Authenticates the user using the redirect method */
+      /**
+       * Authenticates the user using the redirect method
+       *
+       * Preferred method for login on website.
+       *
+       * @param initialScreen: Redirect initial state: 'signUp' or 'login'
+       */
       loginWithRedirect(initialScreen) {
         const loginOptions = {
           redirect_uri: callbackUrl,
@@ -101,9 +114,6 @@ export const authWrapper = ({
 
       /**
        * Logs out the user from MongoDB Stitch as well as Auth0
-       *
-       * Should not be called from the background extension. See `logoutStitch`
-       * below for how to logout in background.
        *
        * This method will cause a full-page reload. Any in-memory state would
        * therefore be lost. This is the desired (and load-bearing) behavior.
@@ -124,15 +134,15 @@ export const authWrapper = ({
       },
 
       /**
-       * Used by the background extension for login
+       * Magic login for extension
        *
-       * The background extension does not have an auth0client by design, and
-       * must receive the Auth0 access token from _somewhere_ to login.
+       * Website login can pass the token to the extension via this method.
+       *
+       * NOTE: This only works in Chrome!
        *
        * @param token: A valid Auth0 access token
        */
       async loginStitch(token) {
-        console.log('Logging in...')
         await mongoApp.auth.loginWithCredential(new CustomCredential(token))
         this.user = mongoApp.auth.user
         this.isAuthenticated = !!this.user
@@ -141,10 +151,11 @@ export const authWrapper = ({
       },
 
       /**
-       * Used by the background extension for logout
+       * Logout extension from website
+       *
+       * NOTE: This only works in Chrome!
        */
       async logoutStitch() {
-        console.log('Logging out...')
         await mongoApp.auth.logout()
         this.user = null
         this.isAuthenticated = false
@@ -199,13 +210,13 @@ export const authWrapper = ({
       },
     },
     async created() {
+      this.auth0Client = await createAuth0Client({
+        domain: options.domain,
+        client_id: options.clientId,
+        audience: options.audience,
+        redirect_uri: callbackUrl,
+      })
       if (!isBackground) {
-        this.auth0Client = await createAuth0Client({
-          domain: options.domain,
-          client_id: options.clientId,
-          audience: options.audience,
-          redirect_uri: callbackUrl,
-        })
         try {
           // If the user is returning to the app after authentication..
           if (
@@ -213,16 +224,13 @@ export const authWrapper = ({
             window.location.search.includes('state=')
           ) {
             // handle the redirect and retrieve tokens
-            const { appState } = await this.auth0Client.handleRedirectCallback()
+            await this.auth0Client.handleRedirectCallback()
             this.error = null
             const token = await this.auth0Client.getTokenSilently()
             await mongoApp.auth.loginWithCredential(new CustomCredential(token))
             this.user = mongoApp.auth.user
             this.isAuthenticated = true
             onLoginCallback(token)
-            // Notify subscribers that the redirect callback has happened, passing the appState
-            // (useful for retrieving any pre-authentication state)
-            onRedirectCallback(appState)
           }
         } catch (e) {
           this.error = e

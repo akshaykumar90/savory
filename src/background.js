@@ -1,9 +1,12 @@
 import { createBookmark } from './api/mongodb'
 import moment from 'moment'
 import { authWrapper } from './auth'
-import { importBrowserBookmarks } from './api/browser'
+import { browser, importBrowserBookmarks } from './api/browser'
 
 const auth = authWrapper({
+  domain: process.env.AUTH0_DOMAIN,
+  clientId: process.env.AUTH0_CLIENTID,
+  audience: process.env.AUTH0_AUDIENCE,
   background: true,
 })
 
@@ -27,7 +30,7 @@ const auth = authWrapper({
  * bookmark (and to have more control over the behavior in general). This will
  * make this event handler and its associated hacks unnecessary.
  */
-chrome.bookmarks.onCreated.addListener(async (__, bookmark) => {
+browser.bookmarks.onCreated.addListener(async (__, bookmark) => {
   const { id, title, url, dateAdded } = bookmark
   if (!url) {
     return
@@ -41,7 +44,7 @@ chrome.bookmarks.onCreated.addListener(async (__, bookmark) => {
       tags: [],
     }
     let dbBookmark = await createBookmark({ bookmark: savoryBookmark })
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
       type: 'ON_BOOKMARK_CREATED',
       bookmark: dbBookmark,
     })
@@ -73,12 +76,20 @@ function onImportBookmarksMessage(port) {
   })
 }
 
-chrome.runtime.onMessage.addListener(onAuthMessage)
-chrome.runtime.onMessageExternal.addListener(onAuthMessage)
+browser.runtime.onMessage.addListener(onAuthMessage)
+browser.runtime.onMessageExternal.addListener(onAuthMessage)
 
-chrome.runtime.onConnectExternal.addListener(function (port) {
+browser.runtime.onConnectExternal.addListener(function (port) {
   console.assert(port.name === 'import_bookmarks')
   port.onMessage.addListener(async function () {
     await onImportBookmarksMessage(port)
   })
+})
+
+browser.browserAction.onClicked.addListener(() => {
+  if (!auth.isAuthenticated) {
+    auth.loginWithPopup()
+  } else {
+    console.log('Already logged in...')
+  }
 })

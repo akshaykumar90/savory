@@ -4,6 +4,7 @@ import App from './App.vue'
 import { store } from './store'
 import { router } from './router'
 import { AuthPlugin } from './auth'
+import { browser } from './api/browser'
 
 const isDev = process.env.NODE_ENV !== 'production'
 const enableDevtools = process.env.DEVTOOLS === 'true'
@@ -11,8 +12,6 @@ const enableDevtools = process.env.DEVTOOLS === 'true'
 if (process.env.RUNTIME_CONTEXT === 'webext' && isDev && enableDevtools) {
   devtools.connect(/* host, port */)
 }
-
-const browser = window.browser || window.chrome
 
 if (process.env.RUNTIME_CONTEXT === 'webext') {
   browser.runtime.onMessage.addListener((p) => store.dispatch(p))
@@ -29,22 +28,10 @@ document.body.addEventListener('click', (event) => {
   Event.$emit('exitEditMode', {})
 })
 
-const auth0CallbackUrl =
-  process.env.RUNTIME_CONTEXT === 'webapp'
-    ? 'http://localhost:8080/provider_cb'
-    : `chrome-extension://${browser.runtime.id}/provider_cb`
-
-const auth0LogoutUrl =
-  process.env.RUNTIME_CONTEXT === 'webapp'
-    ? 'http://localhost:8080'
-    : `chrome-extension://${browser.runtime.id}/bookmarks.html#/logout`
-
 Vue.use(AuthPlugin, {
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
   audience: process.env.AUTH0_AUDIENCE,
-  callbackUrl: auth0CallbackUrl,
-  logoutUrl: auth0LogoutUrl,
   onLoginCallback: (token) => {
     const message = { type: 'login', token }
     if (process.env.RUNTIME_CONTEXT === 'webext') {

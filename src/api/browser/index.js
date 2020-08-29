@@ -3,13 +3,15 @@ import { importBookmarks } from '../mongodb'
 
 export const NUM_MAX_BOOKMARKS = 6000
 
+export const browser = window.browser || window.chrome
+
 /**
  * Retrieve at most `num` recently added bookmarks
  *
  * https://developer.chrome.com/extensions/bookmarks#method-getRecent
  */
 function chromeLoadBookmarks(num) {
-  return new Promise((resolve) => chrome.bookmarks.getRecent(num, resolve))
+  return new Promise((resolve) => browser.bookmarks.getRecent(num, resolve))
 }
 
 export async function getBookmarks(num) {

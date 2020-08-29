@@ -79,7 +79,8 @@ export default {
       }
     },
     login() {
-      this.$auth.loginWithPopup()
+      // This is a stub. It should never happen. We cannot be in logged-out
+      // state while AppLayout is rendered!
     },
     logout() {
       this.$auth.logout()

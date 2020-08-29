@@ -1,4 +1,4 @@
-import { importBrowserBookmarks } from '../../api/browser'
+import { browser, importBrowserBookmarks } from '../../api/browser'
 
 const state = () => ({
   importPercent: 0,
@@ -9,7 +9,7 @@ const actions = {
     if (process.env.RUNTIME_CONTEXT === 'webapp') {
       // fixme: add a timeout reject
       return new Promise((resolve) => {
-        const port = chrome.runtime.connect(process.env.EXTENSION_ID, {
+        const port = browser.runtime.connect(process.env.EXTENSION_ID, {
           name: 'import_bookmarks',
         })
         port.onMessage.addListener(({ percent }) => {
