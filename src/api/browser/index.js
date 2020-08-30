@@ -53,8 +53,7 @@ export async function importBrowserBookmarks(report_progress) {
   })
   console.log('Starting import...')
   let importedBookmarks = 0
-  // FIXME: change chunk size back to 100
-  for (const chunk of _.chunk(bookmarks, 1)) {
+  for (const chunk of _.chunk(bookmarks, 100)) {
     await importBookmarks({ chunk })
     importedBookmarks += chunk.length
     let percent = importedBookmarks / totalBookmarks

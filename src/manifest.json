@@ -17,7 +17,7 @@
     "bookmarks": "bookmarks.html"
   },
   "externally_connectable": {
-    "matches": ["http://localhost:8080/*"]
+    "matches": ["https://*.getsavory.co/*", "http://localhost:8080/*"]
   },
   "browser_action": {},
   "permissions": ["bookmarks"]
