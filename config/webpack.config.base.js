@@ -1,24 +1,9 @@
-const path = require('path')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
-const webpack = require('webpack')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const GitRevisionPlugin = require('git-revision-webpack-plugin')
-
-const gitRevisionPlugin = new GitRevisionPlugin()
 
 module.exports = {
-  entry: {
-    background: ['@babel/polyfill', './src/background.js'],
-    bookmarks: ['@babel/polyfill', './src/index.js'],
-  },
-  output: {
-    path: path.join(__dirname, 'build'),
-    filename: '[name].js',
-  },
   module: {
     rules: [
       {
@@ -69,29 +54,8 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
-    gitRevisionPlugin,
-    new webpack.EnvironmentPlugin({
-      DEVTOOLS: 'false', // Disable devtools by default
-      VERSION: gitRevisionPlugin.version(),
-      RUNTIME_CONTEXT: 'webext',
-    }),
     new VueLoaderPlugin(),
     new FriendlyErrorsPlugin(),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'bookmarks.html'),
-      chunks: ['bookmarks'],
-      filename: 'bookmarks.html',
-    }),
-    new CopyWebpackPlugin([
-      {
-        from: 'src/manifest.json',
-        to: 'manifest.json',
-      },
-      {
-        from: 'src/assets/icons/*.png',
-        flatten: true,
-      },
-    ]),
     new Dotenv(),
   ],
 }

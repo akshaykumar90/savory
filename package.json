@@ -3,9 +3,10 @@
   "description": "Bookmark Manager Extension for Chrome",
   "author": "Akshay Kumar <akshaykumar90@gmail.com>",
   "scripts": {
-    "start:dev": "webpack-dev-server --progress --hide-modules --config webpack.webapp.common.js",
-    "start:ext": "webpack --progress --hide-modules --watch --config webpack.webext.dev.js",
-    "build:ext": "cross-env NODE_ENV=production webpack --progress --hide-modules --config webpack.webext.prod.js"
+    "start:dev": "webpack-dev-server --progress --hide-modules --env development --config config/webpack.config.webapp.js",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules --env production --config config/webpack.config.webapp.js",
+    "start:ext": "webpack --progress --hide-modules --watch --env development --config config/webpack.config.webext.js",
+    "build:ext": "cross-env NODE_ENV=production webpack --progress --hide-modules --env production --config config/webpack.config.webext.js"
   },
   "engines": {
     "node": ">=7.0",
