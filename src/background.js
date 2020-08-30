@@ -63,14 +63,16 @@ function onMessage(request, sender, sendResponse) {
   }
 }
 
-function onImportBookmarksMessage(port) {
-  // FIXME: give up after a minute!
+function onImportBookmarksMessage(port, attempt) {
   if (!auth.isAuthenticated) {
+    if (attempt === 15) {
+      return Promise.reject('Not logged in.')
+    }
     console.log('Not logged in yet... sleeping for 1s.')
     return new Promise((resolve) => {
       setTimeout(() => {
         console.log('Woke!')
-        resolve(onImportBookmarksMessage(port))
+        resolve(onImportBookmarksMessage(port, attempt + 1))
       }, 1000)
     })
   }
@@ -84,8 +86,11 @@ browser.runtime.onMessageExternal.addListener(onMessage)
 
 browser.runtime.onConnectExternal.addListener(function (port) {
   console.assert(port.name === 'import_bookmarks')
-  port.onMessage.addListener(async function () {
-    await onImportBookmarksMessage(port)
+  port.onMessage.addListener(async function ({ token }) {
+    if (!auth.isAuthenticated) {
+      auth.loginStitch(token)
+    }
+    await onImportBookmarksMessage(port, 1)
   })
 })
 

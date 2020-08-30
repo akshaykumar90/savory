@@ -163,6 +163,15 @@ export const authWrapper = ({
         this.error = null
       },
 
+      async getAuth0Token() {
+        try {
+          return await this.auth0Client.getTokenSilently()
+        } catch (e) {
+          console.error(e)
+          return null
+        }
+      },
+
       /**
        * This is used to wrap MongoDB Stitch API calls so that we can detect
        * expired tokens ASAP.

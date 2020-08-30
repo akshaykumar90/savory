@@ -101,6 +101,11 @@ export default {
         'Your Chrome bookmarks will be added to your Savory’s collection'
       this.buttonText = 'Import Bookmarks'
     },
+    errorScreen(errorText) {
+      this.$refs.bar.finish()
+      this.title = 'Something went wrong. Try again?'
+      this.subtitle = errorText
+    },
     async startImport() {
       this.title = ''
       this.$refs.bar.set(25)
@@ -115,10 +120,16 @@ export default {
           )
         }
       )
-      await this.$store.dispatch('IMPORT_BROWSER_BOOKMARKS')
-      this.$refs.bar.set(90)
-      await markBookmarksImported()
-      this.takeMeToTheApp()
+      try {
+        await this.$store.dispatch('IMPORT_BROWSER_BOOKMARKS')
+        this.$refs.bar.set(90)
+        await markBookmarksImported()
+        this.takeMeToTheApp()
+      } catch (e) {
+        console.error('Something went wrong: ', e)
+        this.$refs.bar.fail()
+        this.errorScreen(e)
+      }
     },
   },
 
