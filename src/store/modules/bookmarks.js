@@ -85,6 +85,7 @@ function addBookmark(state, { id, title, dateAdded, url, tags }) {
 }
 
 const state = () => ({
+  isSynced: false,
   bookmarks: {
     /* [id: string]: Bookmark */
   },
@@ -138,6 +139,9 @@ const getters = {
 
 const actions = {
   SYNC_BOOKMARKS: async ({ state, commit }) => {
+    if (state.isSynced) {
+      return Promise.resolve()
+    }
     const firstLoadNum = 50
     let getCountPromise = getCount()
     const fetchReqs = [
@@ -200,6 +204,7 @@ const actions = {
 
 const mutations = {
   SET_BOOKMARKS: (state, { items }) => {
+    state.isSynced = true
     items.forEach((item) => addBookmark(state, item))
   },
 

@@ -1,9 +1,34 @@
 import _ from 'lodash'
+import Bowser from 'bowser'
 import { importBookmarks } from '../mongodb'
 
 export const NUM_MAX_BOOKMARKS = 6000
 
 export const browser = window.browser || window.chrome
+
+const browserUA = Bowser.getParser(window.navigator.userAgent)
+
+export function isChrome() {
+  return (
+    browserUA.getPlatformType(true) === 'desktop' &&
+    browserUA.getBrowserName(true) === 'chrome'
+  )
+}
+
+export function isMobile() {
+  return browserUA.getPlatformType(true) !== 'desktop'
+}
+
+export async function isExtensionInstalled() {
+  const result = await new Promise((resolve) => {
+    browser.runtime.sendMessage(
+      process.env.EXTENSION_ID,
+      { type: 'test' },
+      resolve
+    )
+  })
+  return result === true
+}
 
 /**
  * Retrieve at most `num` recently added bookmarks

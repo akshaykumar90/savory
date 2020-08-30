@@ -51,12 +51,15 @@ browser.bookmarks.onCreated.addListener(async (__, bookmark) => {
   }
 })
 
-function onAuthMessage({ type, ...args }) {
+function onMessage(request, sender, sendResponse) {
+  const { type, ...args } = request
   if (type === 'login') {
     const { token } = args
     auth.loginStitch(token)
   } else if (type === 'logout') {
     auth.logoutStitch()
+  } else if (type === 'test') {
+    sendResponse(true)
   }
 }
 
@@ -76,8 +79,8 @@ function onImportBookmarksMessage(port) {
   })
 }
 
-browser.runtime.onMessage.addListener(onAuthMessage)
-browser.runtime.onMessageExternal.addListener(onAuthMessage)
+browser.runtime.onMessage.addListener(onMessage)
+browser.runtime.onMessageExternal.addListener(onMessage)
 
 browser.runtime.onConnectExternal.addListener(function (port) {
   console.assert(port.name === 'import_bookmarks')
