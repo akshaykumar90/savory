@@ -3,6 +3,8 @@ import moment from 'moment'
 import { authWrapper } from './auth'
 import { browser, importBrowserBookmarks } from './api/browser'
 
+const welcome_page_url = 'https://app.getsavory.co/welcome'
+
 const auth = authWrapper({
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
@@ -99,5 +101,11 @@ browser.browserAction.onClicked.addListener(() => {
     auth.loginWithPopup()
   } else {
     console.log('Already logged in...')
+  }
+})
+
+browser.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+    browser.tabs.create({ url: welcome_page_url })
   }
 })
