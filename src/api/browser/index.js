@@ -20,6 +20,9 @@ export function isMobile() {
 }
 
 export async function isExtensionInstalled() {
+  if (!browser) {
+    return false
+  }
   const result = await new Promise((resolve) => {
     browser.runtime.sendMessage(
       process.env.EXTENSION_ID,
