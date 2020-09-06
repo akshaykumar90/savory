@@ -1,6 +1,7 @@
 const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 const merge = require('webpack-merge')
 const base = require('./webpack.config.base.js')
@@ -22,6 +23,12 @@ const commonConfig = merge(base, {
       chunks: ['webapp'],
       filename: 'index.html',
     }),
+    new CopyWebpackPlugin([
+      {
+        from: 'src/assets/icons/*.png',
+        flatten: true,
+      },
+    ]),
   ],
 })
 
