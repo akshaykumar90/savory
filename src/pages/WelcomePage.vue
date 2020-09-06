@@ -28,8 +28,7 @@ import ProgressBar from '../components/ProgressBar.vue'
 import { loadUserData, markBookmarksImported } from '../api/mongodb'
 import { isChrome, isExtensionInstalled } from '../api/browser'
 
-const chromeWebStoreUrl =
-  'https://chrome.google.com/webstore/detail/savory/nniljogbfkdldgmkfiphpnmgifhkiogp'
+const chromeWebStoreUrl = `https://chrome.google.com/webstore/detail/savory/${process.env.EXTENSION_ID}`
 
 export default {
   name: 'welcome-page',
