@@ -56,6 +56,8 @@ module.exports = {
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
     new VueLoaderPlugin(),
     new FriendlyErrorsPlugin(),
-    new Dotenv(),
+    new Dotenv({
+      systemvars: true,
+    }),
   ],
 }

@@ -9,12 +9,12 @@ const DEFAULT_LOGOUT_CALLBACK = () => console.log('...logout')
 
 const callbackUrl =
   process.env.RUNTIME_CONTEXT === 'webapp'
-    ? 'http://localhost:8080/provider_cb'
+    ? `${window.location.origin}/provider_cb`
     : `chrome-extension://${browser.runtime.id}/provider_cb`
 
 const logoutUrl =
   process.env.RUNTIME_CONTEXT === 'webapp'
-    ? 'http://localhost:8080'
+    ? window.location.origin
     : `chrome-extension://${browser.runtime.id}/bookmarks.html#/logout`
 
 const APP_ID = process.env.STITCH_APP_ID
