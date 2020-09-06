@@ -22,7 +22,6 @@ const commonConfig = merge(base, {
     gitRevisionPlugin,
     new webpack.EnvironmentPlugin({
       DEVTOOLS: 'false', // Disable devtools by default
-      VERSION: gitRevisionPlugin.version(),
       RUNTIME_CONTEXT: 'webext',
     }),
     new HtmlWebpackPlugin({

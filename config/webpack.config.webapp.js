@@ -6,8 +6,6 @@ const GitRevisionPlugin = require('git-revision-webpack-plugin')
 const merge = require('webpack-merge')
 const base = require('./webpack.config.base.js')
 
-const gitRevisionPlugin = new GitRevisionPlugin()
-
 const commonConfig = merge(base, {
   entry: {
     webapp: ['@babel/polyfill', './src/index.js'],
@@ -18,7 +16,6 @@ const commonConfig = merge(base, {
   },
   plugins: [
     new webpack.EnvironmentPlugin({
-      VERSION: gitRevisionPlugin.version(),
       RUNTIME_CONTEXT: 'webapp',
     }),
     new HtmlWebpackPlugin({
