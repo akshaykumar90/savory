@@ -142,7 +142,10 @@ export default {
 
   async created() {
     this.isChrome = isChrome()
-    this.extensionInstalled = await isExtensionInstalled()
+    this.extensionInstalled =
+      process.env.RUNTIME_CONTEXT === 'webapp'
+        ? await isExtensionInstalled()
+        : true
   },
 
   beforeDestroy() {
