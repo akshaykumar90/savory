@@ -29,6 +29,12 @@ import { loadUserData, markBookmarksImported } from '../api/mongodb'
 import { isChrome, isExtensionInstalled } from '../api/browser'
 
 const chromeWebStoreUrl = `https://chrome.google.com/webstore/detail/savory/${process.env.EXTENSION_ID}`
+const progressBarPercent = {
+  IMPORT_START: 25,
+  IMPORT_FINISH: 75,
+  SYNC_START: 85,
+  SYNC_FINISH: 95,
+}
 
 export default {
   name: 'welcome-page',
@@ -82,9 +88,16 @@ export default {
       }
     },
     takeMeToTheApp() {
-      this.$refs.bar.finish()
-      this.$store.dispatch('SYNC_BOOKMARKS')
-      this.$router.replace({ name: 'app' })
+      this.$refs.bar.set(progressBarPercent.SYNC_START)
+      Promise.race([
+        this.$store.dispatch('SYNC_BOOKMARKS'),
+        new Promise((resolve) => {
+          Event.$on('newItems', resolve)
+        }),
+      ]).then(() => {
+        this.$refs.bar.finish()
+        this.$router.replace({ name: 'app' })
+      })
     },
     promptInstall() {
       this.$refs.bar.finish()
@@ -107,21 +120,21 @@ export default {
     },
     async startImport() {
       this.title = ''
-      this.$refs.bar.set(25)
-      const importStartPercent = 25
-      const importFinishPercent = 90
+      this.$refs.bar.set(progressBarPercent.IMPORT_START)
       this.unwatch = this.$store.watch(
         (state) => state.browser.importPercent,
         (newValue) => {
           this.$refs.bar.set(
-            importStartPercent +
-              newValue * (importFinishPercent - importStartPercent)
+            progressBarPercent.IMPORT_START +
+              newValue *
+                (progressBarPercent.IMPORT_FINISH -
+                  progressBarPercent.IMPORT_START)
           )
         }
       )
       try {
         await this.$store.dispatch('IMPORT_BROWSER_BOOKMARKS')
-        this.$refs.bar.set(90)
+        this.$refs.bar.set(progressBarPercent.IMPORT_FINISH)
         await markBookmarksImported()
         this.takeMeToTheApp()
       } catch (e) {
