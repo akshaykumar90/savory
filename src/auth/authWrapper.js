@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import createAuth0Client from '@auth0/auth0-spa-js'
+import { Auth0Client } from '@auth0/auth0-spa-js'
 import { CustomCredential, Stitch } from 'mongodb-stitch-browser-sdk'
 import { StitchServiceError } from 'mongodb-stitch-core-sdk'
 import { browser } from '../api/browser'
@@ -219,7 +219,7 @@ export const authWrapper = ({
       },
     },
     async created() {
-      this.auth0Client = await createAuth0Client({
+      this.auth0Client = new Auth0Client({
         domain: options.domain,
         client_id: options.clientId,
         audience: options.audience,
