@@ -10,7 +10,7 @@ import {
 import _ from 'lodash'
 const { getDomain } = require('tldjs')
 
-export const NUM_SYNC_BOOKMARKS = 6000
+export const NUM_SYNC_BOOKMARKS = 7500
 
 /**
  * Vue cannot detect changes in a set naively. For example, the following
