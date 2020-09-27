@@ -74,6 +74,8 @@ export function setCount({ userId, newCount }) {
 export async function createBookmark({ userId, bookmark }) {
   bookmark.owner_id = userId
   let result = await mongoCollection('bookmarks').insertOne(bookmark)
+  // FIXME: Why do we need to query the db again if we just need the inserted
+  //  id?
   return mongoCollection('bookmarks')
     .findOne({ _id: result.insertedId })
     .then((bookmark) => {
@@ -82,24 +84,27 @@ export async function createBookmark({ userId, bookmark }) {
     })
 }
 
-export async function deleteBookmark({ bookmarkId }) {
-  return mongoCollection('bookmarks').deleteOne({
-    _id: new BSON.ObjectId(bookmarkId),
-  })
+export async function deleteBookmark({ userId, bookmarkId }) {
+  return mongoApp().callFunction('deleteBookmarks', [
+    userId,
+    [new BSON.ObjectId(bookmarkId)],
+  ])
 }
 
-export function addTag({ bookmarkId, newTag }) {
-  return mongoCollection('bookmarks').updateOne(
-    { _id: new BSON.ObjectId(bookmarkId) },
-    { $addToSet: { tags: newTag } }
-  )
+export function addTag({ userId, bookmarkId, newTag }) {
+  return mongoApp().callFunction('addTag', [
+    userId,
+    newTag,
+    new BSON.ObjectId(bookmarkId),
+  ])
 }
 
-export function removeTag({ bookmarkId, tagToRemove }) {
-  return mongoCollection('bookmarks').updateOne(
-    { _id: new BSON.ObjectId(bookmarkId) },
-    { $pullAll: { tags: [tagToRemove] } }
-  )
+export function removeTag({ userId, bookmarkId, tagToRemove }) {
+  return mongoApp().callFunction('removeTag', [
+    userId,
+    tagToRemove,
+    new BSON.ObjectId(bookmarkId),
+  ])
 }
 
 export async function loadUserData({ userId }) {
