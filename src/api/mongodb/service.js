@@ -59,6 +59,22 @@ export function fetchRecent({ userId, num }) {
     })
 }
 
+export function getBookmarksWithTag({ userId, tag }) {
+  return mongoApp()
+    .callFunction('getBookmarksWithTag', [userId, tag])
+    .then((result) => {
+      for (const doc of result) {
+        doc.id = doc._id.toString()
+      }
+      return result
+    })
+}
+
+export async function getTagsCount({ userId }) {
+  let result = await mongoApp().callFunction('getTagsCount', [userId])
+  return result.map(({ tag_name: tagName, count }) => ({ tagName, count }))
+}
+
 export function getCount({ userId }) {
   return mongoCollection('bookmarks_count').findOne({ owner_id: userId })
 }

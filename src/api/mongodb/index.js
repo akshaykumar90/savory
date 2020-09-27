@@ -18,6 +18,8 @@ function injectUserId(func) {
 
 export const importBookmarks = injectUserId(service.importBookmarks)
 export const fetchRecent = injectUserId(service.fetchRecent)
+export const getBookmarksWithTag = injectUserId(service.getBookmarksWithTag)
+export const getTagsCount = injectUserId(service.getTagsCount)
 export const getCount = injectUserId(service.getCount)
 export const setCount = injectUserId(service.setCount)
 export const createBookmark = injectUserId(service.createBookmark)

@@ -3,13 +3,13 @@ import { router } from '../../router'
 import { incrementAndGet, isRequestSuperseded } from '../../api/search'
 import { searchBookmarks } from '../../api/mongodb'
 
-function getDrillDownFunction(getters) {
+function getDrillDownFunction({ dispatch, getters }) {
   return async function drillDownFilter(currentItems, { type, name }) {
     let bookmarkIds = []
     if (type === 'site') {
       bookmarkIds = getters.getBookmarkIdsWithSite(name)
     } else if (type === 'tag') {
-      bookmarkIds = getters.getBookmarkIdsWithTag(name)
+      bookmarkIds = await dispatch('FETCH_BOOKMARK_IDS_WITH_TAG', { tag: name })
     } else {
       /* bad input */
       return currentItems
@@ -95,11 +95,14 @@ const actions = {
     })
   },
 
-  ON_FILTER_UPDATE: async ({ commit, rootGetters }, filters) => {
+  ON_FILTER_UPDATE: async ({ dispatch, commit, rootGetters }, filters) => {
     if (!filters.length) {
       commit('CLEAR_FILTERED')
     } else {
-      let drillDownFilter = getDrillDownFunction(rootGetters)
+      let drillDownFilter = getDrillDownFunction({
+        dispatch,
+        getters: rootGetters,
+      })
       let filteredIds = []
       for (const filter of filters) {
         filteredIds = await drillDownFilter(filteredIds, filter)
