@@ -3,24 +3,6 @@ import { router } from '../../router'
 import { incrementAndGet, isRequestSuperseded } from '../../api/search'
 import { searchBookmarks } from '../../api/mongodb'
 
-function getDrillDownFunction({ dispatch, getters }) {
-  return async function drillDownFilter(currentItems, { type, name }) {
-    let bookmarkIds = []
-    if (type === 'site') {
-      bookmarkIds = getters.getBookmarkIdsWithSite(name)
-    } else if (type === 'tag') {
-      bookmarkIds = await dispatch('FETCH_BOOKMARK_IDS_WITH_TAG', { tag: name })
-    } else {
-      /* bad input */
-      return currentItems
-    }
-    let currFiltered = new Set(currentItems)
-    return currFiltered.size
-      ? bookmarkIds.filter((x) => currFiltered.has(x))
-      : bookmarkIds
-  }
-}
-
 function getFiltersFromQueryString(filterString) {
   return filterString.split('/').map((filter) => {
     let peeled = filter.split(':')
@@ -95,18 +77,19 @@ const actions = {
     })
   },
 
-  ON_FILTER_UPDATE: async ({ dispatch, commit, rootGetters }, filters) => {
+  ON_FILTER_UPDATE: async ({ dispatch, commit }, filters) => {
     if (!filters.length) {
       commit('CLEAR_FILTERED')
     } else {
-      let drillDownFilter = getDrillDownFunction({
-        dispatch,
-        getters: rootGetters,
-      })
-      let filteredIds = []
-      for (const filter of filters) {
-        filteredIds = await drillDownFilter(filteredIds, filter)
+      let query = {
+        tags: filters
+          .filter(({ type }) => type === 'tag')
+          .map(({ name }) => name),
+        site: filters
+          .filter(({ type }) => type === 'site')
+          .reduce((acc, { name }) => name, ''),
       }
+      let filteredIds = await dispatch('FETCH_BOOKMARK_IDS_WITH_TAG', query)
       commit('UPDATE_SEARCH_FILTER', { active: filters, items: filteredIds })
       commit('SET_FILTERED', filteredIds)
     }

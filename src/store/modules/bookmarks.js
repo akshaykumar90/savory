@@ -155,11 +155,8 @@ const actions = {
     return dbRemoveTag({ bookmarkId: id, tagToRemove: tag })
   },
 
-  FETCH_BOOKMARK_IDS_WITH_TAG: ({ state }, { tag }) => {
-    if (!state.tags.hasOwnProperty(tag)) {
-      return Promise.resolve([])
-    }
-    return getBookmarksWithTag({ tag }).then((result) => {
+  FETCH_BOOKMARK_IDS_WITH_TAG: ({ state }, { tags, site }) => {
+    return getBookmarksWithTag({ tags, site }).then((result) => {
       return result.map(({ id }) => id)
     })
   },
