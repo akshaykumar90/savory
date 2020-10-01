@@ -59,9 +59,9 @@ export function fetchRecent({ userId, num }) {
     })
 }
 
-export function getBookmarksWithTag({ userId, tags, site }) {
+export function getBookmarksWithTag({ tags, site }) {
   return mongoApp()
-    .callFunction('getBookmarksWithTag', [userId, { tags, site }])
+    .callFunction('getBookmarksWithTag', [{ tags, site }])
     .then((result) => {
       for (const doc of result) {
         doc.id = doc._id.toString()
