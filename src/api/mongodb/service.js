@@ -70,8 +70,8 @@ export function getBookmarksWithTag({ tags, site }) {
     })
 }
 
-export async function getTagsCount({ userId }) {
-  let result = await mongoApp().callFunction('getTagsCount', [userId])
+export async function getTagsCount() {
+  let result = await mongoApp().callFunction('getTagsCount')
   return result.map(({ tag_name: tagName, count }) => ({ tagName, count }))
 }
 
@@ -100,24 +100,21 @@ export async function createBookmark({ userId, bookmark }) {
     })
 }
 
-export async function deleteBookmark({ userId, bookmarkId }) {
+export async function deleteBookmark({ bookmarkId }) {
   return mongoApp().callFunction('deleteBookmarks', [
-    userId,
     [new BSON.ObjectId(bookmarkId)],
   ])
 }
 
-export function addTag({ userId, bookmarkId, newTag }) {
+export function addTag({ bookmarkId, newTag }) {
   return mongoApp().callFunction('addTag', [
-    userId,
     newTag,
     new BSON.ObjectId(bookmarkId),
   ])
 }
 
-export function removeTag({ userId, bookmarkId, tagToRemove }) {
+export function removeTag({ bookmarkId, tagToRemove }) {
   return mongoApp().callFunction('removeTag', [
-    userId,
     tagToRemove,
     new BSON.ObjectId(bookmarkId),
   ])
