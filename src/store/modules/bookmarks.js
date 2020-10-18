@@ -8,7 +8,7 @@ import {
   setCount,
 } from '../../api/mongodb'
 import _ from 'lodash'
-const { getDomain } = require('tldjs')
+import { domainName } from '../../utils'
 
 export const NUM_SYNC_BOOKMARKS = 7500
 
@@ -63,12 +63,6 @@ function deleteTag(state, tag, bookmarkId) {
   if (state.tags[tag].size === 0) {
     Vue.delete(state.tags, tag)
   }
-}
-
-function domainName(bookmarkURL) {
-  const url = new URL(bookmarkURL)
-  // Drop the subdomain, e.g. news.ycombinator.com -> ycombinator.com
-  return getDomain(url.hostname)
 }
 
 function addBookmark(state, { id, title, dateAdded, url, tags }) {

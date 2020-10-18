@@ -2,7 +2,7 @@ import { createBookmark } from './api/mongodb'
 import moment from 'moment'
 import { authWrapper } from './auth'
 import { browser, importBrowserBookmarks } from './api/browser'
-const { getDomain } = require('tldjs')
+import { domainName } from './utils'
 
 const welcome_page_url = 'https://app.getsavory.co/welcome'
 
@@ -12,14 +12,6 @@ const auth = authWrapper({
   audience: process.env.AUTH0_AUDIENCE,
   background: true,
 })
-
-// TODO: This code is duplicated by `store/modules/bookmarks.js` and should be
-// hoisted over to a common location
-function domainName(bookmarkURL) {
-  const url = new URL(bookmarkURL)
-  // Drop the subdomain, e.g. news.ycombinator.com -> ycombinator.com
-  return getDomain(url.hostname)
-}
 
 /**
  * This is the real event handler for listening to Chrome's bookmark created
