@@ -5,7 +5,6 @@ import {
   fetchRecent,
   getCount,
   removeTag as dbRemoveTag,
-  setCount,
   getBookmarksWithTag,
   getTagsCount,
 } from '../../api/mongodb'

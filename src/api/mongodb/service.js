@@ -77,15 +77,6 @@ export function getCount({ userId }) {
   return mongoCollection('bookmarks_count').findOne({ owner_id: userId })
 }
 
-// todo: can be removed
-export function setCount({ userId, newCount }) {
-  return mongoCollection('bookmarks_count').updateOne(
-    { owner_id: userId },
-    { $set: { count: newCount } },
-    { upsert: true }
-  )
-}
-
 export async function createBookmark({ bookmark }) {
   return mongoApp()
     .callFunction('addBookmark', [bookmark])
