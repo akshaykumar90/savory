@@ -95,9 +95,9 @@ export async function createBookmark({ bookmark }) {
     })
 }
 
-export async function deleteBookmark({ bookmarkId }) {
+export async function deleteBookmarks({ bookmarkIds }) {
   return mongoApp().callFunction('deleteBookmarks', [
-    [new BSON.ObjectId(bookmarkId)],
+    bookmarkIds.map((x) => new BSON.ObjectId(x)),
   ])
 }
 

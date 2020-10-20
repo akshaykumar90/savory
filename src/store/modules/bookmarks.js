@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import {
   addTag as dbAddTag,
-  deleteBookmark,
+  deleteBookmarks,
   fetchRecent,
   getCount,
   removeTag as dbRemoveTag,
@@ -141,9 +141,7 @@ const actions = {
     commit('SET_BOOKMARKS_COUNT', {
       count: state.numBookmarks - currSelected.length,
     })
-    // todo: bulk delete here
-    currSelected.map(async (id) => await deleteBookmark({ bookmarkId: id }))
-    return Promise.resolve()
+    return deleteBookmarks({ bookmarkIds: currSelected })
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tag }) => {
