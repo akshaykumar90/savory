@@ -41,7 +41,7 @@ function newBookmark({ id, title, dateAdded, url, tags }) {
 }
 
 function addBookmark(state, rawBookmark) {
-  const { tags } = rawBookmark
+  const { id, tags } = rawBookmark
   tags.forEach((t) => addTag(state, t))
   Vue.set(state.bookmarks, id, newBookmark(rawBookmark))
 }
@@ -117,7 +117,7 @@ const actions = {
       commit('SET_TAGS', { items: tagsCountResp })
     }
     commit('SET_BOOKMARKS_COUNT', { count: loadedCount })
-    return setCount({ newCount: state.numBookmarks })
+    return Promise.resolve()
   },
 
   ON_BOOKMARK_CREATED: ({ state, commit }, { bookmark }) => {
@@ -125,7 +125,7 @@ const actions = {
     commit('ADD_TO_FRONT', { ids: [bookmark.id] })
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })
-    return setCount({ newCount: state.numBookmarks })
+    return Promise.resolve()
   },
 
   BULK_DELETE_BOOKMARKS: async ({ state, commit, dispatch }) => {
@@ -141,8 +141,9 @@ const actions = {
     commit('SET_BOOKMARKS_COUNT', {
       count: state.numBookmarks - currSelected.length,
     })
+    // todo: bulk delete here
     currSelected.map(async (id) => await deleteBookmark({ bookmarkId: id }))
-    return setCount({ newCount: state.numBookmarks })
+    return Promise.resolve()
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tag }) => {

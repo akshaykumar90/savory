@@ -41,11 +41,8 @@ function createStitchCollectionProxy(realCollection) {
   return target
 }
 
-export async function importBookmarks({ userId, chunk }) {
-  for (const bookmark of chunk) {
-    bookmark.owner_id = userId
-  }
-  return mongoCollection('bookmarks').insertMany(chunk)
+export async function importBookmarks({ chunk }) {
+  return mongoApp().callFunction('importBookmarks', [chunk])
 }
 
 export function fetchRecent({ userId, num }) {
@@ -75,10 +72,12 @@ export async function getTagsCount() {
   return result.map(({ tag_name: tagName, count }) => ({ tagName, count }))
 }
 
+// todo: can be removed
 export function getCount({ userId }) {
   return mongoCollection('bookmarks_count').findOne({ owner_id: userId })
 }
 
+// todo: can be removed
 export function setCount({ userId, newCount }) {
   return mongoCollection('bookmarks_count').updateOne(
     { owner_id: userId },
@@ -87,16 +86,12 @@ export function setCount({ userId, newCount }) {
   )
 }
 
-export async function createBookmark({ userId, bookmark }) {
-  bookmark.owner_id = userId
-  let result = await mongoCollection('bookmarks').insertOne(bookmark)
-  // FIXME: Why do we need to query the db again if we just need the inserted
-  //  id?
-  return mongoCollection('bookmarks')
-    .findOne({ _id: result.insertedId })
-    .then((bookmark) => {
-      bookmark.id = bookmark._id.toString()
-      return bookmark
+export async function createBookmark({ bookmark }) {
+  return mongoApp()
+    .callFunction('addBookmark', [bookmark])
+    .then((result) => {
+      result.id = result._id.toString()
+      return result
     })
 }
 
@@ -133,9 +128,9 @@ export function markBookmarksImported({ userId }) {
 }
 
 export async function searchBookmarks({ userId, query }) {
-  let results = await mongoApp().callFunction('searchBookmarks', [
-    userId,
+  let response = await mongoApp().callFunction('searchBookmarksV2', [
     query,
+    100,
   ])
-  return results.map(({ _id }) => _id.toString())
+  return response.results.map(({ _id }) => _id.toString())
 }

@@ -34,16 +34,14 @@ const auth = authWrapper({
  * make this event handler and its associated hacks unnecessary.
  */
 browser.bookmarks.onCreated.addListener(async (__, bookmark) => {
-  const { id, title, url, dateAdded } = bookmark
+  const { title, url, dateAdded } = bookmark
   if (!url) {
     return
   }
   if (moment(dateAdded).isAfter(moment().subtract(10, 'seconds'))) {
     const savoryBookmark = {
-      chrome_id: id,
       title,
       url,
-      site: domainName(url),
       dateAdded,
       tags: [],
     }
