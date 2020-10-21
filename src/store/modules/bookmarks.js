@@ -7,6 +7,7 @@ import {
   removeTag as dbRemoveTag,
   getBookmarksWithTag,
   getTagsCount,
+  searchBookmarks,
 } from '../../api/mongodb'
 import _ from 'lodash'
 import { domainName } from '../../utils'
@@ -153,16 +154,32 @@ const actions = {
     return dbRemoveTag({ bookmarkId: id, tagToRemove: tag })
   },
 
-  FETCH_BOOKMARK_IDS_WITH_TAG: ({ state }, { tags, site }) => {
-    return getBookmarksWithTag({ tags, site }).then((result) => {
-      return result.map(({ id }) => id)
+  FETCH_BOOKMARKS: ({ commit }, { num, after }) => {
+    return fetchRecent(num, after).then((resp) => {
+      commit('SET_BOOKMARKS', { items: resp.results })
+      commit('SET_BOOKMARKS_COUNT', { count: resp.count })
+      return resp
+    })
+  },
+
+  FETCH_BOOKMARKS_WITH_TAG: ({ commit }, { tags, site, num, after }) => {
+    return getBookmarksWithTag({ tags, site, num, after }).then((resp) => {
+      commit('SET_BOOKMARKS', { items: resp.results })
+      return resp
+    })
+  },
+
+  FETCH_BOOKMARKS_WITH_QUERY: ({ commit }, { query, num, skip }) => {
+    return searchBookmarks(query, num, skip).then((resp) => {
+      commit('SET_BOOKMARKS', { items: resp.results })
+      return resp
     })
   },
 }
 
 const mutations = {
   SET_BOOKMARKS: (state, { items }) => {
-    state.isSynced = true
+    // state.isSynced = true
     for (const rawBookmark of items) {
       const bookmark = newBookmark(rawBookmark)
       Vue.set(state.bookmarks, bookmark.id, bookmark)

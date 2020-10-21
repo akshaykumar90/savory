@@ -45,25 +45,25 @@ export async function importBookmarks({ chunk }) {
   return mongoApp().callFunction('importBookmarks', [chunk])
 }
 
-export function fetchRecent({ userId, num }) {
-  return mongoCollection('bookmarks')
-    .find({ owner_id: userId }, { limit: num, sort: { dateAdded: -1 } })
-    .then((bookmarks) => {
-      for (const bookmark of bookmarks) {
-        bookmark.id = bookmark._id.toString()
+export function fetchRecent({ num, after }) {
+  return mongoApp()
+    .callFunction('getBookmarks', [num, after])
+    .then((resp) => {
+      for (const doc of resp.results) {
+        doc.id = doc._id.toString()
       }
-      return bookmarks
+      return resp
     })
 }
 
-export function getBookmarksWithTag({ tags, site }) {
+export function getBookmarksWithTag({ tags, site, num, after }) {
   return mongoApp()
-    .callFunction('getBookmarksWithTag', [{ tags, site }])
-    .then((result) => {
-      for (const doc of result) {
+    .callFunction('getBookmarksWithTag', [{ tags, site }, num, after])
+    .then((resp) => {
+      for (const doc of resp.results) {
         doc.id = doc._id.toString()
       }
-      return result
+      return resp
     })
 }
 
@@ -118,10 +118,13 @@ export function markBookmarksImported({ userId }) {
   )
 }
 
-export async function searchBookmarks({ userId, query }) {
-  let response = await mongoApp().callFunction('searchBookmarksV2', [
-    query,
-    100,
-  ])
-  return response.results.map(({ _id }) => _id.toString())
+export function searchBookmarks({ query, num, skip }) {
+  return mongoApp()
+    .callFunction('searchBookmarksV2', [query, num, skip])
+    .then((resp) => {
+      for (const doc of resp.results) {
+        doc.id = doc._id.toString()
+      }
+      return resp
+    })
 }
