@@ -1,6 +1,9 @@
 <template>
   <div class="flex flex-col">
-    <header class="flex bg-grey-300 flex-shrink-0 sticky top-0 z-10">
+    <header
+      class="flex flex-shrink-0 sticky top-0 z-10"
+      v-bind:class="[testMode ? 'bg-yellow-300' : 'bg-grey-300']"
+    >
       <div class="w-64 flex-shrink-0 px-4 py-3">
         <router-link to="/">
           <img
@@ -54,6 +57,9 @@ export default {
   computed: {
     hasMore() {
       return this.$store.state.list.page < this.$store.getters.maxPage
+    },
+    testMode() {
+      return process.env.TEST_MODE === 'true'
     },
   },
 
