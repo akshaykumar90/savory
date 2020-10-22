@@ -135,7 +135,7 @@ const actions = {
       getters.getRequestArgs({ more: true })
     ).then((result) => {
       const ids = result.bookmarks.map(({ id }) => id)
-      commit('ADD_TO_BACK', ids)
+      commit('ADD_TO_BACK', { ids })
       commit('INCR_PAGE')
       const history = window.history
       const stateCopy = { ...history.state, page: state.page }
@@ -150,7 +150,7 @@ const actions = {
       let queryObj = getters.getRequestArgs({ listName: 'filtered', filters })
       let result = await dispatch('FETCH_BOOKMARKS_WITH_TAG', queryObj)
       const ids = result.bookmarks.map(({ id }) => id)
-      commit('SET_FILTERED', filters, ids, result.total)
+      commit('SET_FILTERED', { filters, ids, total: result.total })
       commit('SWITCH_TO_FILTERED')
     }
     commit('CLEAR_SELECTED')
@@ -202,7 +202,7 @@ const actions = {
         return
       }
       const ids = result.bookmarks.map(({ id }) => id)
-      commit('SET_SEARCH', query, ids, result.total)
+      commit('SET_SEARCH', { query, ids, total: result.total })
       commit('SWITCH_TO_SEARCH')
     }
     commit('CLEAR_SELECTED')
@@ -250,12 +250,12 @@ const mutations = {
     state.lists['new'] = [...ids, ...state.lists['new']]
   },
 
-  ADD_TO_BACK: (state, ids) => {
+  ADD_TO_BACK: (state, { ids }) => {
     const { activeType } = state
     state.lists[activeType] = [...state.lists[activeType], ...ids]
   },
 
-  SET_FILTERED: (state, filters, ids, total) => {
+  SET_FILTERED: (state, { filters, ids, total }) => {
     state.lists['filtered'] = ids
     state.filter = { active: filters, total }
   },
@@ -269,18 +269,12 @@ const mutations = {
     state.lists['filtered'] = []
     state.lists['search'] = []
     state.filter = { active: [], total: 0 }
-    state.search.total = 0
+    state.search = { query: '', total: 0 }
     state.activeType = 'new'
     state.page = 1
   },
 
-  SET_NEW: (state, ids) => {
-    state.lists['new'] = ids
-    state.page = 1
-    state.activeType = 'new'
-  },
-
-  SET_SEARCH: (state, query, ids, total) => {
+  SET_SEARCH: (state, { query, ids, total }) => {
     state.lists['search'] = ids
     state.search = { query, total }
   },
