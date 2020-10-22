@@ -22,12 +22,6 @@ export default {
   components: {
     LoadingSpinner,
   },
-
-  created() {
-    if (this.$auth.isAuthenticated) {
-      store.dispatch('SYNC_BOOKMARKS')
-    }
-  },
 }
 </script>
 

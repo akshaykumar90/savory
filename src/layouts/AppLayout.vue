@@ -90,5 +90,10 @@ export default {
     window.addEventListener('scroll', this.scrollHandler)
     this.$refs.searchInput.focus()
   },
+
+  created() {
+    this.$store.dispatch('LOAD_NEW_BOOKMARKS')
+    this.$store.dispatch('FETCH_TAGS_COUNT')
+  },
 }
 </script>

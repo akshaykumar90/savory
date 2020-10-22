@@ -129,6 +129,18 @@ const getters = {
 }
 
 const actions = {
+  LOAD_NEW_BOOKMARKS: async ({ state, commit, dispatch }) => {
+    const { lists } = state
+    if (lists['new'].length === 0) {
+      let queryObj = getters.getRequestArgs({ listName: 'new' })
+      let result = await dispatch('FETCH_BOOKMARKS', queryObj)
+      const ids = result.bookmarks.map(({ id }) => id)
+      commit('SET_NEW', { ids })
+    }
+    commit('SWITCH_TO_NEW')
+    commit('CLEAR_SELECTED')
+  },
+
   LOAD_MORE_BOOKMARKS: ({ state, getters, commit, dispatch }) => {
     return dispatch(
       getters.fetchMoreAction,
@@ -281,6 +293,15 @@ const mutations = {
 
   SWITCH_TO_SEARCH: (state) => {
     state.activeType = 'search'
+    state.page = 1
+  },
+
+  SET_NEW: (state, { ids }) => {
+    state.lists['new'] = ids
+  },
+
+  SWITCH_TO_NEW: (state) => {
+    state.activeType = 'new'
     state.page = 1
   },
 

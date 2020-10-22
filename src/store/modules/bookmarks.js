@@ -12,8 +12,6 @@ import {
 import _ from 'lodash'
 import { domainName } from '../../utils'
 
-export const NUM_SYNC_BOOKMARKS = 7500
-
 function addTag(state, tag) {
   if (!state.tags.hasOwnProperty(tag)) {
     Vue.set(state.tags, tag, 0)
@@ -89,37 +87,6 @@ const getters = {
 }
 
 const actions = {
-  SYNC_BOOKMARKS: async ({ state, commit }) => {
-    if (state.isSynced) {
-      return Promise.resolve()
-    }
-    const firstLoadNum = 50
-    let getCountPromise = getCount()
-    let getTagsCountPromise = getTagsCount()
-    const fetchReqs = [
-      fetchRecent({ num: firstLoadNum }),
-      fetchRecent({ num: NUM_SYNC_BOOKMARKS }),
-    ]
-    let loadedCount = 0
-    for (const req of fetchReqs) {
-      let bookmarks = await req
-      bookmarks = bookmarks.slice(loadedCount)
-      commit('SET_BOOKMARKS', { items: bookmarks })
-      loadedCount += bookmarks.length
-      let ids = bookmarks.map(({ id }) => id)
-      commit('ADD_TO_BACK', { ids })
-      Event.$emit('newItems')
-      let countResponse = await getCountPromise
-      commit('SET_BOOKMARKS_COUNT', {
-        count: countResponse ? countResponse.count : 0,
-      })
-      let tagsCountResp = await getTagsCountPromise
-      commit('SET_TAGS', { items: tagsCountResp })
-    }
-    commit('SET_BOOKMARKS_COUNT', { count: loadedCount })
-    return Promise.resolve()
-  },
-
   ON_BOOKMARK_CREATED: ({ state, commit }, { bookmark }) => {
     commit('ADD_BOOKMARK', bookmark)
     // todo: hmmm
@@ -153,6 +120,12 @@ const actions = {
   REMOVE_TAG_FROM_BOOKMARK: ({ commit }, { id, tag }) => {
     commit('REMOVE_TAG', { id, tag })
     return dbRemoveTag({ bookmarkId: id, tagToRemove: tag })
+  },
+
+  FETCH_TAGS_COUNT: ({ commit }) => {
+    return getTagsCount().then((resp) => {
+      commit('SET_TAGS', { items: resp })
+    })
   },
 
   FETCH_BOOKMARKS: ({ commit }, { num, after }) => {
