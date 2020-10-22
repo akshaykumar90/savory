@@ -127,23 +127,23 @@ const actions = {
   },
 
   FETCH_BOOKMARKS: ({ commit }, { num, after }) => {
-    return fetchRecent(num, after).then((resp) => {
-      commit('SET_BOOKMARKS', { items: resp.results })
-      commit('SET_BOOKMARKS_COUNT', { count: resp.count })
+    return fetchRecent({ num, after }).then((resp) => {
+      commit('SET_BOOKMARKS', { items: resp.bookmarks })
+      commit('SET_BOOKMARKS_COUNT', { count: resp.total })
       return resp
     })
   },
 
   FETCH_BOOKMARKS_WITH_TAG: ({ commit }, { tags, site, num, after }) => {
     return getBookmarksWithTag({ tags, site, num, after }).then((resp) => {
-      commit('SET_BOOKMARKS', { items: resp.results })
+      commit('SET_BOOKMARKS', { items: resp.bookmarks })
       return resp
     })
   },
 
   FETCH_BOOKMARKS_WITH_QUERY: ({ commit }, { query, num, skip }) => {
-    return searchBookmarks(query, num, skip).then((resp) => {
-      commit('SET_BOOKMARKS', { items: resp.results })
+    return searchBookmarks({ query, num, skip }).then((resp) => {
+      commit('SET_BOOKMARKS', { items: resp.bookmarks })
       return resp
     })
   },

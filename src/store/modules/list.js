@@ -129,7 +129,7 @@ const getters = {
 }
 
 const actions = {
-  LOAD_NEW_BOOKMARKS: async ({ state, commit, dispatch }) => {
+  LOAD_NEW_BOOKMARKS: async ({ state, commit, dispatch, getters }) => {
     const { lists } = state
     if (lists['new'].length === 0) {
       let queryObj = getters.getRequestArgs({ listName: 'new' })

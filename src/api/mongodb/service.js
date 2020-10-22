@@ -21,7 +21,7 @@ export function fetchRecent({ num, after }) {
   return mongoApp()
     .callFunction('getBookmarks', [num, after])
     .then((resp) => {
-      for (const doc of resp.results) {
+      for (const doc of resp.bookmarks) {
         doc.id = doc._id.toString()
       }
       return resp
@@ -32,7 +32,7 @@ export function getBookmarksWithTag({ tags, site, num, after }) {
   return mongoApp()
     .callFunction('getBookmarksWithTag', [{ tags, site }, num, after])
     .then((resp) => {
-      for (const doc of resp.results) {
+      for (const doc of resp.bookmarks) {
         doc.id = doc._id.toString()
       }
       return resp
@@ -89,7 +89,7 @@ export function searchBookmarks({ query, num, skip }) {
   return mongoApp()
     .callFunction('searchBookmarksV2', [query, num, skip])
     .then((resp) => {
-      for (const doc of resp.results) {
+      for (const doc of resp.bookmarks) {
         doc.id = doc._id.toString()
       }
       return resp
