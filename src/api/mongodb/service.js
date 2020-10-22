@@ -2,44 +2,16 @@ import { BSON, RemoteMongoClient } from 'mongodb-stitch-browser-sdk'
 import { getAuthWrapper } from '../../auth'
 import _ from 'lodash'
 
+// TODO: This does not handle serverless functions!!!
 const mongoCollection = _.memoize((name) => {
   const authService = getAuthWrapper()
   const mongoClient = authService
     .getMongoApp()
     .getServiceClient(RemoteMongoClient.factory, 'savorydb')
-  const proxyService = createStitchCollectionProxy(
-    mongoClient.db('savory').collection(name)
-  )
-  return authService.withAuthHandling(proxyService)
+  return authService.withAuthHandling(mongoClient.db('savory').collection(name))
 })
 
 const mongoApp = () => getAuthWrapper().getMongoApp()
-
-/**
- * This function is only needed because `collection.find` does not return a
- * promise.
- *
- * All Stitch API function calls must return a promise to be properly observed
- * by the auth service for expired tokens.
- *
- * @param realCollection: The mongo collection object to wrap
- */
-function createStitchCollectionProxy(realCollection) {
-  const target = {}
-  target.find = (...args) => realCollection.find(...args).toArray()
-  let restOfTheMethods = [
-    'findOne',
-    'insertOne',
-    'insertMany',
-    'updateOne',
-    'deleteOne',
-  ]
-  restOfTheMethods.forEach((item) => {
-    const origMethod = realCollection[item]
-    target[item] = (...args) => origMethod.apply(realCollection, args)
-  })
-  return target
-}
 
 export async function importBookmarks({ chunk }) {
   return mongoApp().callFunction('importBookmarks', [chunk])
@@ -70,11 +42,6 @@ export function getBookmarksWithTag({ tags, site, num, after }) {
 export async function getTagsCount() {
   let result = await mongoApp().callFunction('getTagsCount')
   return result.map(({ tag_name: tagName, count }) => ({ tagName, count }))
-}
-
-// todo: can be removed
-export function getCount({ userId }) {
-  return mongoCollection('bookmarks_count').findOne({ owner_id: userId })
 }
 
 export async function createBookmark({ bookmark }) {

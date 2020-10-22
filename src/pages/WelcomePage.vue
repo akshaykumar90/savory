@@ -88,6 +88,8 @@ export default {
       }
     },
     takeMeToTheApp() {
+      // FIXME: This may be a UX regression. Earlier user would see bookmarks
+      //  already loaded. Now they may have to wait.
       this.$refs.bar.finish()
       this.$router.replace({ name: 'app' })
     },

@@ -3,7 +3,6 @@ import {
   addTag as dbAddTag,
   deleteBookmarks,
   fetchRecent,
-  getCount,
   removeTag as dbRemoveTag,
   getBookmarksWithTag,
   getTagsCount,
