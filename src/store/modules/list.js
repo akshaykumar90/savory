@@ -137,8 +137,11 @@ const actions = {
       const ids = result.bookmarks.map(({ id }) => id)
       commit('SET_NEW', { ids })
     }
-    commit('SWITCH_TO_NEW')
     commit('CLEAR_SELECTED')
+    commit('CLEAR_FILTERED')
+    commit('SWITCH_TO_NEW')
+    // FIXME: this is a huge code smell rn
+    Event.$emit('newItems')
   },
 
   LOAD_MORE_BOOKMARKS: ({ state, getters, commit, dispatch }) => {
@@ -221,28 +224,16 @@ const actions = {
     Event.$emit('newItems')
   },
 
-  CLEAR_SEARCH: ({ commit }) => {
-    // Remove any filters
-    commit('CLEAR_FILTERED')
-    commit('CLEAR_SELECTED')
-
-    // Notify app view of changes
-    Event.$emit('newItems')
-
-    // fixme: this is fishy? :thinking:
-
+  CLEAR_SEARCH: ({ dispatch }) => {
     // Go to home page, if not already there
     return router.currentRoute.name === 'app'
-      ? Promise.resolve()
+      ? dispatch('LOAD_NEW_BOOKMARKS')
       : router.push('/')
   },
 
   FETCH_DATA_FOR_APP_VIEW: ({ dispatch, commit }, { name, params }) => {
     if (name === 'app') {
-      // Remove any filters, aka go to home page
-      commit('CLEAR_FILTERED')
-      commit('CLEAR_SELECTED')
-      return Promise.resolve()
+      return dispatch('LOAD_NEW_BOOKMARKS')
     } else if (name === 'tags') {
       let filters = getFiltersFromQueryString(params.tag)
       return dispatch('ON_FILTER_UPDATE', filters)

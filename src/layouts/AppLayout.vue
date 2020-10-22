@@ -92,7 +92,6 @@ export default {
   },
 
   created() {
-    this.$store.dispatch('LOAD_NEW_BOOKMARKS')
     this.$store.dispatch('FETCH_TAGS_COUNT')
   },
 }
