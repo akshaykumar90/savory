@@ -1,7 +1,9 @@
 import _ from 'lodash'
 import { router } from '../../router'
 import { incrementAndGet, isRequestSuperseded } from '../../api/search'
-import { searchBookmarks } from '../../api/mongodb'
+
+// TODO: this file deserves a big comment about the view-model design it
+//  prescribes
 
 function getFiltersFromQueryString(filterString) {
   return filterString.split('/').map((filter) => {
@@ -27,21 +29,22 @@ const state = () => ({
       /* number */
     ],
     filtered: [],
+    search: [],
   },
   filter: {
     active: [
       /* { type: string, name: string } */
     ],
-    items: [
-      /* number */
-    ],
+    total: 0,
+  },
+  search: {
+    total: 0,
   },
 })
 
 const getters = {
-  maxPage(state) {
-    const { activeType, itemsPerPage, lists } = state
-    return Math.ceil(lists[activeType].length / itemsPerPage)
+  maxPage(state, getters) {
+    return Math.ceil(getters.numBookmarks / state.itemsPerPage)
   },
 
   activeIds(state) {
@@ -54,11 +57,15 @@ const getters = {
   },
 
   numBookmarks(state, getters, rootState) {
-    const { activeType, lists } = state
-    if (activeType === 'new') {
-      return rootState.bookmarks.numBookmarks
-    } else {
-      return lists[activeType].length
+    switch (state.activeType) {
+      case 'new':
+        return rootState.bookmarks.numBookmarks
+      case 'filtered':
+        return state.filter.total
+      case 'search':
+        return state.search.total
+      default:
+        return 0
     }
   },
 }
@@ -81,17 +88,19 @@ const actions = {
     if (!filters.length) {
       commit('CLEAR_FILTERED')
     } else {
-      let query = {
+      let queryObj = {
         tags: filters
           .filter(({ type }) => type === 'tag')
           .map(({ name }) => name),
         site: filters
           .filter(({ type }) => type === 'site')
           .reduce((acc, { name }) => name, ''),
+        num: state.itemsPerPage,
       }
-      let filteredIds = await dispatch('FETCH_BOOKMARK_IDS_WITH_TAG', query)
-      commit('UPDATE_SEARCH_FILTER', { active: filters, items: filteredIds })
-      commit('SET_FILTERED', filteredIds)
+      let result = await dispatch('FETCH_BOOKMARKS_WITH_TAG', queryObj)
+      const ids = result.bookmarks.map(({ id }) => id)
+      commit('SET_FILTERED', filters, ids, result.total)
+      commit('SWITCH_TO_FILTERED')
     }
     commit('CLEAR_SELECTED')
   },
@@ -126,25 +135,24 @@ const actions = {
       : router.push('/')
   },
 
-  SEARCH_QUERY: async ({ state, commit }, query) => {
+  SEARCH_QUERY: async ({ state, commit, dispatch }, query) => {
     let requestId = incrementAndGet()
     if (!query) {
       // Empty query is valid input if there are active filters
       if (state.filter.active.length) {
-        commit('SET_FILTERED', state.filter.items)
+        commit('SWITCH_TO_FILTERED')
       } else {
         commit('CLEAR_FILTERED')
       }
     } else {
-      let searchResults = await searchBookmarks({ query })
+      let queryObj = { query, num: state.itemsPerPage }
+      let result = await dispatch('FETCH_BOOKMARKS_WITH_QUERY', queryObj)
       if (isRequestSuperseded(requestId)) {
         return
       }
-      let currFiltered = new Set(state.filter.items)
-      const filteredIds = currFiltered.size
-        ? searchResults.filter((x) => currFiltered.has(x))
-        : searchResults
-      commit('SET_FILTERED', filteredIds)
+      const ids = result.bookmarks.map(({ id }) => id)
+      commit('SET_SEARCH', ids, result.total)
+      commit('SWITCH_TO_SEARCH')
     }
     commit('CLEAR_SELECTED')
     Event.$emit('newItems')
@@ -157,6 +165,8 @@ const actions = {
 
     // Notify app view of changes
     Event.$emit('newItems')
+
+    // fixme: this is fishy? :thinking:
 
     // Go to home page, if not already there
     return router.currentRoute.name === 'app'
@@ -179,32 +189,53 @@ const actions = {
   SCRUB_LISTS: ({ commit }, { ids }) => {
     commit('SCRUB_FROM_LIST', { type: 'new', ids })
     commit('SCRUB_FROM_LIST', { type: 'filtered', ids })
+    commit('SCRUB_FROM_LIST', { type: 'search', ids })
   },
 }
 
 const mutations = {
+  // N.B. this is needed for new bookmarks getting added
   ADD_TO_FRONT: (state, { ids }) => {
     state.lists['new'] = [...ids, ...state.lists['new']]
   },
 
+  // fixme: we would need this function to work with other lists as well
   ADD_TO_BACK: (state, { ids }) => {
     state.lists['new'] = [...state.lists['new'], ...ids]
   },
 
-  SET_FILTERED: (state, ids) => {
+  SET_FILTERED: (state, filter, ids, total) => {
     state.lists['filtered'] = ids
-    state.page = 1
-    state.activeType = 'filtered'
+    state.filter = { active: filter, total: total }
   },
 
-  UPDATE_SEARCH_FILTER: (state, filter) => {
-    state.filter = filter
+  SWITCH_TO_FILTERED: (state) => {
+    state.activeType = 'filtered'
+    state.page = 1
   },
 
   CLEAR_FILTERED: (state) => {
     state.lists['filtered'] = []
-    state.filter = { active: [], items: [] }
+    state.lists['search'] = []
+    state.filter = { active: [], total: 0 }
+    state.search.total = 0
     state.activeType = 'new'
+    state.page = 1
+  },
+
+  SET_NEW: (state, ids) => {
+    state.lists['new'] = ids
+    state.page = 1
+    state.activeType = 'new'
+  },
+
+  SET_SEARCH: (state, ids, total) => {
+    state.lists['search'] = ids
+    state.search.total = total
+  },
+
+  SWITCH_TO_SEARCH: (state) => {
+    state.activeType = 'search'
     state.page = 1
   },
 
