@@ -122,6 +122,7 @@ const actions = {
 
   ON_BOOKMARK_CREATED: ({ state, commit }, { bookmark }) => {
     commit('ADD_BOOKMARK', bookmark)
+    // todo: hmmm
     commit('ADD_TO_FRONT', { ids: [bookmark.id] })
     Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })

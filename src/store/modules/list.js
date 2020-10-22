@@ -38,6 +38,7 @@ const state = () => ({
     total: 0,
   },
   search: {
+    query: '',
     total: 0,
   },
 })
@@ -68,35 +69,85 @@ const getters = {
         return 0
     }
   },
+
+  fetchMoreAction(state) {
+    switch (state.activeType) {
+      case 'new':
+        return 'FETCH_BOOKMARKS'
+      case 'filtered':
+        return 'FETCH_BOOKMARKS_WITH_TAG'
+      case 'search':
+        return 'FETCH_BOOKMARKS_WITH_QUERY'
+      default:
+        return 'UNKNOWN'
+    }
+  },
+
+  getRequestArgs: (state, getters) => ({
+    listName,
+    query: q,
+    filters: f,
+    more,
+  }) => {
+    const { activeType, itemsPerPage, page, lists, filter, search } = state
+    const listType = listName || activeType
+    let requestObj = {
+      num: itemsPerPage,
+    }
+    switch (listType) {
+      case 'filtered':
+        const filters = more ? filter.active : f
+        Object.assign(requestObj, {
+          tags: filters
+            .filter(({ type }) => type === 'tag')
+            .map(({ name }) => name),
+          site: filters
+            .filter(({ type }) => type === 'site')
+            .reduce((acc, { name }) => name, ''),
+        })
+        break
+      case 'search':
+        const query = more ? search.query : q
+        Object.assign(requestObj, {
+          query,
+        })
+    }
+    if (more) {
+      if (listType === 'search') {
+        Object.assign(requestObj, {
+          skip: page * itemsPerPage,
+        })
+      } else {
+        const [lastItem] = lists[listType].slice(-1)
+        Object.assign(requestObj, {
+          after: getters.getBookmarkById(lastItem).dateAdded,
+        })
+      }
+    }
+    return requestObj
+  },
 }
 
 const actions = {
-  LOAD_MORE_BOOKMARKS: ({ state, commit }) => {
-    return new Promise((resolve) => {
-      // The setTimeout simulates async remote api call to load more content
-      setTimeout(() => {
-        commit('INCR_PAGE')
-        const history = window.history
-        const stateCopy = { ...history.state, page: state.page }
-        history.replaceState(stateCopy, '')
-        resolve()
-      }, 100)
+  LOAD_MORE_BOOKMARKS: ({ state, getters, commit, dispatch }) => {
+    return dispatch(
+      getters.fetchMoreAction,
+      getters.getRequestArgs({ more: true })
+    ).then((result) => {
+      const ids = result.bookmarks.map(({ id }) => id)
+      commit('ADD_TO_BACK', ids)
+      commit('INCR_PAGE')
+      const history = window.history
+      const stateCopy = { ...history.state, page: state.page }
+      history.replaceState(stateCopy, '')
     })
   },
 
-  ON_FILTER_UPDATE: async ({ dispatch, commit }, filters) => {
+  ON_FILTER_UPDATE: async ({ state, dispatch, commit, getters }, filters) => {
     if (!filters.length) {
       commit('CLEAR_FILTERED')
     } else {
-      let queryObj = {
-        tags: filters
-          .filter(({ type }) => type === 'tag')
-          .map(({ name }) => name),
-        site: filters
-          .filter(({ type }) => type === 'site')
-          .reduce((acc, { name }) => name, ''),
-        num: state.itemsPerPage,
-      }
+      let queryObj = getters.getRequestArgs({ listName: 'filtered', filters })
       let result = await dispatch('FETCH_BOOKMARKS_WITH_TAG', queryObj)
       const ids = result.bookmarks.map(({ id }) => id)
       commit('SET_FILTERED', filters, ids, result.total)
@@ -135,7 +186,7 @@ const actions = {
       : router.push('/')
   },
 
-  SEARCH_QUERY: async ({ state, commit, dispatch }, query) => {
+  SEARCH_QUERY: async ({ state, commit, dispatch, getters }, query) => {
     let requestId = incrementAndGet()
     if (!query) {
       // Empty query is valid input if there are active filters
@@ -145,13 +196,13 @@ const actions = {
         commit('CLEAR_FILTERED')
       }
     } else {
-      let queryObj = { query, num: state.itemsPerPage }
+      let queryObj = getters.getRequestArgs({ listName: 'search', query })
       let result = await dispatch('FETCH_BOOKMARKS_WITH_QUERY', queryObj)
       if (isRequestSuperseded(requestId)) {
         return
       }
       const ids = result.bookmarks.map(({ id }) => id)
-      commit('SET_SEARCH', ids, result.total)
+      commit('SET_SEARCH', query, ids, result.total)
       commit('SWITCH_TO_SEARCH')
     }
     commit('CLEAR_SELECTED')
@@ -199,14 +250,14 @@ const mutations = {
     state.lists['new'] = [...ids, ...state.lists['new']]
   },
 
-  // fixme: we would need this function to work with other lists as well
-  ADD_TO_BACK: (state, { ids }) => {
-    state.lists['new'] = [...state.lists['new'], ...ids]
+  ADD_TO_BACK: (state, ids) => {
+    const { activeType } = state
+    state.lists[activeType] = [...state.lists[activeType], ...ids]
   },
 
-  SET_FILTERED: (state, filter, ids, total) => {
+  SET_FILTERED: (state, filters, ids, total) => {
     state.lists['filtered'] = ids
-    state.filter = { active: filter, total: total }
+    state.filter = { active: filters, total }
   },
 
   SWITCH_TO_FILTERED: (state) => {
@@ -229,9 +280,9 @@ const mutations = {
     state.activeType = 'new'
   },
 
-  SET_SEARCH: (state, ids, total) => {
+  SET_SEARCH: (state, query, ids, total) => {
     state.lists['search'] = ids
-    state.search.total = total
+    state.search = { query, total }
   },
 
   SWITCH_TO_SEARCH: (state) => {
