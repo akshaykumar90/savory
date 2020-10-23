@@ -5,6 +5,9 @@ import { incrementAndGet, isRequestSuperseded } from '../../api/search'
 // TODO: this file deserves a big comment about the view-model design it
 //  prescribes
 
+// FIXME: Everything is async now!!! And there are a lot of timing-related
+//  issues. Take inspiration from search request interleaving and fix it.
+
 function getFiltersFromQueryString(filterString) {
   return filterString.split('/').map((filter) => {
     let peeled = filter.split(':')
@@ -83,7 +86,7 @@ const getters = {
     }
   },
 
-  fetchDataArgs: (state) => {
+  fetchDataArgs(state) {
     const { itemsPerPage, filter, search } = state
     let requestObj = {
       num: itemsPerPage,
@@ -106,7 +109,7 @@ const getters = {
     return requestObj
   },
 
-  fetchMoreArgs: (state, getters) => {
+  fetchMoreArgs(state, getters) {
     const { activeType, itemsPerPage, page, lists } = state
     if (activeType === 'search') {
       return {
@@ -136,6 +139,8 @@ const actions = {
   },
 
   LOAD_MORE_BOOKMARKS: ({ state, getters, commit, dispatch }) => {
+    // FIXME: We should not make multiple requests when one is already
+    //  in-flight.
     return dispatch(getters.fetchMoreAction, {
       ...getters.fetchDataArgs,
       ...getters.fetchMoreArgs,
