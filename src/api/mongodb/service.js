@@ -85,9 +85,9 @@ export function markBookmarksImported({ userId }) {
   )
 }
 
-export function searchBookmarks({ query, num, skip }) {
+export function searchBookmarks({ query, num, skip, site, tags }) {
   return mongoApp()
-    .callFunction('searchBookmarksV2', [query, num, skip])
+    .callFunction('searchBookmarksV2', [query, num, skip, site, tags])
     .then((resp) => {
       for (const doc of resp.bookmarks) {
         doc.id = doc._id.toString()

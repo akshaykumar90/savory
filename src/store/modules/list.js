@@ -83,48 +83,40 @@ const getters = {
     }
   },
 
-  getRequestArgs: (state, getters) => ({
-    listName,
-    query: q,
-    filters: f,
-    more,
-  }) => {
-    const { activeType, itemsPerPage, page, lists, filter, search } = state
-    const listType = listName || activeType
+  fetchDataArgs: (state) => {
+    const { itemsPerPage, filter, search } = state
     let requestObj = {
       num: itemsPerPage,
     }
-    switch (listType) {
-      case 'filtered':
-        const filters = more ? filter.active : f
-        Object.assign(requestObj, {
-          tags: filters
-            .filter(({ type }) => type === 'tag')
-            .map(({ name }) => name),
-          site: filters
-            .filter(({ type }) => type === 'site')
-            .reduce((acc, { name }) => name, ''),
-        })
-        break
-      case 'search':
-        const query = more ? search.query : q
-        Object.assign(requestObj, {
-          query,
-        })
+    if (filter.active.length) {
+      Object.assign(requestObj, {
+        tags: filter.active
+          .filter(({ type }) => type === 'tag')
+          .map(({ name }) => name),
+        site: filter.active
+          .filter(({ type }) => type === 'site')
+          .reduce((acc, { name }) => name, ''),
+      })
     }
-    if (more) {
-      if (listType === 'search') {
-        Object.assign(requestObj, {
-          skip: page * itemsPerPage,
-        })
-      } else {
-        const [lastItem] = lists[listType].slice(-1)
-        Object.assign(requestObj, {
-          after: getters.getBookmarkById(lastItem).dateAdded,
-        })
-      }
+    if (search.query !== '') {
+      Object.assign(requestObj, {
+        query: search.query,
+      })
     }
     return requestObj
+  },
+
+  fetchMoreArgs: (state, getters) => {
+    const { activeType, itemsPerPage, page, lists } = state
+    if (activeType === 'search') {
+      return {
+        skip: page * itemsPerPage,
+      }
+    }
+    const [lastItem] = lists[activeType].slice(-1)
+    return {
+      after: getters.getBookmarkById(lastItem).dateAdded,
+    }
   },
 }
 
@@ -132,8 +124,7 @@ const actions = {
   LOAD_NEW_BOOKMARKS: async ({ state, commit, dispatch, getters }) => {
     const { lists } = state
     if (lists['new'].length === 0) {
-      let queryObj = getters.getRequestArgs({ listName: 'new' })
-      let result = await dispatch('FETCH_BOOKMARKS', queryObj)
+      let result = await dispatch('FETCH_BOOKMARKS', getters.fetchDataArgs)
       const ids = result.bookmarks.map(({ id }) => id)
       commit('SET_NEW', { ids })
     }
@@ -145,10 +136,10 @@ const actions = {
   },
 
   LOAD_MORE_BOOKMARKS: ({ state, getters, commit, dispatch }) => {
-    return dispatch(
-      getters.fetchMoreAction,
-      getters.getRequestArgs({ more: true })
-    ).then((result) => {
+    return dispatch(getters.fetchMoreAction, {
+      ...getters.fetchDataArgs,
+      ...getters.fetchMoreArgs,
+    }).then((result) => {
       const ids = result.bookmarks.map(({ id }) => id)
       commit('ADD_TO_BACK', { ids })
       commit('INCR_PAGE')
@@ -162,10 +153,13 @@ const actions = {
     if (!filters.length) {
       commit('CLEAR_FILTERED')
     } else {
-      let queryObj = getters.getRequestArgs({ listName: 'filtered', filters })
-      let result = await dispatch('FETCH_BOOKMARKS_WITH_TAG', queryObj)
+      commit('SET_FILTERS', { filters })
+      let result = await dispatch(
+        'FETCH_BOOKMARKS_WITH_TAG',
+        getters.fetchDataArgs
+      )
       const ids = result.bookmarks.map(({ id }) => id)
-      commit('SET_FILTERED', { filters, ids, total: result.total })
+      commit('SET_FILTERED_ITEMS', { ids, total: result.total })
       commit('SWITCH_TO_FILTERED')
     }
     commit('CLEAR_SELECTED')
@@ -211,13 +205,16 @@ const actions = {
         commit('CLEAR_FILTERED')
       }
     } else {
-      let queryObj = getters.getRequestArgs({ listName: 'search', query })
-      let result = await dispatch('FETCH_BOOKMARKS_WITH_QUERY', queryObj)
+      commit('SET_SEARCH_QUERY', { query })
+      let result = await dispatch(
+        'FETCH_BOOKMARKS_WITH_QUERY',
+        getters.fetchDataArgs
+      )
       if (isRequestSuperseded(requestId)) {
         return
       }
       const ids = result.bookmarks.map(({ id }) => id)
-      commit('SET_SEARCH', { query, ids, total: result.total })
+      commit('SET_SEARCH_ITEMS', { ids, total: result.total })
       commit('SWITCH_TO_SEARCH')
     }
     commit('CLEAR_SELECTED')
@@ -258,9 +255,13 @@ const mutations = {
     state.lists[activeType] = [...state.lists[activeType], ...ids]
   },
 
-  SET_FILTERED: (state, { filters, ids, total }) => {
+  SET_FILTERS: (state, { filters }) => {
+    state.filter.active = filters
+  },
+
+  SET_FILTERED_ITEMS: (state, { ids, total }) => {
     state.lists['filtered'] = ids
-    state.filter = { active: filters, total }
+    state.filter.total = total
   },
 
   SWITCH_TO_FILTERED: (state) => {
@@ -277,9 +278,13 @@ const mutations = {
     state.page = 1
   },
 
-  SET_SEARCH: (state, { query, ids, total }) => {
+  SET_SEARCH_QUERY: (state, { query }) => {
+    state.search.query = query
+  },
+
+  SET_SEARCH_ITEMS: (state, { ids, total }) => {
     state.lists['search'] = ids
-    state.search = { query, total }
+    state.search.total = total
   },
 
   SWITCH_TO_SEARCH: (state) => {

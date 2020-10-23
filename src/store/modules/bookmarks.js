@@ -141,8 +141,11 @@ const actions = {
     })
   },
 
-  FETCH_BOOKMARKS_WITH_QUERY: ({ commit }, { query, num, skip }) => {
-    return searchBookmarks({ query, num, skip }).then((resp) => {
+  FETCH_BOOKMARKS_WITH_QUERY: (
+    { commit },
+    { query, num, skip, site, tags }
+  ) => {
+    return searchBookmarks({ query, num, skip, site, tags }).then((resp) => {
       commit('SET_BOOKMARKS', { items: resp.bookmarks })
       return resp
     })

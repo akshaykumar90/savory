@@ -157,7 +157,7 @@ export default {
       return this.$store.getters.getBookmarkById(this.bookmarkId)
     },
     filterMode() {
-      return !!this.$store.state.list.filter.active.length
+      return this.$store.state.list.activeType !== 'new'
     },
     placeholder() {
       if (
