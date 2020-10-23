@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import Bowser from 'bowser'
 import { importBookmarks } from '../mongodb'
-import { domainName } from '../../utils'
 
 export const NUM_MAX_BOOKMARKS = 6000
 

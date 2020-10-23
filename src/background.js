@@ -2,7 +2,6 @@ import { createBookmark } from './api/mongodb'
 import moment from 'moment'
 import { authWrapper } from './auth'
 import { browser, importBrowserBookmarks } from './api/browser'
-import { domainName } from './utils'
 
 const welcome_page_url = 'https://app.getsavory.co/welcome'
 
