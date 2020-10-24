@@ -305,10 +305,17 @@ const actions = {
     }
   },
 
-  SCRUB_LISTS: ({ commit }, { ids }) => {
+  SCRUB_LISTS: ({ state, commit }, { ids }) => {
+    const { activeType, filter } = state
     commit('SCRUB_FROM_LIST', { type: 'new', ids })
     commit('SCRUB_FROM_LIST', { type: 'filtered', ids })
     commit('SCRUB_FROM_LIST', { type: 'search', ids })
+    if (activeType === 'search') {
+      commit('DEC_SEARCH_COUNT', { delta: ids.length })
+    }
+    if (filter.active.length) {
+      commit('DEC_FILTERED_COUNT', { delta: ids.length })
+    }
   },
 }
 
@@ -332,6 +339,10 @@ const mutations = {
     state.filter.total = total
   },
 
+  DEC_FILTERED_COUNT: (state, { delta }) => {
+    state.filter.total -= delta
+  },
+
   SWITCH_TO_FILTERED: (state) => {
     state.activeType = 'filtered'
     state.page = 1
@@ -353,6 +364,10 @@ const mutations = {
   SET_SEARCH_ITEMS: (state, { ids, total }) => {
     state.lists['search'] = ids
     state.search.total = total
+  },
+
+  DEC_SEARCH_COUNT: (state, { delta }) => {
+    state.search.total -= delta
   },
 
   SWITCH_TO_SEARCH: (state) => {
