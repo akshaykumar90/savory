@@ -14,7 +14,6 @@
 
 <script>
 import LoadingSpinner from './components/LoadingSpinner.vue'
-import { store } from './store'
 
 export default {
   name: 'app',

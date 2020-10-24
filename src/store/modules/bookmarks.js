@@ -44,7 +44,6 @@ function addBookmark(state, rawBookmark) {
 }
 
 const state = () => ({
-  isSynced: false,
   bookmarks: {
     /* [id: string]: Bookmark */
   },
@@ -154,7 +153,6 @@ const actions = {
 
 const mutations = {
   SET_BOOKMARKS: (state, { items }) => {
-    // state.isSynced = true
     for (const rawBookmark of items) {
       const bookmark = newBookmark(rawBookmark)
       Vue.set(state.bookmarks, bookmark.id, bookmark)
