@@ -44,6 +44,7 @@ const state = () => ({
     query: '',
     total: 0,
   },
+  loading: false,
 })
 
 const getters = {
@@ -139,19 +140,25 @@ const actions = {
   },
 
   LOAD_MORE_BOOKMARKS: ({ state, getters, commit, dispatch }) => {
-    // FIXME: We should not make multiple requests when one is already
-    //  in-flight.
+    if (state.loading) {
+      return Promise.resolve()
+    }
+    commit('SET_LOADING')
     return dispatch(getters.fetchMoreAction, {
       ...getters.fetchDataArgs,
       ...getters.fetchMoreArgs,
-    }).then((result) => {
-      const ids = result.bookmarks.map(({ id }) => id)
-      commit('ADD_TO_BACK', { ids })
-      commit('INCR_PAGE')
-      const history = window.history
-      const stateCopy = { ...history.state, page: state.page }
-      history.replaceState(stateCopy, '')
     })
+      .then((result) => {
+        const ids = result.bookmarks.map(({ id }) => id)
+        commit('ADD_TO_BACK', { ids })
+        commit('INCR_PAGE')
+        const history = window.history
+        const stateCopy = { ...history.state, page: state.page }
+        history.replaceState(stateCopy, '')
+      })
+      .finally(() => {
+        commit('UNSET_LOADING')
+      })
   },
 
   ON_FILTER_UPDATE: async ({ state, dispatch, commit, getters }, filters) => {
@@ -317,6 +324,14 @@ const mutations = {
 
   SET_PAGE: (state, page) => {
     state.page = page
+  },
+
+  SET_LOADING: (state) => {
+    state.loading = true
+  },
+
+  UNSET_LOADING: (state) => {
+    state.loading = false
   },
 }
 
