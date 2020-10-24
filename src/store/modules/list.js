@@ -19,6 +19,42 @@ function getQueryStringFromFilters(filters) {
     .join('/')
 }
 
+class ArgumentBuilder {
+  constructor() {
+    this.argObj = {}
+  }
+
+  withNum(numItems) {
+    Object.assign(this.argObj, {
+      num: numItems,
+    })
+    return this
+  }
+
+  withFilters(filters) {
+    Object.assign(this.argObj, {
+      tags: filters
+        .filter(({ type }) => type === 'tag')
+        .map(({ name }) => name),
+      site: filters
+        .filter(({ type }) => type === 'site')
+        .reduce((acc, { name }) => name, ''),
+    })
+    return this
+  }
+
+  withQuery(query) {
+    Object.assign(this.argObj, {
+      query,
+    })
+    return this
+  }
+
+  build() {
+    return this.argObj
+  }
+}
+
 const state = () => ({
   activeType: 'new',
   itemsPerPage: 100,
@@ -86,25 +122,14 @@ const getters = {
 
   fetchDataArgs(state) {
     const { itemsPerPage, filter, search } = state
-    let requestObj = {
-      num: itemsPerPage,
-    }
+    let argBuilder = new ArgumentBuilder().withNum(itemsPerPage)
     if (filter.active.length) {
-      Object.assign(requestObj, {
-        tags: filter.active
-          .filter(({ type }) => type === 'tag')
-          .map(({ name }) => name),
-        site: filter.active
-          .filter(({ type }) => type === 'site')
-          .reduce((acc, { name }) => name, ''),
-      })
+      argBuilder = argBuilder.withFilters(filter.active)
     }
     if (search.query !== '') {
-      Object.assign(requestObj, {
-        query: search.query,
-      })
+      argBuilder = argBuilder.withQuery(search.query)
     }
-    return requestObj
+    return argBuilder.build()
   },
 
   fetchMoreArgs(state, getters) {
@@ -122,12 +147,15 @@ const getters = {
 }
 
 const actions = {
-  LOAD_NEW_BOOKMARKS: async ({ state, commit, dispatch, getters }) => {
+  LOAD_NEW_BOOKMARKS: async ({ state, commit, dispatch }) => {
     commit('INCR_REQUEST_ID')
     let myRequestId = state.requestId
-    const { lists } = state
+    const { lists, itemsPerPage } = state
     if (lists['new'].length === 0) {
-      let result = await dispatch('FETCH_BOOKMARKS', getters.fetchDataArgs)
+      let result = await dispatch(
+        'FETCH_BOOKMARKS',
+        new ArgumentBuilder().withNum(itemsPerPage).build()
+      )
       if (myRequestId < state.requestId) {
         return Promise.reject(
           `Stale request id: ${myRequestId} current: ${state.requestId}`
@@ -179,16 +207,17 @@ const actions = {
     if (!filters.length) {
       commit('CLEAR_FILTERED')
     } else {
-      commit('SET_FILTERS', { filters })
+      const { itemsPerPage } = state
       let result = await dispatch(
         'FETCH_BOOKMARKS_WITH_TAG',
-        getters.fetchDataArgs
+        new ArgumentBuilder().withNum(itemsPerPage).withFilters(filters).build()
       )
       if (myRequestId < state.requestId) {
         return Promise.reject(
           `Stale request id: ${myRequestId} current: ${state.requestId}`
         )
       }
+      commit('SET_FILTERS', { filters })
       const ids = result.bookmarks.map(({ id }) => id)
       commit('SET_FILTERED_ITEMS', { ids, total: result.total })
       commit('SWITCH_TO_FILTERED')
@@ -237,16 +266,21 @@ const actions = {
         commit('CLEAR_FILTERED')
       }
     } else {
-      commit('SET_SEARCH_QUERY', { query })
+      const { itemsPerPage, filter } = state
       let result = await dispatch(
         'FETCH_BOOKMARKS_WITH_QUERY',
-        getters.fetchDataArgs
+        new ArgumentBuilder()
+          .withNum(itemsPerPage)
+          .withFilters(filter.active)
+          .withQuery(query)
+          .build()
       )
       if (myRequestId < state.requestId) {
         return Promise.reject(
           `Stale request id: ${myRequestId} current: ${state.requestId}`
         )
       }
+      commit('SET_SEARCH_QUERY', { query })
       const ids = result.bookmarks.map(({ id }) => id)
       commit('SET_SEARCH_ITEMS', { ids, total: result.total })
       commit('SWITCH_TO_SEARCH')
