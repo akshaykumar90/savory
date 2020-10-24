@@ -152,6 +152,7 @@ const actions = {
         const ids = result.bookmarks.map(({ id }) => id)
         commit('ADD_TO_BACK', { ids })
         commit('INCR_PAGE')
+        Event.$emit('newItems')
         const history = window.history
         const stateCopy = { ...history.state, page: state.page }
         history.replaceState(stateCopy, '')

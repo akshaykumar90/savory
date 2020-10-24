@@ -75,7 +75,7 @@ export default {
     },
     onScroll() {
       if (this.bottomVisible() && this.hasMore) {
-        Event.$emit('loadItems')
+        this.$store.dispatch('LOAD_MORE_BOOKMARKS')
       }
     },
     login() {
