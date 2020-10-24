@@ -167,7 +167,7 @@ const actions = {
     commit('CLEAR_SELECTED')
     commit('CLEAR_FILTERED')
     commit('SWITCH_TO_NEW')
-    // TODO: this is a huge code smell rn
+    // TODO: This is a huge code smell rn
     Event.$emit('newItems')
   },
 
