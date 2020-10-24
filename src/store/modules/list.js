@@ -282,7 +282,8 @@ const actions = {
     commit('CLEAR_SELECTED')
   },
 
-  CLEAR_SEARCH: ({ dispatch }) => {
+  CLEAR_SEARCH: ({ commit, dispatch }) => {
+    commit('SET_PAGE', 1)
     // Go to home page, if not already there
     return router.currentRoute.name === 'app'
       ? dispatch('LOAD_NEW_BOOKMARKS')
@@ -347,8 +348,6 @@ const mutations = {
     state.lists['search'] = []
     state.filter = { active: [], total: 0 }
     state.search = { query: '', total: 0 }
-    state.activeType = 'new'
-    state.page = 1
   },
 
   SET_SEARCH_QUERY: (state, { query }) => {
