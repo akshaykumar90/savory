@@ -1,12 +1,8 @@
 import _ from 'lodash'
 import { router } from '../../router'
-import { incrementAndGet, isRequestSuperseded } from '../../api/search'
 
 // TODO: this file deserves a big comment about the view-model design it
 //  prescribes
-
-// FIXME: Everything is async now!!! And there are a lot of timing-related
-//  issues. Take inspiration from search request interleaving and fix it.
 
 function getFiltersFromQueryString(filterString) {
   return filterString.split('/').map((filter) => {
@@ -45,6 +41,7 @@ const state = () => ({
     total: 0,
   },
   loading: false,
+  requestId: 0,
 })
 
 const getters = {
@@ -126,16 +123,23 @@ const getters = {
 
 const actions = {
   LOAD_NEW_BOOKMARKS: async ({ state, commit, dispatch, getters }) => {
+    commit('INCR_REQUEST_ID')
+    let myRequestId = state.requestId
     const { lists } = state
     if (lists['new'].length === 0) {
       let result = await dispatch('FETCH_BOOKMARKS', getters.fetchDataArgs)
+      if (myRequestId < state.requestId) {
+        return Promise.reject(
+          `Stale request id: ${myRequestId} current: ${state.requestId}`
+        )
+      }
       const ids = result.bookmarks.map(({ id }) => id)
       commit('SET_NEW', { ids })
     }
     commit('CLEAR_SELECTED')
     commit('CLEAR_FILTERED')
     commit('SWITCH_TO_NEW')
-    // FIXME: this is a huge code smell rn
+    // TODO: this is a huge code smell rn
     Event.$emit('newItems')
   },
 
@@ -163,6 +167,8 @@ const actions = {
   },
 
   ON_FILTER_UPDATE: async ({ state, dispatch, commit, getters }, filters) => {
+    commit('INCR_REQUEST_ID')
+    let myRequestId = state.requestId
     if (!filters.length) {
       commit('CLEAR_FILTERED')
     } else {
@@ -171,6 +177,11 @@ const actions = {
         'FETCH_BOOKMARKS_WITH_TAG',
         getters.fetchDataArgs
       )
+      if (myRequestId < state.requestId) {
+        return Promise.reject(
+          `Stale request id: ${myRequestId} current: ${state.requestId}`
+        )
+      }
       const ids = result.bookmarks.map(({ id }) => id)
       commit('SET_FILTERED_ITEMS', { ids, total: result.total })
       commit('SWITCH_TO_FILTERED')
@@ -209,7 +220,8 @@ const actions = {
   },
 
   SEARCH_QUERY: async ({ state, commit, dispatch, getters }, query) => {
-    let requestId = incrementAndGet()
+    commit('INCR_REQUEST_ID')
+    let myRequestId = state.requestId
     if (!query) {
       // Empty query is valid input if there are active filters
       if (state.filter.active.length) {
@@ -223,8 +235,10 @@ const actions = {
         'FETCH_BOOKMARKS_WITH_QUERY',
         getters.fetchDataArgs
       )
-      if (isRequestSuperseded(requestId)) {
-        return
+      if (myRequestId < state.requestId) {
+        return Promise.reject(
+          `Stale request id: ${myRequestId} current: ${state.requestId}`
+        )
       }
       const ids = result.bookmarks.map(({ id }) => id)
       commit('SET_SEARCH_ITEMS', { ids, total: result.total })
@@ -333,6 +347,10 @@ const mutations = {
 
   UNSET_LOADING: (state) => {
     state.loading = false
+  },
+
+  INCR_REQUEST_ID: (state) => {
+    state.requestId += 1
   },
 }
 
