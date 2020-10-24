@@ -147,12 +147,19 @@ const actions = {
     if (state.loading) {
       return Promise.resolve()
     }
+    commit('INCR_REQUEST_ID')
+    let myRequestId = state.requestId
     commit('SET_LOADING')
     return dispatch(getters.fetchMoreAction, {
       ...getters.fetchDataArgs,
       ...getters.fetchMoreArgs,
     })
       .then((result) => {
+        if (myRequestId < state.requestId) {
+          return Promise.reject(
+            `Stale request id: ${myRequestId} current: ${state.requestId}`
+          )
+        }
         const ids = result.bookmarks.map(({ id }) => id)
         commit('ADD_TO_BACK', { ids })
         commit('INCR_PAGE')
