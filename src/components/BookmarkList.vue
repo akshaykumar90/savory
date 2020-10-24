@@ -30,12 +30,9 @@ export default {
     bottom() {
       return this.$store.state.list.loading
     },
-  },
-
-  data: function () {
-    return {
-      current: this.$store.getters.activeIds,
-    }
+    current() {
+      return this.$store.getters.activeIds
+    },
   },
 
   beforeRouteEnter(to, from, next) {
@@ -56,33 +53,6 @@ export default {
         params: to.params,
       })
       .then(next)
-  },
-
-  methods: {
-    setBookmarks() {
-      this.current = this.$store.getters.activeIds
-    },
-  },
-
-  created() {
-    Event.$on('newItems', this.setBookmarks)
-  },
-
-  destroyed() {
-    Event.$off('newItems', this.setBookmarks)
-  },
-
-  watch: {
-    $route(to) {
-      const matched = this.$router.getMatchedComponents(to)
-      if (matched.some(({ name }) => name === componentName)) {
-        const history = window.history
-        if (history.state && history.state.page) {
-          this.$store.commit('SET_PAGE', history.state.page)
-        }
-        this.setBookmarks()
-      }
-    },
   },
 }
 </script>

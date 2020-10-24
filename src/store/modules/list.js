@@ -150,11 +150,11 @@ const actions = {
   LOAD_NEW_BOOKMARKS: async ({ state, commit, dispatch }) => {
     commit('INCR_REQUEST_ID')
     let myRequestId = state.requestId
-    const { lists, itemsPerPage } = state
+    const { lists, itemsPerPage, page } = state
     if (lists['new'].length === 0) {
       let result = await dispatch(
         'FETCH_BOOKMARKS',
-        new ArgumentBuilder().withNum(itemsPerPage).build()
+        new ArgumentBuilder().withNum(itemsPerPage * page).build()
       )
       if (myRequestId < state.requestId) {
         return Promise.reject(
@@ -167,8 +167,6 @@ const actions = {
     commit('CLEAR_SELECTED')
     commit('CLEAR_FILTERED')
     commit('SWITCH_TO_NEW')
-    // TODO: This is a huge code smell rn
-    Event.$emit('newItems')
   },
 
   LOAD_MORE_BOOKMARKS: ({ state, getters, commit, dispatch }) => {
@@ -191,7 +189,6 @@ const actions = {
         const ids = result.bookmarks.map(({ id }) => id)
         commit('ADD_TO_BACK', { ids })
         commit('INCR_PAGE')
-        Event.$emit('newItems')
         const history = window.history
         const stateCopy = { ...history.state, page: state.page }
         history.replaceState(stateCopy, '')
@@ -202,26 +199,28 @@ const actions = {
   },
 
   ON_FILTER_UPDATE: async ({ state, dispatch, commit, getters }, filters) => {
+    if (!filters.length) {
+      return dispatch('CLEAR_SEARCH')
+    }
     commit('INCR_REQUEST_ID')
     let myRequestId = state.requestId
-    if (!filters.length) {
-      commit('CLEAR_FILTERED')
-    } else {
-      const { itemsPerPage } = state
-      let result = await dispatch(
-        'FETCH_BOOKMARKS_WITH_TAG',
-        new ArgumentBuilder().withNum(itemsPerPage).withFilters(filters).build()
+    const { itemsPerPage, page } = state
+    let result = await dispatch(
+      'FETCH_BOOKMARKS_WITH_TAG',
+      new ArgumentBuilder()
+        .withNum(itemsPerPage * page)
+        .withFilters(filters)
+        .build()
+    )
+    if (myRequestId < state.requestId) {
+      return Promise.reject(
+        `Stale request id: ${myRequestId} current: ${state.requestId}`
       )
-      if (myRequestId < state.requestId) {
-        return Promise.reject(
-          `Stale request id: ${myRequestId} current: ${state.requestId}`
-        )
-      }
-      commit('SET_FILTERS', { filters })
-      const ids = result.bookmarks.map(({ id }) => id)
-      commit('SET_FILTERED_ITEMS', { ids, total: result.total })
-      commit('SWITCH_TO_FILTERED')
     }
+    commit('SET_FILTERS', { filters })
+    const ids = result.bookmarks.map(({ id }) => id)
+    commit('SET_FILTERED_ITEMS', { ids, total: result.total })
+    commit('SWITCH_TO_FILTERED')
     commit('CLEAR_SELECTED')
   },
 
@@ -256,37 +255,31 @@ const actions = {
   },
 
   SEARCH_QUERY: async ({ state, commit, dispatch, getters }, query) => {
-    commit('INCR_REQUEST_ID')
-    let myRequestId = state.requestId
     if (!query) {
       // Empty query is valid input if there are active filters
-      if (state.filter.active.length) {
-        commit('SWITCH_TO_FILTERED')
-      } else {
-        commit('CLEAR_FILTERED')
-      }
-    } else {
-      const { itemsPerPage, filter } = state
-      let result = await dispatch(
-        'FETCH_BOOKMARKS_WITH_QUERY',
-        new ArgumentBuilder()
-          .withNum(itemsPerPage)
-          .withFilters(filter.active)
-          .withQuery(query)
-          .build()
-      )
-      if (myRequestId < state.requestId) {
-        return Promise.reject(
-          `Stale request id: ${myRequestId} current: ${state.requestId}`
-        )
-      }
-      commit('SET_SEARCH_QUERY', { query })
-      const ids = result.bookmarks.map(({ id }) => id)
-      commit('SET_SEARCH_ITEMS', { ids, total: result.total })
-      commit('SWITCH_TO_SEARCH')
+      return dispatch('ON_FILTER_UPDATE', state.filter.active)
     }
+    commit('INCR_REQUEST_ID')
+    let myRequestId = state.requestId
+    const { itemsPerPage, filter } = state
+    let result = await dispatch(
+      'FETCH_BOOKMARKS_WITH_QUERY',
+      new ArgumentBuilder()
+        .withNum(itemsPerPage)
+        .withFilters(filter.active)
+        .withQuery(query)
+        .build()
+    )
+    if (myRequestId < state.requestId) {
+      return Promise.reject(
+        `Stale request id: ${myRequestId} current: ${state.requestId}`
+      )
+    }
+    commit('SET_SEARCH_QUERY', { query })
+    const ids = result.bookmarks.map(({ id }) => id)
+    commit('SET_SEARCH_ITEMS', { ids, total: result.total })
+    commit('SWITCH_TO_SEARCH')
     commit('CLEAR_SELECTED')
-    Event.$emit('newItems')
   },
 
   CLEAR_SEARCH: ({ dispatch }) => {
@@ -297,6 +290,8 @@ const actions = {
   },
 
   FETCH_DATA_FOR_APP_VIEW: ({ dispatch, commit }, { name, params }) => {
+    const page = window.history.state && window.history.state.page
+    commit('SET_PAGE', page || 1)
     if (name === 'app') {
       return dispatch('LOAD_NEW_BOOKMARKS')
     } else if (name === 'tags') {
@@ -345,7 +340,6 @@ const mutations = {
 
   SWITCH_TO_FILTERED: (state) => {
     state.activeType = 'filtered'
-    state.page = 1
   },
 
   CLEAR_FILTERED: (state) => {
@@ -381,7 +375,6 @@ const mutations = {
 
   SWITCH_TO_NEW: (state) => {
     state.activeType = 'new'
-    state.page = 1
   },
 
   SCRUB_FROM_LIST: (state, { type, ids }) => {

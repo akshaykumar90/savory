@@ -88,7 +88,6 @@ const actions = {
   ON_BOOKMARK_CREATED: ({ state, commit }, { bookmark }) => {
     commit('ADD_BOOKMARK', bookmark)
     commit('ADD_TO_FRONT', { ids: [bookmark.id] })
-    Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })
     return Promise.resolve()
   },
@@ -102,7 +101,6 @@ const actions = {
     })
     await dispatch('SCRUB_LISTS', { ids: currSelected })
     currSelected.map((id) => commit('REMOVE_BOOKMARK', { id }))
-    Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', {
       count: state.numBookmarks - currSelected.length,
     })
