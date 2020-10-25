@@ -76,9 +76,9 @@ const state = () => ({
     query: '',
     total: 0,
   },
-  loading: false,
+  loading: false, // load more
   requestId: 0,
-  fetchPromise: null,
+  fetchPromise: null, // pending navigation
 })
 
 const getters = {
@@ -182,7 +182,8 @@ const actions = {
   },
 
   LOAD_MORE_BOOKMARKS: ({ state, getters, commit, dispatch }) => {
-    if (state.loading) {
+    if (state.loading || state.fetchPromise !== null) {
+      // Cede to a pending navigation
       return Promise.resolve()
     }
     commit('INCR_REQUEST_ID')
