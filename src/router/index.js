@@ -12,6 +12,10 @@ Vue.use(Router)
 function createRouter() {
   return new Router({
     mode: 'history',
+    // Vue Router ensures that the Vue.$route variable is updated before
+    // scrollBehavior is called to scroll into position. This lets us use
+    // Async Scrolling here by waiting on the fetch promise that is set on a
+    // watch on the $route variable.
     scrollBehavior(to, from, savedPosition) {
       if (store.state.list.fetchPromise) {
         return store.state.list.fetchPromise.then(() => {
