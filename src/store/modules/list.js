@@ -183,7 +183,7 @@ const actions = {
 
   LOAD_MORE_BOOKMARKS: ({ state, getters, commit, dispatch }) => {
     if (state.loading || state.fetchPromise !== null) {
-      // Cede to a pending navigation
+      // Yield if a navigation is pending
       return Promise.resolve()
     }
     commit('INCR_REQUEST_ID')
