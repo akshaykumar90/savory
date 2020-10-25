@@ -5,6 +5,7 @@ import AppLayout from '../layouts/AppLayout.vue'
 import LandingPage from '../pages/LandingPage.vue'
 import WelcomePage from '../pages/WelcomePage.vue'
 import { authGuard } from '../auth'
+import { store } from '../store'
 
 Vue.use(Router)
 
@@ -12,6 +13,15 @@ function createRouter() {
   return new Router({
     mode: 'history',
     scrollBehavior(to, from, savedPosition) {
+      if (store.state.list.fetchPromise) {
+        return store.state.list.fetchPromise.then(() => {
+          if (savedPosition) {
+            return savedPosition
+          } else {
+            return { y: 0 }
+          }
+        })
+      }
       if (savedPosition) {
         return savedPosition
       } else {

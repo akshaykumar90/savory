@@ -78,6 +78,7 @@ const state = () => ({
   },
   loading: false,
   requestId: 0,
+  fetchPromise: null,
 })
 
 const getters = {
@@ -290,7 +291,7 @@ const actions = {
       : router.push('/')
   },
 
-  FETCH_DATA_FOR_APP_VIEW: ({ dispatch, commit }, { name, params }) => {
+  FETCH_DATA_FOR_VIEW: ({ dispatch, commit }, { name, params }) => {
     const page = window.history.state && window.history.state.page
     commit('SET_PAGE', page || 1)
     if (name === 'app') {
@@ -299,6 +300,18 @@ const actions = {
       let filters = getFiltersFromQueryString(params.tag)
       return dispatch('ON_FILTER_UPDATE', filters)
     }
+  },
+
+  FETCH_DATA_FOR_ROUTE: ({ dispatch, commit }, { route }) => {
+    const fetchPromise = dispatch({
+      type: 'FETCH_DATA_FOR_VIEW',
+      name: route.name,
+      params: route.params,
+    })
+    commit('SET_FETCH_PROMISE', fetchPromise)
+    return fetchPromise.then(() => {
+      commit('CLEAR_FETCH_PROMISE')
+    })
   },
 
   SCRUB_LISTS: ({ state, commit }, { ids }) => {
@@ -399,6 +412,14 @@ const mutations = {
 
   INCR_REQUEST_ID: (state) => {
     state.requestId += 1
+  },
+
+  SET_FETCH_PROMISE: (state, promise) => {
+    state.fetchPromise = promise
+  },
+
+  CLEAR_FETCH_PROMISE: (state) => {
+    state.fetchPromise = null
   },
 }
 

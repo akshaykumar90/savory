@@ -36,9 +36,8 @@ export default {
 
   created() {
     this.$store.dispatch({
-      type: 'FETCH_DATA_FOR_APP_VIEW',
-      name: this.$router.currentRoute.name,
-      params: this.$router.currentRoute.params,
+      type: 'FETCH_DATA_FOR_ROUTE',
+      route: this.$router.currentRoute,
     })
   },
 
@@ -47,9 +46,8 @@ export default {
       const matched = this.$router.getMatchedComponents(to)
       if (matched.some(({ name }) => name === componentName)) {
         this.$store.dispatch({
-          type: 'FETCH_DATA_FOR_APP_VIEW',
-          name: to.name,
-          params: to.params,
+          type: 'FETCH_DATA_FOR_ROUTE',
+          route: to,
         })
       }
     },
