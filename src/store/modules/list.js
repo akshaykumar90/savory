@@ -300,7 +300,6 @@ const actions = {
 
   FETCH_DATA_FOR_VIEW: ({ dispatch, commit }, { name, params }) => {
     const page = window.history.state && window.history.state.page
-    commit('SET_PAGE', page || 1)
     if (name === 'app') {
       return dispatch('LOAD_NEW_BOOKMARKS', { page: page || 1 })
     } else if (name === 'tags') {
