@@ -290,11 +290,10 @@ const actions = {
     commit('CLEAR_SELECTED')
   },
 
-  CLEAR_SEARCH: ({ commit, dispatch }) => {
-    commit('SET_PAGE', 1)
+  CLEAR_SEARCH: ({ dispatch }) => {
     // Go to home page, if not already there
     return router.currentRoute.name === 'app'
-      ? dispatch('LOAD_NEW_BOOKMARKS')
+      ? dispatch('LOAD_NEW_BOOKMARKS', { page: 1 })
       : router.push('/')
   },
 
@@ -384,6 +383,8 @@ const mutations = {
 
   SWITCH_TO_SEARCH: (state) => {
     state.activeType = 'search'
+    // You can never come 'back' to a search since search do not get a history
+    // entry. Therefore, it is safe to always reset page to 1 here.
     state.page = 1
   },
 
