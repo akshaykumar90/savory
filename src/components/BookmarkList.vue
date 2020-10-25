@@ -14,7 +14,6 @@
 <script>
 import BookmarkRow from './BookmarkRow.vue'
 import BookmarkLoader from './BookmarkLoader.vue'
-import { store } from '../store'
 
 const componentName = 'BookmarkList'
 
@@ -35,24 +34,25 @@ export default {
     },
   },
 
-  beforeRouteEnter(to, from, next) {
-    store
-      .dispatch({
-        type: 'FETCH_DATA_FOR_APP_VIEW',
-        name: to.name,
-        params: to.params,
-      })
-      .then(next)
+  mounted() {
+    this.$store.dispatch({
+      type: 'FETCH_DATA_FOR_APP_VIEW',
+      name: this.$router.currentRoute.name,
+      params: this.$router.currentRoute.params,
+    })
   },
 
-  beforeRouteUpdate(to, from, next) {
-    store
-      .dispatch({
-        type: 'FETCH_DATA_FOR_APP_VIEW',
-        name: to.name,
-        params: to.params,
-      })
-      .then(next)
+  watch: {
+    $route(to) {
+      const matched = this.$router.getMatchedComponents(to)
+      if (matched.some(({ name }) => name === componentName)) {
+        this.$store.dispatch({
+          type: 'FETCH_DATA_FOR_APP_VIEW',
+          name: to.name,
+          params: to.params,
+        })
+      }
+    },
   },
 }
 </script>
