@@ -56,7 +56,7 @@ class ArgumentBuilder {
 }
 
 const state = () => ({
-  activeType: 'new',
+  activeType: '',
   itemsPerPage: 100,
   page: 1,
   lists: {
@@ -88,6 +88,10 @@ const getters = {
 
   activeIds(state) {
     const { activeType, itemsPerPage, page, lists } = state
+
+    if (!['new', 'filtered', 'search'].includes(activeType)) {
+      return []
+    }
 
     // const start = (page - 1) * itemsPerPage
     const end = page * itemsPerPage
@@ -135,14 +139,19 @@ const getters = {
 
   fetchMoreArgs(state, getters) {
     const { activeType, itemsPerPage, page, lists } = state
-    if (activeType === 'search') {
-      return {
-        skip: page * itemsPerPage,
-      }
-    }
-    const [lastItem] = lists[activeType].slice(-1)
-    return {
-      after: getters.getBookmarkById(lastItem).dateAdded,
+    switch (state.activeType) {
+      case 'search':
+        return {
+          skip: page * itemsPerPage,
+        }
+      case 'new':
+      case 'filtered':
+        const [lastItem] = lists[activeType].slice(-1)
+        return {
+          after: getters.getBookmarkById(lastItem).dateAdded,
+        }
+      default:
+        return {}
     }
   },
 }
