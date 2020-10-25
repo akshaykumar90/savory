@@ -148,14 +148,15 @@ const getters = {
 }
 
 const actions = {
-  LOAD_NEW_BOOKMARKS: async ({ state, commit, dispatch }) => {
+  LOAD_NEW_BOOKMARKS: async ({ state, commit, dispatch }, { page }) => {
     commit('INCR_REQUEST_ID')
     let myRequestId = state.requestId
-    const { lists, itemsPerPage, page } = state
+    const { lists, itemsPerPage } = state
+    const maxPage = page || 1
     if (lists['new'].length === 0) {
       let result = await dispatch(
         'FETCH_BOOKMARKS',
-        new ArgumentBuilder().withNum(itemsPerPage * page).build()
+        new ArgumentBuilder().withNum(itemsPerPage * maxPage).build()
       )
       if (myRequestId < state.requestId) {
         return Promise.reject(
@@ -168,6 +169,7 @@ const actions = {
     commit('CLEAR_SELECTED')
     commit('CLEAR_FILTERED')
     commit('SWITCH_TO_NEW')
+    commit('SET_PAGE', maxPage)
   },
 
   LOAD_MORE_BOOKMARKS: ({ state, getters, commit, dispatch }) => {
@@ -199,17 +201,21 @@ const actions = {
       })
   },
 
-  ON_FILTER_UPDATE: async ({ state, dispatch, commit, getters }, filters) => {
+  ON_FILTER_UPDATE: async (
+    { state, dispatch, commit, getters },
+    { filters, page }
+  ) => {
     if (!filters.length) {
       return dispatch('CLEAR_SEARCH')
     }
     commit('INCR_REQUEST_ID')
     let myRequestId = state.requestId
-    const { itemsPerPage, page } = state
+    const { itemsPerPage } = state
+    const maxPage = page || 1
     let result = await dispatch(
       'FETCH_BOOKMARKS_WITH_TAG',
       new ArgumentBuilder()
-        .withNum(itemsPerPage * page)
+        .withNum(itemsPerPage * maxPage)
         .withFilters(filters)
         .build()
     )
@@ -223,6 +229,7 @@ const actions = {
     commit('SET_FILTERED_ITEMS', { ids, total: result.total })
     commit('SWITCH_TO_FILTERED')
     commit('CLEAR_SELECTED')
+    commit('SET_PAGE', maxPage)
   },
 
   FILTER_ADDED: ({ state }, { type, name, drillDown }) => {
@@ -258,7 +265,7 @@ const actions = {
   SEARCH_QUERY: async ({ state, commit, dispatch, getters }, query) => {
     if (!query) {
       // Empty query is valid input if there are active filters
-      return dispatch('ON_FILTER_UPDATE', state.filter.active)
+      return dispatch('ON_FILTER_UPDATE', { filters: state.filter.active })
     }
     commit('INCR_REQUEST_ID')
     let myRequestId = state.requestId
@@ -295,10 +302,10 @@ const actions = {
     const page = window.history.state && window.history.state.page
     commit('SET_PAGE', page || 1)
     if (name === 'app') {
-      return dispatch('LOAD_NEW_BOOKMARKS')
+      return dispatch('LOAD_NEW_BOOKMARKS', { page: page || 1 })
     } else if (name === 'tags') {
       let filters = getFiltersFromQueryString(params.tag)
-      return dispatch('ON_FILTER_UPDATE', filters)
+      return dispatch('ON_FILTER_UPDATE', { filters, page: page || 1 })
     }
   },
 
