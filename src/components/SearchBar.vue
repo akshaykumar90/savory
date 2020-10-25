@@ -76,7 +76,9 @@ export default {
   methods: {
     doSearch: _.debounce(function () {
       let query = this.query.trim()
-      this.$store.dispatch('SEARCH_QUERY', query)
+      if (query !== '') {
+        this.$store.dispatch('SEARCH_QUERY', query)
+      }
     }, 300),
     clearSearch: function () {
       this.query = ''
