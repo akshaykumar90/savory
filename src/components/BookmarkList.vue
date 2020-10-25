@@ -34,7 +34,7 @@ export default {
     },
   },
 
-  mounted() {
+  created() {
     this.$store.dispatch({
       type: 'FETCH_DATA_FOR_APP_VIEW',
       name: this.$router.currentRoute.name,
