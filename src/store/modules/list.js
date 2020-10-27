@@ -282,6 +282,7 @@ const actions = {
       return dispatch('ON_FILTER_UPDATE', { filters: state.filter.active })
     }
     commit('INCR_REQUEST_ID')
+    commit('SET_SEARCH_QUERY', { query })
     let myRequestId = state.requestId
     const { itemsPerPage, filter } = state
     let result = await dispatch(
@@ -297,7 +298,6 @@ const actions = {
         `Stale request id: ${myRequestId} current: ${state.requestId}`
       )
     }
-    commit('SET_SEARCH_QUERY', { query })
     const ids = result.bookmarks.map(({ id }) => id)
     commit('SET_SEARCH_ITEMS', { ids, total: result.total })
     commit('SWITCH_TO_SEARCH')
