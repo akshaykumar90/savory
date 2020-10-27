@@ -328,6 +328,25 @@ const actions = {
       params: route.params,
     })
     commit('SET_FETCH_PROMISE', fetchPromise)
+    // We must clear the promise stored in state when the route change
+    // finishes. Otherwise, load more will break.
+    //
+    // We could do this in a `.then` clause. It also seems to work if the
+    // request gets superseded by another route change request. The original
+    // promise will be rejected but since the promise in the state object
+    // would also have been replaced with the more recent promise, we should
+    // be good. Right?
+    //
+    // Well, almost.
+    //
+    // The request might also get interrupted by a search query. Since it's
+    // not a route change, the state object will still hold on to its original
+    // promise which will end up in a rejected state but never cleared.
+    //
+    // Instead, we do the clearing in a `.finally` clause so that rejected
+    // promises are also handled correctly. To avoid incorrectly clearing a
+    // promise set by a later request, we make sure the promise in the state
+    // is the same as the promise captured in the closure.
     return fetchPromise.finally(() => {
       if (fetchPromise === state.fetchPromise) {
         commit('CLEAR_FETCH_PROMISE')
@@ -350,7 +369,7 @@ const actions = {
 }
 
 const mutations = {
-  // N.B. this is needed for new bookmarks getting added
+  // N.B. This is needed for new bookmarks getting added
   ADD_TO_FRONT: (state, { ids }) => {
     state.lists['new'] = [...ids, ...state.lists['new']]
   },
@@ -399,8 +418,8 @@ const mutations = {
 
   SWITCH_TO_SEARCH: (state) => {
     state.activeType = 'search'
-    // You can never come 'back' to a search since search do not get a history
-    // entry. Therefore, it is safe to always reset page to 1 here.
+    // You can never come 'back' to a search since searches do not get a
+    // history entry. Therefore, it is safe to always reset page to 1 here.
     state.page = 1
   },
 
