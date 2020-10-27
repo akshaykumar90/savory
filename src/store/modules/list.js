@@ -273,7 +273,11 @@ const actions = {
   },
 
   SEARCH_QUERY: async ({ state, commit, dispatch, getters }, query) => {
+    if (query === state.search.query) {
+      return Promise.resolve()
+    }
     if (!query) {
+      commit('CLEAR_SEARCH_ITEMS')
       // Empty query is valid input if there are active filters
       return dispatch('ON_FILTER_UPDATE', { filters: state.filter.active })
     }
@@ -396,6 +400,11 @@ const mutations = {
     // You can never come 'back' to a search since search do not get a history
     // entry. Therefore, it is safe to always reset page to 1 here.
     state.page = 1
+  },
+
+  CLEAR_SEARCH_ITEMS: (state) => {
+    state.lists['search'] = []
+    state.search = { query: '', total: 0 }
   },
 
   SET_NEW: (state, { ids }) => {
