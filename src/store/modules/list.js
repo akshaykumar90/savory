@@ -321,15 +321,17 @@ const actions = {
     }
   },
 
-  FETCH_DATA_FOR_ROUTE: ({ dispatch, commit }, { route }) => {
+  FETCH_DATA_FOR_ROUTE: ({ state, dispatch, commit }, { route }) => {
     const fetchPromise = dispatch({
       type: 'FETCH_DATA_FOR_VIEW',
       name: route.name,
       params: route.params,
     })
     commit('SET_FETCH_PROMISE', fetchPromise)
-    return fetchPromise.then(() => {
-      commit('CLEAR_FETCH_PROMISE')
+    return fetchPromise.finally(() => {
+      if (fetchPromise === state.fetchPromise) {
+        commit('CLEAR_FETCH_PROMISE')
+      }
     })
   },
 
