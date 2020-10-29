@@ -1,25 +1,8 @@
 import _ from 'lodash'
 import { router } from '../../router'
-import { incrementAndGet, isRequestSuperseded } from '../../api/search'
-import { searchBookmarks } from '../../api/mongodb'
 
-function getDrillDownFunction(getters) {
-  return async function drillDownFilter(currentItems, { type, name }) {
-    let bookmarkIds = []
-    if (type === 'site') {
-      bookmarkIds = getters.getBookmarkIdsWithSite(name)
-    } else if (type === 'tag') {
-      bookmarkIds = getters.getBookmarkIdsWithTag(name)
-    } else {
-      /* bad input */
-      return currentItems
-    }
-    let currFiltered = new Set(currentItems)
-    return currFiltered.size
-      ? bookmarkIds.filter((x) => currFiltered.has(x))
-      : bookmarkIds
-  }
-}
+// TODO: this file deserves a big comment about the view-model design it
+//  prescribes
 
 function getFiltersFromQueryString(filterString) {
   return filterString.split('/').map((filter) => {
@@ -36,8 +19,44 @@ function getQueryStringFromFilters(filters) {
     .join('/')
 }
 
+class ArgumentBuilder {
+  constructor() {
+    this.argObj = {}
+  }
+
+  withNum(numItems) {
+    Object.assign(this.argObj, {
+      num: numItems,
+    })
+    return this
+  }
+
+  withFilters(filters) {
+    Object.assign(this.argObj, {
+      tags: filters
+        .filter(({ type }) => type === 'tag')
+        .map(({ name }) => name),
+      site: filters
+        .filter(({ type }) => type === 'site')
+        .reduce((acc, { name }) => name, ''),
+    })
+    return this
+  }
+
+  withQuery(query) {
+    Object.assign(this.argObj, {
+      query,
+    })
+    return this
+  }
+
+  build() {
+    return this.argObj
+  }
+}
+
 const state = () => ({
-  activeType: 'new',
+  activeType: '',
   itemsPerPage: 100,
   page: 1,
   lists: {
@@ -45,25 +64,34 @@ const state = () => ({
       /* number */
     ],
     filtered: [],
+    search: [],
   },
   filter: {
     active: [
       /* { type: string, name: string } */
     ],
-    items: [
-      /* number */
-    ],
+    total: 0,
   },
+  search: {
+    query: '',
+    total: 0,
+  },
+  loading: false, // load more
+  requestId: 0,
+  fetchPromise: null, // pending navigation
 })
 
 const getters = {
-  maxPage(state) {
-    const { activeType, itemsPerPage, lists } = state
-    return Math.ceil(lists[activeType].length / itemsPerPage)
+  maxPage(state, getters) {
+    return Math.ceil(getters.numBookmarks / state.itemsPerPage)
   },
 
   activeIds(state) {
     const { activeType, itemsPerPage, page, lists } = state
+
+    if (!['new', 'filtered', 'search'].includes(activeType)) {
+      return []
+    }
 
     // const start = (page - 1) * itemsPerPage
     const end = page * itemsPerPage
@@ -72,42 +100,146 @@ const getters = {
   },
 
   numBookmarks(state, getters, rootState) {
-    const { activeType, lists } = state
-    if (activeType === 'new') {
-      return rootState.bookmarks.numBookmarks
-    } else {
-      return lists[activeType].length
+    switch (state.activeType) {
+      case 'new':
+        return rootState.bookmarks.numBookmarks
+      case 'filtered':
+        return state.filter.total
+      case 'search':
+        return state.search.total
+      default:
+        return 0
+    }
+  },
+
+  fetchMoreAction(state) {
+    switch (state.activeType) {
+      case 'new':
+        return 'FETCH_BOOKMARKS'
+      case 'filtered':
+        return 'FETCH_BOOKMARKS_WITH_TAG'
+      case 'search':
+        return 'FETCH_BOOKMARKS_WITH_QUERY'
+      default:
+        return 'UNKNOWN'
+    }
+  },
+
+  fetchDataArgs(state) {
+    const { itemsPerPage, filter, search } = state
+    let argBuilder = new ArgumentBuilder().withNum(itemsPerPage)
+    if (filter.active.length) {
+      argBuilder = argBuilder.withFilters(filter.active)
+    }
+    if (search.query !== '') {
+      argBuilder = argBuilder.withQuery(search.query)
+    }
+    return argBuilder.build()
+  },
+
+  fetchMoreArgs(state, getters) {
+    const { activeType, itemsPerPage, page, lists } = state
+    switch (state.activeType) {
+      case 'search':
+        return {
+          skip: page * itemsPerPage,
+        }
+      case 'new':
+      case 'filtered':
+        const [lastItem] = lists[activeType].slice(-1)
+        return {
+          after: getters.getBookmarkById(lastItem).dateAdded,
+        }
+      default:
+        return {}
     }
   },
 }
 
 const actions = {
-  LOAD_MORE_BOOKMARKS: ({ state, commit }) => {
-    return new Promise((resolve) => {
-      // The setTimeout simulates async remote api call to load more content
-      setTimeout(() => {
+  LOAD_NEW_BOOKMARKS: async ({ state, commit, dispatch }, { page }) => {
+    commit('INCR_REQUEST_ID')
+    let myRequestId = state.requestId
+    const { lists, itemsPerPage } = state
+    const maxPage = page || 1
+    if (lists['new'].length === 0) {
+      let result = await dispatch(
+        'FETCH_BOOKMARKS',
+        new ArgumentBuilder().withNum(itemsPerPage * maxPage).build()
+      )
+      if (myRequestId < state.requestId) {
+        return Promise.reject(
+          `Stale request id: ${myRequestId} current: ${state.requestId}`
+        )
+      }
+      const ids = result.bookmarks.map(({ id }) => id)
+      commit('SET_NEW', { ids })
+    }
+    commit('CLEAR_SELECTED')
+    commit('CLEAR_FILTERED')
+    commit('SWITCH_TO_NEW')
+    commit('SET_PAGE', maxPage)
+  },
+
+  LOAD_MORE_BOOKMARKS: ({ state, getters, commit, dispatch }) => {
+    if (state.loading || state.fetchPromise !== null) {
+      // Yield if a navigation is pending
+      return Promise.resolve()
+    }
+    commit('INCR_REQUEST_ID')
+    let myRequestId = state.requestId
+    commit('SET_LOADING')
+    return dispatch(getters.fetchMoreAction, {
+      ...getters.fetchDataArgs,
+      ...getters.fetchMoreArgs,
+    })
+      .then((result) => {
+        if (myRequestId < state.requestId) {
+          return Promise.reject(
+            `Stale request id: ${myRequestId} current: ${state.requestId}`
+          )
+        }
+        const ids = result.bookmarks.map(({ id }) => id)
+        commit('ADD_TO_BACK', { ids })
         commit('INCR_PAGE')
         const history = window.history
         const stateCopy = { ...history.state, page: state.page }
         history.replaceState(stateCopy, '')
-        resolve()
-      }, 100)
-    })
+      })
+      .finally(() => {
+        commit('UNSET_LOADING')
+      })
   },
 
-  ON_FILTER_UPDATE: async ({ commit, rootGetters }, filters) => {
+  ON_FILTER_UPDATE: async (
+    { state, dispatch, commit, getters },
+    { filters, page }
+  ) => {
     if (!filters.length) {
-      commit('CLEAR_FILTERED')
-    } else {
-      let drillDownFilter = getDrillDownFunction(rootGetters)
-      let filteredIds = []
-      for (const filter of filters) {
-        filteredIds = await drillDownFilter(filteredIds, filter)
-      }
-      commit('UPDATE_SEARCH_FILTER', { active: filters, items: filteredIds })
-      commit('SET_FILTERED', filteredIds)
+      return dispatch('CLEAR_SEARCH')
     }
+    commit('INCR_REQUEST_ID')
+    let myRequestId = state.requestId
+    const { itemsPerPage } = state
+    const maxPage = page || 1
+    let result = await dispatch(
+      'FETCH_BOOKMARKS_WITH_TAG',
+      new ArgumentBuilder()
+        .withNum(itemsPerPage * maxPage)
+        .withFilters(filters)
+        .build()
+    )
+    if (myRequestId < state.requestId) {
+      return Promise.reject(
+        `Stale request id: ${myRequestId} current: ${state.requestId}`
+      )
+    }
+    commit('SET_FILTERS', { filters })
+    const ids = result.bookmarks.map(({ id }) => id)
+    commit('SET_FILTERED_ITEMS', { ids, total: result.total })
+    commit('SWITCH_TO_FILTERED')
     commit('CLEAR_SELECTED')
+    commit('SET_PAGE', maxPage)
   },
 
   FILTER_ADDED: ({ state }, { type, name, drillDown }) => {
@@ -140,86 +272,168 @@ const actions = {
       : router.push('/')
   },
 
-  SEARCH_QUERY: async ({ state, commit }, query) => {
-    let requestId = incrementAndGet()
-    if (!query) {
-      // Empty query is valid input if there are active filters
-      if (state.filter.active.length) {
-        commit('SET_FILTERED', state.filter.items)
-      } else {
-        commit('CLEAR_FILTERED')
-      }
-    } else {
-      let searchResults = await searchBookmarks({ query })
-      if (isRequestSuperseded(requestId)) {
-        return
-      }
-      let currFiltered = new Set(state.filter.items)
-      const filteredIds = currFiltered.size
-        ? searchResults.filter((x) => currFiltered.has(x))
-        : searchResults
-      commit('SET_FILTERED', filteredIds)
+  SEARCH_QUERY: async ({ state, commit, dispatch, getters }, query) => {
+    if (query === state.search.query) {
+      return Promise.resolve()
     }
+    if (!query) {
+      commit('CLEAR_SEARCH_ITEMS')
+      // Empty query is valid input if there are active filters
+      return dispatch('ON_FILTER_UPDATE', { filters: state.filter.active })
+    }
+    commit('INCR_REQUEST_ID')
+    commit('SET_SEARCH_QUERY', { query })
+    let myRequestId = state.requestId
+    const { itemsPerPage, filter } = state
+    let result = await dispatch(
+      'FETCH_BOOKMARKS_WITH_QUERY',
+      new ArgumentBuilder()
+        .withNum(itemsPerPage)
+        .withFilters(filter.active)
+        .withQuery(query)
+        .build()
+    )
+    if (myRequestId < state.requestId) {
+      return Promise.reject(
+        `Stale request id: ${myRequestId} current: ${state.requestId}`
+      )
+    }
+    const ids = result.bookmarks.map(({ id }) => id)
+    commit('SET_SEARCH_ITEMS', { ids, total: result.total })
+    commit('SWITCH_TO_SEARCH')
     commit('CLEAR_SELECTED')
-    Event.$emit('newItems')
   },
 
-  CLEAR_SEARCH: ({ commit }) => {
-    // Remove any filters
-    commit('CLEAR_FILTERED')
-    commit('CLEAR_SELECTED')
-
-    // Notify app view of changes
-    Event.$emit('newItems')
-
+  CLEAR_SEARCH: ({ dispatch }) => {
     // Go to home page, if not already there
     return router.currentRoute.name === 'app'
-      ? Promise.resolve()
+      ? dispatch('LOAD_NEW_BOOKMARKS', { page: 1 })
       : router.push('/')
   },
 
-  FETCH_DATA_FOR_APP_VIEW: ({ dispatch, commit }, { name, params }) => {
+  FETCH_DATA_FOR_VIEW: ({ dispatch, commit }, { name, params }) => {
+    const page = window.history.state && window.history.state.page
     if (name === 'app') {
-      // Remove any filters, aka go to home page
-      commit('CLEAR_FILTERED')
-      commit('CLEAR_SELECTED')
-      return Promise.resolve()
+      return dispatch('LOAD_NEW_BOOKMARKS', { page: page || 1 })
     } else if (name === 'tags') {
       let filters = getFiltersFromQueryString(params.tag)
-      return dispatch('ON_FILTER_UPDATE', filters)
+      return dispatch('ON_FILTER_UPDATE', { filters, page: page || 1 })
     }
   },
 
-  SCRUB_LISTS: ({ commit }, { ids }) => {
+  FETCH_DATA_FOR_ROUTE: ({ state, dispatch, commit }, { route }) => {
+    const fetchPromise = dispatch({
+      type: 'FETCH_DATA_FOR_VIEW',
+      name: route.name,
+      params: route.params,
+    })
+    commit('SET_FETCH_PROMISE', fetchPromise)
+    // We must clear the promise stored in state when the route change
+    // finishes. Otherwise, load more will break.
+    //
+    // We could do this in a `.then` clause. It also seems to work if the
+    // request gets superseded by another route change request. The original
+    // promise will be rejected but since the promise in the state object
+    // would also have been replaced with the more recent promise, we should
+    // be good. Right?
+    //
+    // Well, almost.
+    //
+    // The request might also get interrupted by a search query. Since it's
+    // not a route change, the state object will still hold on to its original
+    // promise which will end up in a rejected state but never cleared.
+    //
+    // Instead, we do the clearing in a `.finally` clause so that rejected
+    // promises are also handled correctly. To avoid incorrectly clearing a
+    // promise set by a later request, we make sure the promise in the state
+    // is the same as the promise captured in the closure.
+    return fetchPromise.finally(() => {
+      if (fetchPromise === state.fetchPromise) {
+        commit('CLEAR_FETCH_PROMISE')
+      }
+    })
+  },
+
+  SCRUB_LISTS: ({ state, commit }, { ids }) => {
+    const { activeType, filter } = state
     commit('SCRUB_FROM_LIST', { type: 'new', ids })
     commit('SCRUB_FROM_LIST', { type: 'filtered', ids })
+    commit('SCRUB_FROM_LIST', { type: 'search', ids })
+    if (activeType === 'search') {
+      commit('DEC_SEARCH_COUNT', { delta: ids.length })
+    }
+    if (filter.active.length) {
+      commit('DEC_FILTERED_COUNT', { delta: ids.length })
+    }
   },
 }
 
 const mutations = {
+  // N.B. This is needed for new bookmarks getting added
   ADD_TO_FRONT: (state, { ids }) => {
     state.lists['new'] = [...ids, ...state.lists['new']]
   },
 
   ADD_TO_BACK: (state, { ids }) => {
-    state.lists['new'] = [...state.lists['new'], ...ids]
+    const { activeType } = state
+    state.lists[activeType] = [...state.lists[activeType], ...ids]
   },
 
-  SET_FILTERED: (state, ids) => {
+  SET_FILTERS: (state, { filters }) => {
+    state.filter.active = filters
+  },
+
+  SET_FILTERED_ITEMS: (state, { ids, total }) => {
     state.lists['filtered'] = ids
-    state.page = 1
-    state.activeType = 'filtered'
+    state.filter.total = total
   },
 
-  UPDATE_SEARCH_FILTER: (state, filter) => {
-    state.filter = filter
+  DEC_FILTERED_COUNT: (state, { delta }) => {
+    state.filter.total -= delta
+  },
+
+  SWITCH_TO_FILTERED: (state) => {
+    state.activeType = 'filtered'
   },
 
   CLEAR_FILTERED: (state) => {
     state.lists['filtered'] = []
-    state.filter = { active: [], items: [] }
-    state.activeType = 'new'
+    state.lists['search'] = []
+    state.filter = { active: [], total: 0 }
+    state.search = { query: '', total: 0 }
+  },
+
+  SET_SEARCH_QUERY: (state, { query }) => {
+    state.search.query = query
+  },
+
+  SET_SEARCH_ITEMS: (state, { ids, total }) => {
+    state.lists['search'] = ids
+    state.search.total = total
+  },
+
+  DEC_SEARCH_COUNT: (state, { delta }) => {
+    state.search.total -= delta
+  },
+
+  SWITCH_TO_SEARCH: (state) => {
+    state.activeType = 'search'
+    // You can never come 'back' to a search since searches do not get a
+    // history entry. Therefore, it is safe to always reset page to 1 here.
     state.page = 1
+  },
+
+  CLEAR_SEARCH_ITEMS: (state) => {
+    state.lists['search'] = []
+    state.search = { query: '', total: 0 }
+  },
+
+  SET_NEW: (state, { ids }) => {
+    state.lists['new'] = ids
+  },
+
+  SWITCH_TO_NEW: (state) => {
+    state.activeType = 'new'
   },
 
   SCRUB_FROM_LIST: (state, { type, ids }) => {
@@ -233,6 +447,26 @@ const mutations = {
 
   SET_PAGE: (state, page) => {
     state.page = page
+  },
+
+  SET_LOADING: (state) => {
+    state.loading = true
+  },
+
+  UNSET_LOADING: (state) => {
+    state.loading = false
+  },
+
+  INCR_REQUEST_ID: (state) => {
+    state.requestId += 1
+  },
+
+  SET_FETCH_PROMISE: (state, promise) => {
+    state.fetchPromise = promise
+  },
+
+  CLEAR_FETCH_PROMISE: (state) => {
+    state.fetchPromise = null
   },
 }
 

@@ -14,19 +14,12 @@
 
 <script>
 import LoadingSpinner from './components/LoadingSpinner.vue'
-import { store } from './store'
 
 export default {
   name: 'app',
 
   components: {
     LoadingSpinner,
-  },
-
-  created() {
-    if (this.$auth.isAuthenticated) {
-      store.dispatch('SYNC_BOOKMARKS')
-    }
   },
 }
 </script>

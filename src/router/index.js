@@ -5,13 +5,27 @@ import AppLayout from '../layouts/AppLayout.vue'
 import LandingPage from '../pages/LandingPage.vue'
 import WelcomePage from '../pages/WelcomePage.vue'
 import { authGuard } from '../auth'
+import { store } from '../store'
 
 Vue.use(Router)
 
 function createRouter() {
   return new Router({
     mode: 'history',
+    // Vue Router ensures that the Vue.$route variable is updated before
+    // scrollBehavior is called to scroll into position. This lets us use
+    // Async Scrolling here by waiting on the fetch promise that is set on a
+    // watch on the $route variable.
     scrollBehavior(to, from, savedPosition) {
+      if (store.state.list.fetchPromise) {
+        return store.state.list.fetchPromise.then(() => {
+          if (savedPosition) {
+            return savedPosition
+          } else {
+            return { y: 0 }
+          }
+        })
+      }
       if (savedPosition) {
         return savedPosition
       } else {

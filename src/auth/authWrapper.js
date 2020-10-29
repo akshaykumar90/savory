@@ -1,8 +1,13 @@
 import Vue from 'vue'
 import { Auth0Client } from '@auth0/auth0-spa-js'
-import { CustomCredential, Stitch } from 'mongodb-stitch-browser-sdk'
+import {
+  CustomCredential,
+  RemoteMongoClient,
+  Stitch,
+} from 'mongodb-stitch-browser-sdk'
 import { StitchServiceError } from 'mongodb-stitch-core-sdk'
 import { browser } from '../api/browser'
+import _ from 'lodash'
 
 const DEFAULT_LOGIN_CALLBACK = () => console.log('login...')
 const DEFAULT_LOGOUT_CALLBACK = () => console.log('...logout')
@@ -26,6 +31,56 @@ const mongoApp = Stitch.hasAppClient(APP_ID)
 let instance
 
 export const getAuthWrapper = () => instance
+
+/**
+ * This is used to wrap MongoDB Stitch API calls so that we can detect
+ * expired tokens ASAP.
+ *
+ * Intercepts method on `obj` such that rejected promises due to invalid
+ * session errors flip the authenticated state. Expects the methods on
+ * `obj` to return promises.
+ *
+ * @param obj: Object to wrap
+ * @returns A proxy for the wrapped object
+ */
+function withAuthHandling(obj) {
+  const handler = {
+    get(target, propKey, receiver) {
+      if (typeof target[propKey] !== 'function') {
+        return Reflect.get(target, propKey, receiver)
+      }
+      return funcWithAuthHandling(target[propKey], target)
+    },
+  }
+  return new Proxy(obj, handler)
+}
+
+function funcWithAuthHandling(f, thisArg) {
+  return new Proxy(f, {
+    apply(target, __, args) {
+      if (!instance.isAuthenticated) {
+        return Promise.reject('Not logged in!')
+      }
+      const remoteOp = target.apply(thisArg, args)
+      remoteOp
+        .then(() => {
+          instance.loading = false
+        })
+        .catch((ex) => {
+          if (
+            ex instanceof StitchServiceError &&
+            ex.errorCodeName === 'InvalidSession'
+          ) {
+            instance.isAuthenticated = false
+            instance.user = null
+            instance.tokenExpiredBeacon = true
+            instance.error = ex
+          }
+        })
+      return remoteOp
+    },
+  })
+}
 
 export const authWrapper = ({
   onLoginCallback = DEFAULT_LOGIN_CALLBACK,
@@ -58,7 +113,17 @@ export const authWrapper = ({
     },
     methods: {
       getMongoApp() {
-        return mongoApp
+        return {
+          mongoCollection: _.memoize((name) => {
+            return withAuthHandling(
+              mongoApp
+                .getServiceClient(RemoteMongoClient.factory, 'savorydb')
+                .db('savory')
+                .collection(name)
+            )
+          }),
+          callFunction: funcWithAuthHandling(mongoApp.callFunction, mongoApp),
+        }
       },
 
       /**
@@ -170,52 +235,6 @@ export const authWrapper = ({
           console.error(e)
           return null
         }
-      },
-
-      /**
-       * This is used to wrap MongoDB Stitch API calls so that we can detect
-       * expired tokens ASAP.
-       *
-       * Intercepts method on `obj` such that rejected promises due to invalid
-       * session errors flip the authenticated state. Expects the methods on
-       * `obj` to return promises.
-       *
-       * @param obj: Object to wrap
-       * @returns A proxy for the wrapped object
-       */
-      withAuthHandling(obj) {
-        const authVm = this
-        const handler = {
-          get(target, propKey, receiver) {
-            if (typeof target[propKey] !== 'function') {
-              return Reflect.get(target, propKey, receiver)
-            }
-            const origMethod = target[propKey]
-            return function (...args) {
-              if (!authVm.isAuthenticated) {
-                return Promise.reject('Not logged in!')
-              }
-              const remoteOp = origMethod.apply(this, args)
-              remoteOp
-                .then(() => {
-                  authVm.loading = false
-                })
-                .catch((ex) => {
-                  if (
-                    ex instanceof StitchServiceError &&
-                    ex.errorCodeName === 'InvalidSession'
-                  ) {
-                    authVm.isAuthenticated = false
-                    authVm.user = null
-                    authVm.tokenExpiredBeacon = true
-                    authVm.error = ex
-                  }
-                })
-              return remoteOp
-            }
-          },
-        }
-        return new Proxy(obj, handler)
       },
     },
     async created() {

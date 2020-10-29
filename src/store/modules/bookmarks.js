@@ -1,73 +1,32 @@
 import Vue from 'vue'
 import {
   addTag as dbAddTag,
-  deleteBookmark,
+  deleteBookmarks,
   fetchRecent,
-  getCount,
   removeTag as dbRemoveTag,
-  setCount,
+  getBookmarksWithTag,
+  getTagsCount,
+  searchBookmarks,
 } from '../../api/mongodb'
 import _ from 'lodash'
 import { domainName } from '../../utils'
 
-export const NUM_SYNC_BOOKMARKS = 7500
-
-/**
- * Vue cannot detect changes in a set naively. For example, the following
- * would not work:
- *
- * ```
- * state.tags[tag].add({ dateAdded, id })
- * ```
- *
- * Also, this does not help:
- *
- * ```
- * Vue.set(state.tags, tag, tagIndex)
- * ```
- *
- * since the object reference is the same.
- *
- * Instead, we must assign a new set object to trigger reactivity.
- */
-function addTag(state, tag, { id, dateAdded }) {
-  const newTagIndex = new Set(state.tags[tag])
-  newTagIndex.add({ dateAdded, id })
-  Vue.set(state.tags, tag, newTagIndex)
+function addTag(state, tag) {
+  if (!state.tags.hasOwnProperty(tag)) {
+    Vue.set(state.tags, tag, 0)
+  }
+  state.tags[tag] += 1
 }
 
-/**
- * Deletes are similar. We cannot just remove an item from the set and expect
- * the change to be propagated to the view. The following does not work:
- *
- * ```
- * tagIndex.forEach((x) => {
- *   if (x.id === bookmarkId) {
- *     tagIndex.delete(x)
- *   }
- * })
- *
- * Vue.set(state.tags, tag, tagIndex)
- * ```
- *
- * We need to assign a new Set object to trigger reactivity.
- */
-function deleteTag(state, tag, bookmarkId) {
-  const newTagIndex = new Set()
-  state.tags[tag].forEach((x) => {
-    if (x.id !== bookmarkId) {
-      newTagIndex.add(x)
-    }
-  })
-  state.tags[tag] = newTagIndex
-  if (state.tags[tag].size === 0) {
+function deleteTag(state, tag) {
+  state.tags[tag] -= 1
+  if (state.tags[tag] === 0) {
     Vue.delete(state.tags, tag)
   }
 }
 
-function addBookmark(state, { id, title, dateAdded, url, tags }) {
-  tags.forEach((t) => addTag(state, t, { id, dateAdded }))
-  Vue.set(state.bookmarks, id, {
+function newBookmark({ id, title, dateAdded, url, tags }) {
+  return {
     id,
     title,
     dateAdded,
@@ -75,16 +34,21 @@ function addBookmark(state, { id, title, dateAdded, url, tags }) {
     site: domainName(url),
     tags,
     selected: false,
-  })
+  }
+}
+
+function addBookmark(state, rawBookmark) {
+  const { id, tags } = rawBookmark
+  tags.forEach((t) => addTag(state, t))
+  Vue.set(state.bookmarks, id, newBookmark(rawBookmark))
 }
 
 const state = () => ({
-  isSynced: false,
   bookmarks: {
     /* [id: string]: Bookmark */
   },
   tags: {
-    /* [name: string]: Set({ id: string, dateAdded: number }) */
+    /* [name: string]: number */
   },
   numBookmarks: 0,
 })
@@ -103,23 +67,12 @@ const getters = {
     )
   },
 
-  getBookmarkIdsWithTag: (state) => (tag) => {
-    if (!state.tags.hasOwnProperty(tag)) {
-      return []
-    }
-    const unsortedTags = Array.from(state.tags[tag])
-    return _.orderBy(unsortedTags, ['dateAdded'], ['desc']).map(({ id }) => id)
-  },
-
   tagNames: (state) => {
     return Array.from(Object.keys(state.tags))
   },
 
   tagsCount: (state) => {
-    return Object.entries(state.tags).map(([tag, bookmarkIds]) => [
-      tag,
-      bookmarkIds.size,
-    ])
+    return Object.entries(state.tags)
   },
 
   numSelected(state) {
@@ -132,40 +85,11 @@ const getters = {
 }
 
 const actions = {
-  SYNC_BOOKMARKS: async ({ state, commit }) => {
-    if (state.isSynced) {
-      return Promise.resolve()
-    }
-    const firstLoadNum = 50
-    let getCountPromise = getCount()
-    const fetchReqs = [
-      fetchRecent({ num: firstLoadNum }),
-      fetchRecent({ num: NUM_SYNC_BOOKMARKS }),
-    ]
-    let loadedCount = 0
-    for (const req of fetchReqs) {
-      let bookmarks = await req
-      bookmarks = bookmarks.slice(loadedCount)
-      commit('SET_BOOKMARKS', { items: bookmarks })
-      loadedCount += bookmarks.length
-      let ids = bookmarks.map(({ id }) => id)
-      commit('ADD_TO_BACK', { ids })
-      Event.$emit('newItems')
-      let countResponse = await getCountPromise
-      commit('SET_BOOKMARKS_COUNT', {
-        count: countResponse ? countResponse.count : 0,
-      })
-    }
-    commit('SET_BOOKMARKS_COUNT', { count: loadedCount })
-    return setCount({ newCount: state.numBookmarks })
-  },
-
   ON_BOOKMARK_CREATED: ({ state, commit }, { bookmark }) => {
     commit('ADD_BOOKMARK', bookmark)
     commit('ADD_TO_FRONT', { ids: [bookmark.id] })
-    Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })
-    return setCount({ newCount: state.numBookmarks })
+    return Promise.resolve()
   },
 
   BULK_DELETE_BOOKMARKS: async ({ state, commit, dispatch }) => {
@@ -177,12 +101,10 @@ const actions = {
     })
     await dispatch('SCRUB_LISTS', { ids: currSelected })
     currSelected.map((id) => commit('REMOVE_BOOKMARK', { id }))
-    Event.$emit('newItems')
     commit('SET_BOOKMARKS_COUNT', {
       count: state.numBookmarks - currSelected.length,
     })
-    currSelected.map(async (id) => await deleteBookmark({ bookmarkId: id }))
-    return setCount({ newCount: state.numBookmarks })
+    return deleteBookmarks({ bookmarkIds: currSelected })
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tag }) => {
@@ -194,12 +116,51 @@ const actions = {
     commit('REMOVE_TAG', { id, tag })
     return dbRemoveTag({ bookmarkId: id, tagToRemove: tag })
   },
+
+  FETCH_TAGS_COUNT: ({ commit }) => {
+    return getTagsCount().then((resp) => {
+      commit('SET_TAGS', { items: resp })
+    })
+  },
+
+  FETCH_BOOKMARKS: ({ commit }, { num, after }) => {
+    return fetchRecent({ num, after }).then((resp) => {
+      commit('SET_BOOKMARKS', { items: resp.bookmarks })
+      commit('SET_BOOKMARKS_COUNT', { count: resp.total })
+      return resp
+    })
+  },
+
+  FETCH_BOOKMARKS_WITH_TAG: ({ commit }, { tags, site, num, after }) => {
+    return getBookmarksWithTag({ tags, site, num, after }).then((resp) => {
+      commit('SET_BOOKMARKS', { items: resp.bookmarks })
+      return resp
+    })
+  },
+
+  FETCH_BOOKMARKS_WITH_QUERY: (
+    { commit },
+    { query, num, skip, site, tags }
+  ) => {
+    return searchBookmarks({ query, num, skip, site, tags }).then((resp) => {
+      commit('SET_BOOKMARKS', { items: resp.bookmarks })
+      return resp
+    })
+  },
 }
 
 const mutations = {
   SET_BOOKMARKS: (state, { items }) => {
-    state.isSynced = true
-    items.forEach((item) => addBookmark(state, item))
+    for (const rawBookmark of items) {
+      const bookmark = newBookmark(rawBookmark)
+      Vue.set(state.bookmarks, bookmark.id, bookmark)
+    }
+  },
+
+  SET_TAGS: (state, { items }) => {
+    for (const { tagName, count } of items) {
+      Vue.set(state.tags, tagName, count)
+    }
   },
 
   SET_BOOKMARKS_COUNT: (state, { count }) => {
@@ -212,19 +173,19 @@ const mutations = {
 
   REMOVE_BOOKMARK: (state, { id: idToDelete }) => {
     let existingTags = state.bookmarks[idToDelete].tags
-    existingTags.forEach((t) => deleteTag(state, t, idToDelete))
+    existingTags.forEach((t) => deleteTag(state, t))
     Vue.delete(state.bookmarks, idToDelete)
   },
 
   ADD_TAG: (state, { id, tag }) => {
     if (!state.bookmarks[id].tags.includes(tag)) {
-      addTag(state, tag, { id, dateAdded: state.bookmarks[id].dateAdded })
+      addTag(state, tag)
       state.bookmarks[id].tags = [...state.bookmarks[id].tags, tag]
     }
   },
 
   REMOVE_TAG: (state, { id, tag: tagToRemove }) => {
-    deleteTag(state, tagToRemove, id)
+    deleteTag(state, tagToRemove)
     let existingTags = state.bookmarks[id].tags
     state.bookmarks[id].tags = existingTags.filter((t) => t !== tagToRemove)
   },

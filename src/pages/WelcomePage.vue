@@ -88,16 +88,10 @@ export default {
       }
     },
     takeMeToTheApp() {
-      this.$refs.bar.set(progressBarPercent.SYNC_START)
-      Promise.race([
-        this.$store.dispatch('SYNC_BOOKMARKS'),
-        new Promise((resolve) => {
-          Event.$on('newItems', resolve)
-        }),
-      ]).then(() => {
-        this.$refs.bar.finish()
-        this.$router.replace({ name: 'app' })
-      })
+      // TODO: This may be a UX regression. Earlier, user would see bookmarks
+      //  already loaded. Now they may have to wait.
+      this.$refs.bar.finish()
+      this.$router.replace({ name: 'app' })
     },
     promptInstall() {
       this.$refs.bar.finish()
