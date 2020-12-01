@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import BookmarkList from '../components/BookmarkList.vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import LandingPage from '../pages/LandingPage.vue'
+import SignupPage from '../pages/SignupPage.js'
 import WelcomePage from '../pages/WelcomePage.vue'
 import { authGuard } from '../auth'
 import { store } from '../store'
@@ -87,6 +88,15 @@ function createRouter() {
         path: '/landing',
         name: 'landing',
         component: LandingPage,
+        beforeEnter: authGuard,
+        meta: {
+          requiredAuthState: 'logout',
+        },
+      },
+      {
+        path: '/signup',
+        name: 'signup',
+        component: SignupPage,
         beforeEnter: authGuard,
         meta: {
           requiredAuthState: 'logout',
