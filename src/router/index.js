@@ -5,6 +5,7 @@ import AppLayout from '../layouts/AppLayout.vue'
 import LandingPage from '../pages/LandingPage.vue'
 import SignupPage from '../pages/SignupPage.js'
 import WelcomePage from '../pages/WelcomePage.vue'
+import NotFound from '../pages/NotFound.vue'
 import { authGuard } from '../auth'
 import { store } from '../store'
 
@@ -101,6 +102,11 @@ function createRouter() {
         meta: {
           requiredAuthState: 'logout',
         },
+      },
+      {
+        path: '*',
+        name: '404',
+        component: NotFound,
       },
     ],
   })
