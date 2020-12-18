@@ -16,7 +16,7 @@
     <button
       v-for="(tag, index) in bookmark.tags"
       :key="index"
-      class="text-primary h-6 p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
+      class="text-primary h-6 px-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
       v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
       @click="tagClicked({ tagType: 'tag', tagName: tag })"
     >
