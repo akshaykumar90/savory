@@ -1,7 +1,9 @@
 <template>
-  <div>
-    <p class="text-muted text-sm">Tags</p>
-    <ul class="text-muted text-xs mt-4">
+  <div class="mr-4">
+    <p class="text-default px-0.5 py-2 border-b-2 border-gray-200 text-xs">
+      Tags
+    </p>
+    <ul class="text-muted px-0.5 text-xs mt-4 leading-3">
       <li class="mb-2" v-for="[name, count] in tags" :key="name">
         <button
           @click="tagClicked(name)"
