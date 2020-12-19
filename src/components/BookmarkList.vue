@@ -1,7 +1,11 @@
 <template>
   <div>
     <ol>
-      <li class="mb-2" v-for="id in current" :key="id">
+      <li
+        class="px-4 py-2 md:px-0 md:py-1 border-b md:border-0"
+        v-for="id in current"
+        :key="id"
+      >
         <BookmarkRow :bookmark-id="id" />
       </li>
     </ol>

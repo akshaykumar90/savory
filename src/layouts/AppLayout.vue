@@ -1,26 +1,28 @@
 <template>
   <div>
     <header
-      class="sticky top-0 z-10"
+      class="sticky top-0 z-10 shadow"
       v-bind:class="[testMode ? 'bg-yellow-300' : 'bg-grey-300']"
     >
-      <div class="max-w-7xl mx-auto py-2">
-        <div class="grid grid-cols-10 items-center gap-x-4">
-          <div class="col-span-2">
+      <div class="w-full md:max-w-7xl mx-auto py-1 md:py-2">
+        <div
+          class="grid place-content-center md:grid-cols-10 items-center md:gap-x-4"
+        >
+          <div class="md:col-span-2">
             <router-link to="/">
               <img
-                class="w-32 ml-6"
+                class="w-24 md:w-32 md:ml-6"
                 src="../assets/logo_light.svg"
                 alt="logo"
               />
             </router-link>
           </div>
-          <div class="col-span-4">
+          <div class="hidden md:block md:col-span-4">
             <SearchBar ref="searchInput"></SearchBar>
           </div>
           <div
             v-if="!$auth.loading"
-            class="col-start-10 justify-self-end text-xs text-muted mr-4"
+            class="hidden md:block md:col-start-10 md:justify-self-end text-xs text-muted mr-4"
           >
             <button v-if="!$auth.isAuthenticated" @click="login">
               Sign In
@@ -32,17 +34,15 @@
         </div>
       </div>
     </header>
-    <div class="max-w-7xl mx-auto">
-      <div class="grid grid-cols-10 gap-x-4">
-        <div class="pt-6 pl-8 col-span-2">
+    <div class="w-full md:max-w-7xl mx-auto">
+      <div class="md:grid md:grid-cols-10 md:gap-x-4">
+        <div class="pt-6 pl-8 hidden md:col-span-2 md:block">
           <SideBar class="sticky top-24" />
         </div>
-        <main class="col-span-5">
-          <div class="mt-4">
-            <slot></slot>
-          </div>
+        <main class="md:col-span-5 md:mt-3">
+          <slot></slot>
         </main>
-        <div class="pt-6 col-start-9 col-span-2">
+        <div class="pt-6 hidden md:col-start-9 md:col-span-2 md:block">
           <RightBar />
         </div>
       </div>
