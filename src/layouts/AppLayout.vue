@@ -35,7 +35,7 @@
     <div class="max-w-7xl mx-auto">
       <div class="grid grid-cols-10 gap-x-4">
         <div class="pt-6 pl-8 col-span-2">
-          <SideBar />
+          <SideBar class="sticky top-24" />
         </div>
         <main class="col-span-5">
           <div class="mt-4">
