@@ -1,7 +1,7 @@
 <template>
   <div>
     <header
-      class="bg-opacity-90 bg-gray-100 sticky top-0 z-50 px-4 py-4 lg:px-16 flex justify-between items-center"
+      class="bg-opacity-90 bg-gray-100 sticky top-0 z-50 px-4 py-4 md:px-16 flex justify-center md:justify-between items-center"
     >
       <div>
         <router-link to="/">

@@ -1,11 +1,11 @@
 <template>
   <div
-    class="flex flex-wrap items-end py-1 mt-2"
+    class="flex flex-wrap items-end py-1"
     @click.stop="collapseSiblings"
     v-bind:class="[editMode ? 'border-0 bg-grey-100 rounded -ml-1 pl-1' : '']"
   >
     <button
-      class="text-primary p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
+      class="text-primary h-6 px-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
       v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
       v-if="bookmark.site"
       @click="tagClicked({ tagType: 'site' })"
@@ -16,7 +16,7 @@
     <button
       v-for="(tag, index) in bookmark.tags"
       :key="index"
-      class="text-primary p-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
+      class="text-primary h-6 px-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
       v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
       @click="tagClicked({ tagType: 'tag', tagName: tag })"
     >
@@ -32,7 +32,7 @@
         type="text"
         tabindex="-1"
         :placeholder="placeholder"
-        class="block placeholder-default text-xs bg-grey-100 border border-transparent focus:outline-none rounded my-1 py-2 h-6 w-full"
+        class="block placeholder-default px-0.5 text-xs bg-grey-100 border-0 focus:outline-none focus:ring-0 rounded my-1 py-2 h-6 w-full"
       />
       <input
         ref="input"
@@ -42,7 +42,7 @@
         @keydown.tab.prevent="onTab"
         @keyup.enter="onEnter"
         @focus="enterEditMode"
-        class="tt-input block absolute top-0 left-0 text-default text-xs border border-transparent focus:outline-none rounded my-1 py-2 h-6 w-full"
+        class="bg-transparent block px-0.5 absolute top-0 left-0 text-default text-xs border-0 focus:outline-none focus:ring-0 rounded my-1 py-2 h-6 w-full"
       />
     </div>
   </div>
@@ -224,9 +224,5 @@ export default {
 }
 .add:after {
   transform: rotate(0deg);
-}
-
-.tt-input {
-  background: rgba(255, 255, 255, 0);
 }
 </style>

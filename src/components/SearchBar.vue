@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <div
-      class="flex flex-wrap items-end py-2 pr-4 pl-10 rounded border"
+      class="flex flex-wrap items-center py-2 pr-4 pl-10 rounded border"
       v-bind:class="[
         isFocused
           ? 'bg-default border-primary'
@@ -12,7 +12,7 @@
         v-for="(name, index) in filters"
         :key="index"
         @click="removeFilter(index)"
-        class="text-primary bg-default p-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
+        class="text-primary bg-default px-1 h-6 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
       >
         {{ name }}
         <a class="remove"></a>
@@ -28,7 +28,7 @@
         @keydown.8="handleBackspace"
         @focus="isFocused = true"
         @blur="isFocused = false"
-        class="text-sm text-muted rounded border border-transparent p-0 flex-grow appearance-none leading-normal bg-grey-100 focus:bg-default focus:outline-none"
+        class="text-sm text-muted border-0 p-0 h-6 flex-grow bg-grey-100 focus:bg-default focus:outline-none focus:ring-0"
       />
     </div>
     <div

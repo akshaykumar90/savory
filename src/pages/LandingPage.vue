@@ -1,11 +1,13 @@
 <template>
   <div class="leading-normal">
     <nav class="w-full bg-gray-100 bg-opacity-90 sticky top-0 z-50">
-      <div class="mx-24 h-20 flex justify-between items-center">
+      <div
+        class="md:mx-24 h-20 flex justify-center md:justify-between items-center"
+      >
         <a href="#">
           <img class="h-16" src="../assets/logo_light.svg" alt="logo" />
         </a>
-        <div>
+        <div class="hidden md:block">
           <a href="#" class="text-xs hover:underline" @click="login">Sign In</a>
         </div>
       </div>
@@ -15,7 +17,7 @@
         <h3 class="text-3xl mt-12 mb-8 text-gray-800">
           Start organizing today
         </h3>
-        <p class="text-xl text-gray-700 mb-4 w-3/4">
+        <p class="text-lg md:text-xl text-gray-700 mb-4 w-full md:w-3/4">
           Get started for free and re-discover your bookmarks with the power of
           Savory.
         </p>

@@ -1,22 +1,24 @@
 <template>
   <div class="flex items-start">
-    <label class="pr-4 pt-1">
+    <label class="pr-4 pt-1 hidden md:block">
       <input
         type="checkbox"
-        class="form-checkbox text-primary h-4 w-4"
+        class="rounded border-gray-300 text-blue-500 shadow-sm focus:ring focus:ring-blue-200 focus:ring-opacity-50"
         v-model="bookmark.selected"
       />
     </label>
-    <div class="text-sm px-1 flex-grow">
+    <div class="px-1 flex-grow space-y-2">
       <a
         :href="bookmark.url"
         target="_blank"
         rel="noopener"
-        class="text-default leading-normal"
-        >{{ bookmark.title }}</a
-      >
-      <p class="mt-2 text-xs">{{ date }}</p>
-      <TagsRow :bookmark-id="bookmarkId"></TagsRow>
+        class="text-sm text-default leading-5"
+        >{{ bookmark.title }}
+      </a>
+      <p class="text-xs text-grey-500 leading-3">{{ date }}</p>
+      <div>
+        <TagsRow :bookmark-id="bookmarkId"></TagsRow>
+      </div>
     </div>
   </div>
 </template>

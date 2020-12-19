@@ -1,39 +1,50 @@
 <template>
-  <div class="flex flex-col">
+  <div>
     <header
-      class="flex flex-shrink-0 sticky top-0 z-10"
+      class="sticky top-0 z-10 shadow"
       v-bind:class="[testMode ? 'bg-yellow-300' : 'bg-grey-300']"
     >
-      <div class="w-64 flex-shrink-0 px-4 py-3">
-        <router-link to="/">
-          <img
-            class="block w-32 ml-6"
-            src="../assets/logo_light.svg"
-            alt="logo"
-          />
-        </router-link>
-      </div>
-      <div class="flex-1 flex items-center justify-between px-6">
-        <div class="w-full max-w-lg">
-          <SearchBar ref="searchInput"></SearchBar>
-        </div>
-        <div v-if="!$auth.loading" class="text-xs text-muted">
-          <button v-if="!$auth.isAuthenticated" @click="login">Sign In</button>
-          <button v-if="$auth.isAuthenticated" @click="logout">Sign Out</button>
+      <div class="w-full md:max-w-7xl mx-auto py-1 md:py-2">
+        <div
+          class="grid place-content-center md:grid-cols-10 items-center md:gap-x-4"
+        >
+          <div class="md:col-span-2">
+            <router-link to="/">
+              <img
+                class="w-24 md:w-32 md:ml-6"
+                src="../assets/logo_light.svg"
+                alt="logo"
+              />
+            </router-link>
+          </div>
+          <div class="hidden md:block md:col-span-4">
+            <SearchBar ref="searchInput"></SearchBar>
+          </div>
+          <div
+            v-if="!$auth.loading"
+            class="hidden md:block md:col-start-10 md:justify-self-end text-xs text-muted mr-4"
+          >
+            <button v-if="!$auth.isAuthenticated" @click="login">
+              Sign In
+            </button>
+            <button v-if="$auth.isAuthenticated" @click="logout">
+              Sign Out
+            </button>
+          </div>
         </div>
       </div>
     </header>
-    <div class="flex flex-1">
-      <div class="w-64 pt-6 pl-8 flex-shrink-0">
-        <SideBar class="fixed" />
-      </div>
-      <main class="flex-1">
-        <div class="px-6 mt-4 w-full max-w-3xl">
-          <slot></slot>
+    <div class="w-full md:max-w-7xl mx-auto">
+      <div class="md:grid md:grid-cols-10 md:gap-x-4">
+        <div class="pt-6 pl-8 hidden md:col-span-2 md:block">
+          <SideBar class="sticky top-24" />
         </div>
-      </main>
-      <div class="w-64 pt-6 flex-shrink-0">
-        <RightBar />
+        <main class="md:col-span-5 md:mt-3">
+          <slot></slot>
+        </main>
+        <div class="pt-6 hidden md:col-start-9 md:col-span-2 md:block">
+          <RightBar />
+        </div>
       </div>
     </div>
   </div>
