@@ -17,7 +17,7 @@
         <h3 class="text-3xl mt-12 mb-8 text-gray-800">
           Start organizing today
         </h3>
-        <p class="text-xl text-gray-700 mb-4 w-3/4">
+        <p class="text-lg md:text-xl text-gray-700 mb-4 w-full md:w-3/4">
           Get started for free and re-discover your bookmarks with the power of
           Savory.
         </p>
