@@ -1,29 +1,80 @@
-import * as service from './service'
+import { BSON } from 'mongodb-stitch-browser-sdk'
 import { getAuthWrapper } from '../../auth'
 
-function injectUserId(func) {
-  return new Proxy(func, {
-    apply(target, thisArg, args) {
-      let firstArg = args.length > 0 ? args[0] : {}
-      const authService = getAuthWrapper()
-      if (!authService.user) {
-        return Promise.reject('Not logged in!')
-      } else {
-        firstArg.userId = authService.user.identities[0].id
-      }
-      return Reflect.apply(func, thisArg, [firstArg])
-    },
-  })
+const app = () => getAuthWrapper().getMongoApp()
+
+export async function importBookmarks({ chunk }) {
+  return app().callFunction('importBookmarks', [chunk])
 }
 
-export const importBookmarks = injectUserId(service.importBookmarks)
-export const fetchRecent = injectUserId(service.fetchRecent)
-export const getBookmarksWithTag = injectUserId(service.getBookmarksWithTag)
-export const getTagsCount = injectUserId(service.getTagsCount)
-export const createBookmark = injectUserId(service.createBookmark)
-export const deleteBookmarks = injectUserId(service.deleteBookmarks)
-export const addTag = injectUserId(service.addTag)
-export const removeTag = injectUserId(service.removeTag)
-export const loadUserData = injectUserId(service.loadUserData)
-export const markBookmarksImported = injectUserId(service.markBookmarksImported)
-export const searchBookmarks = injectUserId(service.searchBookmarks)
+export function fetchRecent({ num, after }) {
+  return app()
+    .callFunction('getBookmarks', [num, after])
+    .then((resp) => {
+      for (const doc of resp.bookmarks) {
+        doc.id = doc._id.toString()
+      }
+      return resp
+    })
+}
+
+export function getBookmarksWithTag({ tags, site, num, after }) {
+  return app()
+    .callFunction('getBookmarksWithTag', [{ tags, site }, num, after])
+    .then((resp) => {
+      for (const doc of resp.bookmarks) {
+        doc.id = doc._id.toString()
+      }
+      return resp
+    })
+}
+
+export async function getTagsCount() {
+  let result = await app().callFunction('getTagsCount')
+  return result.map(({ tag_name: tagName, count }) => ({ tagName, count }))
+}
+
+export async function createBookmark({ bookmark }) {
+  return app()
+    .callFunction('addBookmark', [bookmark])
+    .then((result) => {
+      result.id = result._id.toString()
+      return result
+    })
+}
+
+export async function deleteBookmarks({ bookmarkIds }) {
+  return app().callFunction('deleteBookmarks', [
+    bookmarkIds.map((x) => new BSON.ObjectId(x)),
+  ])
+}
+
+export function addTag({ bookmarkId, newTag }) {
+  return app().callFunction('addTag', [newTag, new BSON.ObjectId(bookmarkId)])
+}
+
+export function removeTag({ bookmarkId, tagToRemove }) {
+  return app().callFunction('removeTag', [
+    tagToRemove,
+    new BSON.ObjectId(bookmarkId),
+  ])
+}
+
+export function loadUserData() {
+  return app().callFunction('loadUserData', [])
+}
+
+export function markBookmarksImported() {
+  return app().callFunction('markBookmarksImported', [])
+}
+
+export function searchBookmarks({ query, num, skip, site, tags }) {
+  return app()
+    .callFunction('searchBookmarksV2', [query, num, skip, site, tags])
+    .then((resp) => {
+      for (const doc of resp.bookmarks) {
+        doc.id = doc._id.toString()
+      }
+      return resp
+    })
+}
