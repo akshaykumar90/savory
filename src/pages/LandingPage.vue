@@ -8,7 +8,9 @@
           <img class="h-16" src="../assets/logo_light.svg" alt="logo" />
         </a>
         <div class="hidden md:block">
-          <a href="#" class="text-xs hover:underline" @click="login">Sign In</a>
+          <a href="#" class="text-xs hover:underline" @click="login('signIn')"
+            >Sign In</a
+          >
         </div>
       </div>
     </nav>
@@ -29,7 +31,7 @@
         </button>
         <p class="text-xs leading-5 mt-4 text-gray-700">
           Already have an account?
-          <a href="#" @click="login" class="underline">Sign In</a>
+          <a href="#" @click="login('signIn')" class="underline">Sign In</a>
         </p>
       </div>
     </section>
@@ -37,11 +39,24 @@
 </template>
 
 <script>
+import {
+  EVENT_LANDING_CTA,
+  EVENT_LANDING_LOAD,
+  eventLogger,
+} from '../api/events'
+
 export default {
   name: 'landing-page',
 
+  created() {
+    eventLogger.logEvent(EVENT_LANDING_LOAD)
+  },
+
   methods: {
     login(initialScreen) {
+      if (initialScreen === 'signUp') {
+        eventLogger.logEvent(EVENT_LANDING_CTA)
+      }
       if (process.env.RUNTIME_CONTEXT === 'webext') {
         this.$auth.loginWithPopup(initialScreen).then(() => {
           this.$router.push({

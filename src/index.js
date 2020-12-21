@@ -5,6 +5,7 @@ import { store } from './store'
 import { router } from './router'
 import { AuthPlugin } from './auth'
 import { browser } from './api/browser'
+import { eventLogger } from './api/events'
 
 const isDev = process.env.NODE_ENV !== 'production'
 const enableDevtools = process.env.DEVTOOLS === 'true'
@@ -16,6 +17,8 @@ if (process.env.RUNTIME_CONTEXT === 'webext' && isDev && enableDevtools) {
 if (process.env.RUNTIME_CONTEXT === 'webext') {
   browser.runtime.onMessage.addListener((p) => store.dispatch(p))
 }
+
+eventLogger.init(process.env.AMPLITUDE_API_KEY)
 
 // This is the event hub we'll use in every
 // component to communicate between them.
@@ -32,13 +35,14 @@ Vue.use(AuthPlugin, {
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
   audience: process.env.AUTH0_AUDIENCE,
-  onLoginCallback: (token) => {
+  onLoginCallback: (userId, token) => {
     const message = { type: 'login', token }
     if (process.env.RUNTIME_CONTEXT === 'webext') {
       browser.runtime.sendMessage(message)
     } else if (browser !== undefined) {
       browser.runtime.sendMessage(process.env.EXTENSION_ID, message)
     }
+    eventLogger.setUserId(userId)
   },
   onLogoutCallback: () => {
     const message = { type: 'logout' }
@@ -47,6 +51,7 @@ Vue.use(AuthPlugin, {
     } else if (browser !== undefined) {
       browser.runtime.sendMessage(process.env.EXTENSION_ID, message)
     }
+    eventLogger.setUserId(null)
   },
 })
 

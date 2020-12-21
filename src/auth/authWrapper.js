@@ -151,8 +151,9 @@ export const authWrapper = ({
           const token = await this.auth0Client.getTokenSilently()
           await mongoApp.auth.loginWithCredential(new CustomCredential(token))
           this.user = mongoApp.auth.user
+          const userId = this.user.identities[0].id
           this.isAuthenticated = true
-          onLoginCallback(token)
+          onLoginCallback(userId, token)
         } catch (e) {
           this.error = e
           throw e
@@ -257,8 +258,9 @@ export const authWrapper = ({
             const token = await this.auth0Client.getTokenSilently()
             await mongoApp.auth.loginWithCredential(new CustomCredential(token))
             this.user = mongoApp.auth.user
+            const userId = this.user.identities[0].id
             this.isAuthenticated = true
-            onLoginCallback(token)
+            onLoginCallback(userId, token)
           }
         } catch (e) {
           this.error = e

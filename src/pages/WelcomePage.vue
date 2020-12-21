@@ -27,6 +27,7 @@
 import ProgressBar from '../components/ProgressBar.vue'
 import { loadUserData, markBookmarksImported } from '../api/mongodb'
 import { isChrome, isExtensionInstalled } from '../api/browser'
+import { EVENT_SIGNUP_SUCCESS, eventLogger } from '../api/events'
 
 const chromeWebStoreUrl = `https://chrome.google.com/webstore/detail/savory/${process.env.EXTENSION_ID}`
 const progressBarPercent = {
@@ -144,6 +145,9 @@ export default {
     this.$refs.bar.increase(10)
     this.userData = await loadUserData()
     this.$refs.bar.increase(10)
+    if (!this.userData) {
+      eventLogger.logEvent(EVENT_SIGNUP_SUCCESS)
+    }
     this.step()
   },
 
