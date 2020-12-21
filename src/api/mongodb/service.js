@@ -60,18 +60,12 @@ export function removeTag({ bookmarkId, tagToRemove }) {
   ])
 }
 
-export async function loadUserData({ userId }) {
-  return await app().mongoCollection('user_data').findOne({ owner_id: userId })
+export function loadUserData() {
+  return app().callFunction('loadUserData', [])
 }
 
-export function markBookmarksImported({ userId }) {
-  return app()
-    .mongoCollection('user_data')
-    .updateOne(
-      { owner_id: userId },
-      { $set: { is_chrome_imported: true } },
-      { upsert: true }
-    )
+export function markBookmarksImported() {
+  return app().callFunction('markBookmarksImported', [])
 }
 
 export function searchBookmarks({ query, num, skip, site, tags }) {
