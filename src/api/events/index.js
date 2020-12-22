@@ -6,6 +6,5 @@ export const EVENT_SIGNUP_SUCCESS = 'registration - successful signup'
 export const EVENT_ONBOARDING_START = 'onboarding - start'
 export const EVENT_ONBOARDING_INSTALL_EXT = 'onboarding - install extension'
 export const EVENT_ONBOARDING_IMPORT_BOOKMARKS = 'onboarding - import bookmarks'
-export const EVENT_APP_LOAD = 'webapp - load'
 
 export const eventLogger = amplitude.getInstance()
