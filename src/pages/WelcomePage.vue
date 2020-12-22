@@ -27,7 +27,13 @@
 import ProgressBar from '../components/ProgressBar.vue'
 import { loadUserData, markBookmarksImported } from '../api/mongodb'
 import { isChrome, isExtensionInstalled } from '../api/browser'
-import { EVENT_SIGNUP_SUCCESS, eventLogger } from '../api/events'
+import {
+  EVENT_ONBOARDING_IMPORT_BOOKMARKS,
+  EVENT_ONBOARDING_INSTALL_EXT,
+  EVENT_ONBOARDING_START,
+  EVENT_SIGNUP_SUCCESS,
+  eventLogger,
+} from '../api/events'
 
 const chromeWebStoreUrl = `https://chrome.google.com/webstore/detail/savory/${process.env.EXTENSION_ID}`
 const progressBarPercent = {
@@ -49,6 +55,7 @@ export default {
       userData: undefined,
       isChrome: undefined,
       extensionInstalled: undefined,
+      startEventRecorded: false,
     }
   },
 
@@ -60,9 +67,11 @@ export default {
     onButtonClicked() {
       switch (this.buttonAction) {
         case 'install':
+          eventLogger.logEvent(EVENT_ONBOARDING_INSTALL_EXT)
           window.open(chromeWebStoreUrl, '_blank')
           break
         case 'import':
+          eventLogger.logEvent(EVENT_ONBOARDING_IMPORT_BOOKMARKS)
           this.startImport()
           break
         default:
@@ -100,6 +109,10 @@ export default {
       this.subtitle =
         'For best experience, add Savory’s web extension to Chrome.'
       this.buttonText = 'Add to Chrome'
+      if (!this.startEventRecorded) {
+        this.startEventRecorded = true
+        eventLogger.logEvent(EVENT_ONBOARDING_START)
+      }
     },
     promptImport() {
       this.$refs.bar.finish()
@@ -107,6 +120,10 @@ export default {
       this.subtitle =
         'Your Chrome bookmarks will be added to your Savory’s collection'
       this.buttonText = 'Import Bookmarks'
+      if (!this.startEventRecorded) {
+        this.startEventRecorded = true
+        eventLogger.logEvent(EVENT_ONBOARDING_START)
+      }
     },
     errorScreen(errorText) {
       this.$refs.bar.finish()
@@ -146,17 +163,22 @@ export default {
     this.userData = await loadUserData()
     this.$refs.bar.increase(10)
     if (!this.userData) {
+      // We provide `/provider_cb` as the success callback to Auth0 which
+      // redirects to this page. We use empty userData as a proxy for new
+      // user.
       eventLogger.logEvent(EVENT_SIGNUP_SUCCESS)
     }
+    // This cannot be loaded in `created` because Vue does not wait to resolve
+    // async code before moving forward with lifecycle hooks.
+    this.extensionInstalled =
+      process.env.RUNTIME_CONTEXT === 'webapp'
+        ? await isExtensionInstalled()
+        : true
     this.step()
   },
 
   async created() {
     this.isChrome = isChrome()
-    this.extensionInstalled =
-      process.env.RUNTIME_CONTEXT === 'webapp'
-        ? await isExtensionInstalled()
-        : true
   },
 
   beforeDestroy() {

@@ -40,7 +40,7 @@
 
 <script>
 import {
-  EVENT_LANDING_CTA,
+  EVENT_SIGNUP_CTA,
   EVENT_LANDING_LOAD,
   eventLogger,
 } from '../api/events'
@@ -49,13 +49,13 @@ export default {
   name: 'landing-page',
 
   created() {
-    eventLogger.logEvent(EVENT_LANDING_LOAD)
+    eventLogger.logEvent(EVENT_LANDING_LOAD, { page: 'webapp landing' })
   },
 
   methods: {
     login(initialScreen) {
       if (initialScreen === 'signUp') {
-        eventLogger.logEvent(EVENT_LANDING_CTA)
+        eventLogger.logEvent(EVENT_SIGNUP_CTA, { page: 'webapp landing' })
       }
       if (process.env.RUNTIME_CONTEXT === 'webext') {
         this.$auth.loginWithPopup(initialScreen).then(() => {

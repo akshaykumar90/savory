@@ -55,6 +55,7 @@ import SearchBar from '../components/SearchBar.vue'
 import SideBar from '../components/SideBar.vue'
 import RightBar from '../components/RightBar.vue'
 import _ from 'lodash'
+import { EVENT_APP_LOAD, eventLogger } from '../api/events'
 
 export default {
   name: 'app-layout',
@@ -106,6 +107,7 @@ export default {
     this.scrollHandler = _.throttle(this.onScroll, 200)
     window.addEventListener('scroll', this.scrollHandler)
     this.$refs.searchInput.focus()
+    eventLogger.logEvent(EVENT_APP_LOAD)
   },
 
   created() {
