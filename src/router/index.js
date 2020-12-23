@@ -36,13 +36,6 @@ function createRouter() {
     },
     routes: [
       {
-        path: '/bookmarks.html',
-        name: 'webext_entry',
-        beforeEnter: (to, from, next) => {
-          next({ name: 'app' })
-        },
-      },
-      {
         path: '/provider_cb',
         name: 'provider_cb',
         beforeEnter: (to, from, next) => {
