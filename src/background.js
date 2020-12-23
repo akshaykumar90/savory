@@ -82,7 +82,6 @@ function onImportBookmarksMessage(port, attempt) {
   })
 }
 
-browser.runtime.onMessage.addListener(onMessage)
 browser.runtime.onMessageExternal.addListener(onMessage)
 
 browser.runtime.onConnectExternal.addListener(function (port) {

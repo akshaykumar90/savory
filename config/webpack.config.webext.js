@@ -1,7 +1,5 @@
 const path = require('path')
-const webpack = require('webpack')
 const GitRevisionPlugin = require('git-revision-webpack-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 const merge = require('webpack-merge')
@@ -12,7 +10,6 @@ const gitRevisionPlugin = new GitRevisionPlugin()
 const commonConfig = merge(base, {
   entry: {
     background: ['@babel/polyfill', './src/background.js'],
-    bookmarks: ['@babel/polyfill', './src/index.js'],
   },
   output: {
     path: path.join(__dirname, '../build'),
@@ -20,15 +17,6 @@ const commonConfig = merge(base, {
   },
   plugins: [
     gitRevisionPlugin,
-    new webpack.EnvironmentPlugin({
-      DEVTOOLS: 'false', // Disable devtools by default
-      RUNTIME_CONTEXT: 'webext',
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, '../src', 'bookmarks.html'),
-      chunks: ['bookmarks'],
-      filename: 'bookmarks.html',
-    }),
     new CopyWebpackPlugin([
       {
         from: 'src/manifest.json',

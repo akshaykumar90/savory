@@ -57,15 +57,7 @@ export default {
       if (initialScreen === 'signUp') {
         eventLogger.logEvent(EVENT_SIGNUP_CTA, { page: 'webapp landing' })
       }
-      if (process.env.RUNTIME_CONTEXT === 'webext') {
-        this.$auth.loginWithPopup(initialScreen).then(() => {
-          this.$router.push({
-            name: 'welcome',
-          })
-        })
-      } else {
-        this.$auth.loginWithRedirect(initialScreen)
-      }
+      this.$auth.loginWithRedirect(initialScreen)
     },
   },
 }

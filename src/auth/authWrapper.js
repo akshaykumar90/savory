@@ -6,21 +6,14 @@ import {
   Stitch,
 } from 'mongodb-stitch-browser-sdk'
 import { StitchServiceError } from 'mongodb-stitch-core-sdk'
-import { browser } from '../api/browser'
 import _ from 'lodash'
 
 const DEFAULT_LOGIN_CALLBACK = () => console.log('login...')
 const DEFAULT_LOGOUT_CALLBACK = () => console.log('...logout')
 
-const callbackUrl =
-  process.env.RUNTIME_CONTEXT === 'webapp'
-    ? `${window.location.origin}/provider_cb`
-    : `chrome-extension://${browser.runtime.id}/provider_cb`
+const callbackUrl = `${window.location.origin}/provider_cb`
 
-const logoutUrl =
-  process.env.RUNTIME_CONTEXT === 'webapp'
-    ? window.location.origin
-    : `chrome-extension://${browser.runtime.id}/bookmarks.html#/logout`
+const logoutUrl = window.location.origin
 
 const APP_ID = process.env.STITCH_APP_ID
 
@@ -126,6 +119,15 @@ export const authWrapper = ({
         }
       },
 
+      async onLoginSuccess() {
+        const token = await this.auth0Client.getTokenSilently()
+        await mongoApp.auth.loginWithCredential(new CustomCredential(token))
+        this.user = mongoApp.auth.user
+        const userId = this.user.identities[0].id
+        this.isAuthenticated = true
+        onLoginCallback(userId, token)
+      },
+
       /**
        * Login via popup. Used by extension to login.
        *
@@ -148,12 +150,8 @@ export const authWrapper = ({
           await this.auth0Client.loginWithPopup(loginOptions)
           this.error = null
           this.loading = true
-          const token = await this.auth0Client.getTokenSilently()
-          await mongoApp.auth.loginWithCredential(new CustomCredential(token))
-          this.user = mongoApp.auth.user
-          const userId = this.user.identities[0].id
-          this.isAuthenticated = true
-          onLoginCallback(userId, token)
+          // await not needed because everything happens in background
+          this.onLoginSuccess()
         } catch (e) {
           this.error = e
           throw e
@@ -255,12 +253,9 @@ export const authWrapper = ({
             // handle the redirect and retrieve tokens
             await this.auth0Client.handleRedirectCallback()
             this.error = null
-            const token = await this.auth0Client.getTokenSilently()
-            await mongoApp.auth.loginWithCredential(new CustomCredential(token))
-            this.user = mongoApp.auth.user
-            const userId = this.user.identities[0].id
-            this.isAuthenticated = true
-            onLoginCallback(userId, token)
+            // This needs to be awaited so that we do not early-reset
+            // `this.loading` in the `finally` block below
+            await this.onLoginSuccess()
           }
         } catch (e) {
           this.error = e

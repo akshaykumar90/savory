@@ -170,10 +170,7 @@ export default {
     }
     // This cannot be loaded in `created` because Vue does not wait to resolve
     // async code before moving forward with lifecycle hooks.
-    this.extensionInstalled =
-      process.env.RUNTIME_CONTEXT === 'webapp'
-        ? await isExtensionInstalled()
-        : true
+    this.extensionInstalled = await isExtensionInstalled()
     this.step()
   },
 

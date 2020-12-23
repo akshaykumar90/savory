@@ -31,7 +31,6 @@
     "@babel/plugin-syntax-dynamic-import": "^7.0.0",
     "@babel/preset-env": "^7.1.5",
     "@tailwindcss/forms": "^0.2.1",
-    "@vue/devtools": "^5.1.0",
     "autoprefixer": "^10.1.0",
     "babel-loader": "^8.0.4",
     "chokidar": "^1.7.0",

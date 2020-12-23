@@ -1,5 +1,4 @@
 const path = require('path')
-const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
@@ -16,9 +15,6 @@ const commonConfig = merge(base, {
     publicPath: '/',
   },
   plugins: [
-    new webpack.EnvironmentPlugin({
-      RUNTIME_CONTEXT: 'webapp',
-    }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, '../src', 'bookmarks.html'),
       chunks: ['webapp'],

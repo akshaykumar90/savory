@@ -13,9 +13,6 @@
     "scripts": ["background.js"],
     "persistent": false
   },
-  "chrome_url_overrides": {
-    "bookmarks": "bookmarks.html"
-  },
   "externally_connectable": {
     "matches": ["https://*.getsavory.co/*", "http://localhost:8080/*"]
   },
