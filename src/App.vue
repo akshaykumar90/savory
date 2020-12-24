@@ -1,10 +1,7 @@
 <template>
   <div id="app">
-    <div
-      v-if="this.$auth.loading"
-      class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-    >
-      <LoadingSpinner />
+    <div v-if="this.$auth.loading" class="h-screen grid">
+      <LoadingSpinner class="place-self-center" />
     </div>
     <component v-else :is="this.$route.meta.layout || 'div'">
       <router-view />

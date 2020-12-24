@@ -35,10 +35,6 @@ module.exports = {
         default: 'var(--color-grey-800)',
         primary: 'var(--color-primary)',
       },
-
-      inset: {
-        '1/2': '50%',
-      },
     },
   },
 
