@@ -30,6 +30,13 @@
         @blur="isFocused = false"
         class="text-sm text-muted border-0 p-0 h-6 flex-grow bg-grey-100 focus:bg-default focus:outline-none focus:ring-0"
       />
+      <span
+        v-if="!isFocused"
+        class="text-gray-400 text-sm leading-5 py-0.5 px-1.5 border border-gray-300 rounded-md"
+      >
+        <kbd class="font-sans">⌘</kbd>
+        <kbd class="font-sans">K</kbd>
+      </span>
     </div>
     <div
       class="absolute inset-y-0 left-0 pl-3 flex items-center"

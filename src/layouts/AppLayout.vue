@@ -89,6 +89,11 @@ export default {
         this.$store.dispatch('LOAD_MORE_BOOKMARKS')
       }
     },
+    onKeydown(e) {
+      if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
+        this.$refs.searchInput.focus()
+      }
+    },
     login() {
       // This is a stub. It should never happen. We cannot be in logged-out
       // state while AppLayout is rendered!
@@ -100,11 +105,13 @@ export default {
 
   destroyed() {
     window.removeEventListener('scroll', this.scrollHandler)
+    window.removeEventListener('keydown', this.onKeydown)
   },
 
   mounted() {
     this.scrollHandler = _.throttle(this.onScroll, 200)
     window.addEventListener('scroll', this.scrollHandler)
+    window.addEventListener('keydown', this.onKeydown)
     this.$refs.searchInput.focus()
   },
 
