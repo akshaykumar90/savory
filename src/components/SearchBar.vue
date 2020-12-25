@@ -31,7 +31,7 @@
         class="text-sm text-muted border-0 p-0 h-6 flex-grow bg-grey-100 focus:bg-default focus:outline-none focus:ring-0"
       />
       <span
-        v-if="!isFocused"
+        v-if="isMacOS && !isFocused"
         class="text-gray-400 text-sm leading-5 py-0.5 px-1.5 border border-gray-300 rounded-md"
       >
         <kbd class="font-sans">⌘</kbd>
@@ -69,6 +69,7 @@
 
 <script>
 import _ from 'lodash'
+import { isMacOS } from '../api/browser'
 
 export default {
   name: 'search-bar',
@@ -77,6 +78,7 @@ export default {
     return {
       query: '',
       isFocused: false,
+      isMacOS: isMacOS(),
     }
   },
 

@@ -19,6 +19,10 @@ export function isMobile() {
   return browserUA.getPlatformType(true) !== 'desktop'
 }
 
+export function isMacOS() {
+  return browserUA.getOSName(true) === 'macos'
+}
+
 export async function isExtensionInstalled() {
   if (!browser) {
     return false
