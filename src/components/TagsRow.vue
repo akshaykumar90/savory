@@ -182,12 +182,6 @@ export default {
     },
     placeholder() {
       if (
-        this.bookmarkId === SENTINEL_BULK_EDIT_BOOKMARK_ID &&
-        !this.newTag.length
-      ) {
-        return 'Add/remove tags to all selected'
-      }
-      if (
         !this.newTag.length ||
         this.newTag.length < typeaheadActivationThreshold
       ) {
