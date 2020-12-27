@@ -7,6 +7,8 @@ import {
   getBookmarksWithTag,
   getTagsCount,
   searchBookmarks,
+  bulkAddTag,
+  bulkRemoveTag,
 } from '../../api/mongodb'
 import _ from 'lodash'
 import { domainName } from '../../utils'
@@ -74,14 +76,6 @@ const getters = {
   tagsCount: (state) => {
     return Object.entries(state.tags)
   },
-
-  numSelected(state) {
-    let count = 0
-    _.forOwn(state.bookmarks, (val) => {
-      count += val.selected
-    })
-    return count
-  },
 }
 
 const actions = {
@@ -92,13 +86,10 @@ const actions = {
     return Promise.resolve()
   },
 
-  BULK_DELETE_BOOKMARKS: async ({ state, commit, dispatch }) => {
-    let currSelected = []
-    _.forOwn(state.bookmarks, (val, key) => {
-      if (val.selected) {
-        currSelected.push(key)
-      }
-    })
+  BULK_DELETE_BOOKMARKS: async (
+    { state, commit, dispatch },
+    { ids: currSelected }
+  ) => {
     await dispatch('SCRUB_LISTS', { ids: currSelected })
     currSelected.map((id) => commit('REMOVE_BOOKMARK', { id }))
     commit('SET_BOOKMARKS_COUNT', {
@@ -112,9 +103,23 @@ const actions = {
     return dbAddTag({ bookmarkId: id, newTag: tag })
   },
 
+  ADD_TAG_MANY: ({ commit }, { ids, tag }) => {
+    for (const id of ids) {
+      commit('ADD_TAG', { id, tag })
+    }
+    return bulkAddTag({ bookmarkIds: ids, newTag: tag })
+  },
+
   REMOVE_TAG_FROM_BOOKMARK: ({ commit }, { id, tag }) => {
     commit('REMOVE_TAG', { id, tag })
     return dbRemoveTag({ bookmarkId: id, tagToRemove: tag })
+  },
+
+  REMOVE_TAG_MANY: ({ commit }, { ids, tag }) => {
+    for (const id of ids) {
+      commit('REMOVE_TAG', { id, tag })
+    }
+    return bulkRemoveTag({ bookmarkIds: ids, newTag: tag })
   },
 
   FETCH_TAGS_COUNT: ({ commit }) => {
@@ -185,15 +190,19 @@ const mutations = {
   },
 
   REMOVE_TAG: (state, { id, tag: tagToRemove }) => {
-    deleteTag(state, tagToRemove)
     let existingTags = state.bookmarks[id].tags
-    state.bookmarks[id].tags = existingTags.filter((t) => t !== tagToRemove)
+    // Need to check due to how bulk operations work
+    if (existingTags.includes(tagToRemove)) {
+      deleteTag(state, tagToRemove)
+      state.bookmarks[id].tags = existingTags.filter((t) => t !== tagToRemove)
+    }
   },
 
-  CLEAR_SELECTED: (state) => {
-    _.forOwn(state.bookmarks, (val, id) => {
-      state.bookmarks[id].selected = false
-    })
+  SET_SELECTED: (state, { id, isChecked }) => {
+    // The bookmark might already be nuked by the time we get to this commit. It becomes a no-op then.
+    if (state.bookmarks.hasOwnProperty(id)) {
+      state.bookmarks[id].selected = isChecked
+    }
   },
 }
 

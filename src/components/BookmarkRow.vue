@@ -3,8 +3,10 @@
     <label class="pr-4 pt-1 hidden md:block">
       <input
         type="checkbox"
+        :checked="isChecked"
         class="rounded border-gray-300 text-blue-500 shadow-sm focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-        v-model="bookmark.selected"
+        @change="onSelect"
+        ref="checkbox"
       />
     </label>
     <div class="px-1 flex-grow space-y-2">
@@ -46,6 +48,21 @@ export default {
       const dateAdded = moment(this.bookmark.dateAdded)
       // ll	-> Sep 4, 1986
       return dateAdded.format('ll')
+    },
+    isChecked() {
+      return this.$store.getters.getBookmarkById(this.bookmarkId).selected
+    },
+  },
+
+  methods: {
+    onSelect() {
+      const actionName = this.$refs.checkbox.checked
+        ? 'BOOKMARK_SELECTED'
+        : 'BOOKMARK_UNSELECTED'
+      this.$store.dispatch({
+        type: actionName,
+        id: this.bookmarkId,
+      })
     },
   },
 }

@@ -94,6 +94,12 @@ export default {
         this.$refs.searchInput.focus()
       }
     },
+    onClickOutside() {
+      // Clicking outside tags row input should exit edit mode
+      // Inspired from: https://stackoverflow.com/a/36180348/7003143
+      // Also see `collapseSiblings` in TagsRow.vue
+      Event.$emit('exitEditMode', {})
+    },
     login() {
       // This is a stub. It should never happen. We cannot be in logged-out
       // state while AppLayout is rendered!
@@ -106,12 +112,14 @@ export default {
   destroyed() {
     window.removeEventListener('scroll', this.scrollHandler)
     window.removeEventListener('keydown', this.onKeydown)
+    document.body.removeEventListener('click', this.onClickOutside)
   },
 
   mounted() {
     this.scrollHandler = _.throttle(this.onScroll, 200)
     window.addEventListener('scroll', this.scrollHandler)
     window.addEventListener('keydown', this.onKeydown)
+    document.body.addEventListener('click', this.onClickOutside)
     this.$refs.searchInput.focus()
   },
 

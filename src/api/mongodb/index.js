@@ -53,10 +53,24 @@ export function addTag({ bookmarkId, newTag }) {
   return app().callFunction('addTag', [newTag, new BSON.ObjectId(bookmarkId)])
 }
 
+export function bulkAddTag({ bookmarkIds, newTag }) {
+  return app().callFunction('bulkAddTag', [
+    newTag,
+    bookmarkIds.map((x) => new BSON.ObjectId(x)),
+  ])
+}
+
 export function removeTag({ bookmarkId, tagToRemove }) {
   return app().callFunction('removeTag', [
     tagToRemove,
     new BSON.ObjectId(bookmarkId),
+  ])
+}
+
+export function bulkRemoveTag({ bookmarkIds, newTag }) {
+  return app().callFunction('bulkRemoveTag', [
+    newTag,
+    bookmarkIds.map((x) => new BSON.ObjectId(x)),
   ])
 }
 

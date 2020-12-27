@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import Vue from 'vue'
 import { router } from '../../router'
 
 // TODO: this file deserves a big comment about the view-model design it
@@ -75,6 +76,9 @@ const state = () => ({
   search: {
     query: '',
     total: 0,
+  },
+  bulk: {
+    ids: new Set(),
   },
   loading: false, // load more
   requestId: 0,
@@ -154,6 +158,20 @@ const getters = {
         return {}
     }
   },
+
+  numSelected(state) {
+    return state.bulk.ids.size
+  },
+
+  tagsInBulkEdit(state, getters) {
+    let allTags = []
+    for (let bookmarkId of state.bulk.ids) {
+      allTags = allTags.concat(getters.getBookmarkById(bookmarkId).tags)
+    }
+    let setUnion = Array.from(new Set(allTags))
+    setUnion.sort()
+    return setUnion
+  },
 }
 
 const actions = {
@@ -175,7 +193,7 @@ const actions = {
       const ids = result.bookmarks.map(({ id }) => id)
       commit('SET_NEW', { ids })
     }
-    commit('CLEAR_SELECTED')
+    dispatch('CLEAR_SELECTED')
     commit('CLEAR_FILTERED')
     commit('SWITCH_TO_NEW')
     commit('SET_PAGE', maxPage)
@@ -238,7 +256,7 @@ const actions = {
     const ids = result.bookmarks.map(({ id }) => id)
     commit('SET_FILTERED_ITEMS', { ids, total: result.total })
     commit('SWITCH_TO_FILTERED')
-    commit('CLEAR_SELECTED')
+    dispatch('CLEAR_SELECTED')
     commit('SET_PAGE', maxPage)
   },
 
@@ -301,7 +319,7 @@ const actions = {
     const ids = result.bookmarks.map(({ id }) => id)
     commit('SET_SEARCH_ITEMS', { ids, total: result.total })
     commit('SWITCH_TO_SEARCH')
-    commit('CLEAR_SELECTED')
+    dispatch('CLEAR_SELECTED')
   },
 
   CLEAR_SEARCH: ({ dispatch }) => {
@@ -365,6 +383,38 @@ const actions = {
     if (filter.active.length) {
       commit('DEC_FILTERED_COUNT', { delta: ids.length })
     }
+  },
+
+  BOOKMARK_SELECTED: ({ state, commit, getters }, { id }) => {
+    commit('SET_SELECTED', { id, isChecked: true })
+    commit('ADD_TO_BULK_ITEMS', id)
+  },
+
+  BOOKMARK_UNSELECTED: ({ state, commit }, { id }) => {
+    commit('SET_SELECTED', { id, isChecked: false })
+    commit('REMOVE_FROM_BULK_ITEMS', id)
+  },
+
+  ADD_TAG_TO_SELECTED: ({ state, dispatch }, { tag }) => {
+    dispatch('ADD_TAG_MANY', { ids: Array.from(state.bulk.ids), tag })
+  },
+
+  REMOVE_TAG_FROM_SELECTED: ({ state, dispatch }, { tag }) => {
+    dispatch('REMOVE_TAG_MANY', { ids: Array.from(state.bulk.ids), tag })
+  },
+
+  DELETE_SELECTED: ({ state, dispatch }) => {
+    let currSelected = Array.from(state.bulk.ids)
+    dispatch('CLEAR_SELECTED')
+    dispatch('BULK_DELETE_BOOKMARKS', { ids: currSelected })
+  },
+
+  CLEAR_SELECTED: ({ state, commit }) => {
+    let currSelected = Array.from(state.bulk.ids)
+    for (let id of currSelected) {
+      commit('SET_SELECTED', { id, isChecked: false })
+    }
+    commit('CLEAR_BULK_ITEMS')
   },
 }
 
@@ -467,6 +517,21 @@ const mutations = {
 
   CLEAR_FETCH_PROMISE: (state) => {
     state.fetchPromise = null
+  },
+
+  ADD_TO_BULK_ITEMS: (state, id) => {
+    const newItems = new Set(state.bulk.ids)
+    newItems.add(id)
+    Vue.set(state.bulk, 'ids', newItems)
+  },
+
+  REMOVE_FROM_BULK_ITEMS: (state, id) => {
+    const newItems = new Set(Array.from(state.bulk.ids).filter((x) => x !== id))
+    Vue.set(state.bulk, 'ids', newItems)
+  },
+
+  CLEAR_BULK_ITEMS: (state) => {
+    Vue.set(state.bulk, 'ids', new Set())
   },
 }
 
