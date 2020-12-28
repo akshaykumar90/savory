@@ -390,13 +390,19 @@ const actions = {
     }
   },
 
+  SELECT_ALL: ({ commit, getters }) => {
+    let activeIds = getters.activeIds
+    commit('SET_SELECTED', { ids: activeIds, isChecked: true })
+    commit('ADD_TO_BULK_ITEMS', activeIds)
+  },
+
   BOOKMARK_SELECTED: ({ state, commit, getters }, { id }) => {
-    commit('SET_SELECTED', { id, isChecked: true })
-    commit('ADD_TO_BULK_ITEMS', id)
+    commit('SET_SELECTED', { ids: [id], isChecked: true })
+    commit('ADD_TO_BULK_ITEMS', [id])
   },
 
   BOOKMARK_UNSELECTED: ({ state, commit }, { id }) => {
-    commit('SET_SELECTED', { id, isChecked: false })
+    commit('SET_SELECTED', { ids: [id], isChecked: false })
     commit('REMOVE_FROM_BULK_ITEMS', id)
   },
 
@@ -431,7 +437,7 @@ const actions = {
   CLEAR_SELECTED: ({ state, commit }) => {
     let currSelected = Array.from(state.bulk.ids)
     for (let id of currSelected) {
-      commit('SET_SELECTED', { id, isChecked: false })
+      commit('SET_SELECTED', { ids: [id], isChecked: false })
     }
     commit('CLEAR_BULK_ITEMS')
   },
@@ -549,9 +555,9 @@ const mutations = {
     }
   },
 
-  ADD_TO_BULK_ITEMS: (state, id) => {
+  ADD_TO_BULK_ITEMS: (state, ids) => {
     const newItems = new Set(state.bulk.ids)
-    newItems.add(id)
+    ids.forEach((id) => newItems.add(id))
     Vue.set(state.bulk, 'ids', newItems)
   },
 

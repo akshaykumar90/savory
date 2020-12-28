@@ -200,11 +200,13 @@ const mutations = {
     }
   },
 
-  SET_SELECTED: (state, { id, isChecked }) => {
-    // The bookmark might already be nuked by the time we get to this commit.
-    // It becomes a no-op then.
-    if (state.bookmarks.hasOwnProperty(id)) {
-      state.bookmarks[id].selected = isChecked
+  SET_SELECTED: (state, { ids, isChecked }) => {
+    for (const id of ids) {
+      // The bookmark might already be nuked by the time we get to this commit.
+      // It becomes a no-op then.
+      if (state.bookmarks.hasOwnProperty(id)) {
+        state.bookmarks[id].selected = isChecked
+      }
     }
   },
 }
