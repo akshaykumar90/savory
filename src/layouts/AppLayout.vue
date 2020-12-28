@@ -21,7 +21,7 @@
             <SearchBar ref="searchInput"></SearchBar>
           </div>
           <div v-if="isSaving">
-            <span>Saving...</span>
+            <span class="text-sm text-muted">Saving...</span>
           </div>
           <div
             v-if="!$auth.loading"
