@@ -67,7 +67,7 @@ export default {
         this.bookmarkId === SENTINEL_BULK_EDIT_BOOKMARK_ID
           ? null
           : this.$store.getters.getBookmarkById(this.bookmarkId).site,
-      editMode: this.bookmarkId === SENTINEL_BULK_EDIT_BOOKMARK_ID,
+      editMode: this.bookmarkId === SENTINEL_BULK_EDIT_BOOKMARK_ID, // Bulk edit component starts (and remains) in editMode
       newTag: '',
       tagSuggestion: '',
     }

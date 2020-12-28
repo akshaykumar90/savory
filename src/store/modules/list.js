@@ -436,9 +436,7 @@ const actions = {
 
   CLEAR_SELECTED: ({ state, commit }) => {
     let currSelected = Array.from(state.bulk.ids)
-    for (let id of currSelected) {
-      commit('SET_SELECTED', { ids: [id], isChecked: false })
-    }
+    commit('SET_SELECTED', { ids: currSelected, isChecked: false })
     commit('CLEAR_BULK_ITEMS')
   },
 }
