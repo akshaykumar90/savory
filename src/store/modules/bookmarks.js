@@ -21,9 +21,11 @@ function addTag(state, tag) {
 }
 
 function deleteTag(state, tag) {
-  state.tags[tag] -= 1
-  if (state.tags[tag] === 0) {
-    Vue.delete(state.tags, tag)
+  if (state.tags.hasOwnProperty(tag)) {
+    state.tags[tag] -= 1
+    if (state.tags[tag] === 0) {
+      Vue.delete(state.tags, tag)
+    }
   }
 }
 
@@ -199,7 +201,8 @@ const mutations = {
   },
 
   SET_SELECTED: (state, { id, isChecked }) => {
-    // The bookmark might already be nuked by the time we get to this commit. It becomes a no-op then.
+    // The bookmark might already be nuked by the time we get to this commit.
+    // It becomes a no-op then.
     if (state.bookmarks.hasOwnProperty(id)) {
       state.bookmarks[id].selected = isChecked
     }

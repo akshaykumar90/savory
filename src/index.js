@@ -49,3 +49,9 @@ app.$auth.$watch('tokenExpiredBeacon', (beacon) => {
 })
 
 app.$mount('#app')
+
+if (process.env.NODE_ENV !== 'production') {
+  if (app.$auth.user) {
+    console.log(`Logged in as: ${app.$auth.user.identities[0].id}`)
+  }
+}

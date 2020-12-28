@@ -84,8 +84,8 @@ const state = () => ({
   requestId: 0,
   fetchPromise: null, // pending navigation
   save: {
-    // pending save to backend, do not eject!
     operationId: 0,
+    // pending save to backend, do not eject!
     pending: false,
   },
 })
@@ -400,6 +400,8 @@ const actions = {
     commit('REMOVE_FROM_BULK_ITEMS', id)
   },
 
+  // TODO(akshay:2020-12-28): Wrap this design pattern in a function decorator
+  //  to DRY-up code
   ADD_TAG_TO_SELECTED: ({ state, commit, dispatch }, { tag }) => {
     commit('SET_SAVING')
     const myOperationId = state.save.operationId
