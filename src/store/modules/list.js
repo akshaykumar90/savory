@@ -83,6 +83,11 @@ const state = () => ({
   loading: false, // load more
   requestId: 0,
   fetchPromise: null, // pending navigation
+  save: {
+    // pending save to backend, do not eject!
+    operationId: 0,
+    pending: false,
+  },
 })
 
 const getters = {
@@ -395,12 +400,24 @@ const actions = {
     commit('REMOVE_FROM_BULK_ITEMS', id)
   },
 
-  ADD_TAG_TO_SELECTED: ({ state, dispatch }, { tag }) => {
-    dispatch('ADD_TAG_MANY', { ids: Array.from(state.bulk.ids), tag })
+  ADD_TAG_TO_SELECTED: ({ state, commit, dispatch }, { tag }) => {
+    commit('SET_SAVING')
+    const myOperationId = state.save.operationId
+    return dispatch('ADD_TAG_MANY', { ids: Array.from(state.bulk.ids), tag })
+      .catch((e) => console.log('error: ', e))
+      .finally(() => {
+        commit('CLEAR_SAVING', myOperationId)
+      })
   },
 
-  REMOVE_TAG_FROM_SELECTED: ({ state, dispatch }, { tag }) => {
-    dispatch('REMOVE_TAG_MANY', { ids: Array.from(state.bulk.ids), tag })
+  REMOVE_TAG_FROM_SELECTED: ({ state, commit, dispatch }, { tag }) => {
+    commit('SET_SAVING')
+    const myOperationId = state.save.operationId
+    return dispatch('REMOVE_TAG_MANY', { ids: Array.from(state.bulk.ids), tag })
+      .catch((e) => console.log('error: ', e))
+      .finally(() => {
+        commit('CLEAR_SAVING', myOperationId)
+      })
   },
 
   DELETE_SELECTED: ({ state, dispatch }) => {
@@ -517,6 +534,17 @@ const mutations = {
 
   CLEAR_FETCH_PROMISE: (state) => {
     state.fetchPromise = null
+  },
+
+  SET_SAVING: (state) => {
+    state.save.operationId += 1
+    state.save.pending = true
+  },
+
+  CLEAR_SAVING: (state, operationId) => {
+    if (state.save.operationId === operationId) {
+      state.save.pending = false
+    }
   },
 
   ADD_TO_BULK_ITEMS: (state, id) => {
