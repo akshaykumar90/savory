@@ -12,13 +12,6 @@ eventLogger.init(process.env.AMPLITUDE_API_KEY)
 // component to communicate between them.
 window.Event = new Vue()
 
-// Clicking outside tags row input should exit edit mode
-// Inspired from: https://stackoverflow.com/a/36180348/7003143
-// Also see `collapseSiblings` in TagsRow.vue
-document.body.addEventListener('click', (event) => {
-  Event.$emit('exitEditMode', {})
-})
-
 Vue.use(AuthPlugin, {
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
@@ -56,3 +49,9 @@ app.$auth.$watch('tokenExpiredBeacon', (beacon) => {
 })
 
 app.$mount('#app')
+
+if (process.env.NODE_ENV !== 'production') {
+  if (app.$auth.user) {
+    console.log(`Logged in as: ${app.$auth.user.identities[0].id}`)
+  }
+}

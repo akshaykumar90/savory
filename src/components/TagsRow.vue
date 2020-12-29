@@ -7,14 +7,14 @@
     <button
       class="text-primary h-6 px-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
       v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
-      v-if="bookmark.site"
+      v-if="bookmarkSite"
       @click="tagClicked({ tagType: 'site' })"
     >
-      {{ bookmark.site }}
+      {{ bookmarkSite }}
       <a v-if="filterMode && !editMode" class="tag-link add"></a>
     </button>
     <button
-      v-for="(tag, index) in bookmark.tags"
+      v-for="(tag, index) in bookmarkTags"
       :key="index"
       class="text-primary h-6 px-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
       v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
@@ -52,6 +52,8 @@
 const typeaheadActivationThreshold = 3
 const caseSensitiveTags = false
 
+export const SENTINEL_BULK_EDIT_BOOKMARK_ID = 'WHY NOT ZOIDBERG?'
+
 export default {
   name: 'tags-row',
 
@@ -61,7 +63,11 @@ export default {
 
   data: function () {
     return {
-      editMode: false,
+      bookmarkSite:
+        this.bookmarkId === SENTINEL_BULK_EDIT_BOOKMARK_ID
+          ? null
+          : this.$store.getters.getBookmarkById(this.bookmarkId).site,
+      editMode: this.bookmarkId === SENTINEL_BULK_EDIT_BOOKMARK_ID, // Bulk edit component starts (and remains) in editMode
       newTag: '',
       tagSuggestion: '',
     }
@@ -80,7 +86,7 @@ export default {
       if (tagType === 'site') {
         this.$store.dispatch('FILTER_ADDED', {
           ...dataObj,
-          name: this.bookmark.site,
+          name: this.bookmarkSite,
         })
       } else if (tagType === 'tag') {
         this.$store.dispatch('FILTER_ADDED', { ...dataObj, name: tagName })
@@ -102,8 +108,12 @@ export default {
       }
 
       let tag = tagToAdd.trim().replace(/\s+/g, ' ')
-      let dataObj = { id: this.bookmarkId, tag }
-      this.$store.dispatch('ADD_TAG_FOR_BOOKMARK', dataObj)
+      if (this.bookmarkId === SENTINEL_BULK_EDIT_BOOKMARK_ID) {
+        this.$store.dispatch('ADD_TAG_TO_SELECTED', { tag })
+      } else {
+        let dataObj = { id: this.bookmarkId, tag }
+        this.$store.dispatch('ADD_TAG_FOR_BOOKMARK', dataObj)
+      }
 
       this.newTag = ''
     },
@@ -111,8 +121,12 @@ export default {
       if (!tagName) {
         return
       }
-      let dataObj = { id: this.bookmarkId, tag: tagName }
-      this.$store.dispatch('REMOVE_TAG_FROM_BOOKMARK', dataObj)
+      if (this.bookmarkId === SENTINEL_BULK_EDIT_BOOKMARK_ID) {
+        this.$store.dispatch('REMOVE_TAG_FROM_SELECTED', { tag: tagName })
+      } else {
+        let dataObj = { id: this.bookmarkId, tag: tagName }
+        this.$store.dispatch('REMOVE_TAG_FROM_BOOKMARK', dataObj)
+      }
     },
     doSearch(searchQuery) {
       let searchResults = []
@@ -122,7 +136,7 @@ export default {
         const compareable = caseSensitiveTags ? tag : tag.toLowerCase()
         if (
           compareable.startsWith(searchQuery) &&
-          !this.bookmark.tags.includes(compareable)
+          !this.bookmarkTags.includes(compareable)
         ) {
           searchResults.push(tag)
         }
@@ -141,6 +155,10 @@ export default {
       Event.$on('exitEditMode', this.exitEditMode)
     },
     exitEditMode({ currFocusId }) {
+      if (this.bookmarkId === SENTINEL_BULK_EDIT_BOOKMARK_ID) {
+        // Never exit edit mode
+        return
+      }
       if (this.bookmarkId !== currFocusId) {
         this.editMode = false
         this.newTag = ''
@@ -153,8 +171,11 @@ export default {
   },
 
   computed: {
-    bookmark() {
-      return this.$store.getters.getBookmarkById(this.bookmarkId)
+    bookmarkTags() {
+      if (this.bookmarkId === SENTINEL_BULK_EDIT_BOOKMARK_ID) {
+        return this.$store.getters.tagsInBulkEdit
+      }
+      return this.$store.getters.getBookmarkById(this.bookmarkId).tags
     },
     filterMode() {
       return this.$store.state.list.activeType !== 'new'

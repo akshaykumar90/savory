@@ -20,6 +20,9 @@
           <div class="hidden md:block md:col-span-4">
             <SearchBar ref="searchInput"></SearchBar>
           </div>
+          <div v-if="isSaving">
+            <span class="text-sm text-muted">Saving...</span>
+          </div>
           <div
             v-if="!$auth.loading"
             class="hidden md:block md:col-start-10 md:justify-self-end text-xs text-muted mr-4"
@@ -72,6 +75,9 @@ export default {
     testMode() {
       return process.env.TEST_MODE === 'true'
     },
+    isSaving() {
+      return this.$store.state.list.save.pending
+    },
   },
 
   methods: {
@@ -94,6 +100,21 @@ export default {
         this.$refs.searchInput.focus()
       }
     },
+    onClickOutside() {
+      // Clicking outside tags row input should exit edit mode
+      // Inspired from: https://stackoverflow.com/a/36180348/7003143
+      // Also see `collapseSiblings` in TagsRow.vue
+      Event.$emit('exitEditMode', {})
+    },
+    beforeUnload(event) {
+      if (this.$store.state.list.save.pending) {
+        // Cancel the event as stated by the standard.
+        event.preventDefault()
+        // Older browsers supported custom message
+        return (event.returnValue =
+          'There is pending work. Sure you want to leave?')
+      }
+    },
     login() {
       // This is a stub. It should never happen. We cannot be in logged-out
       // state while AppLayout is rendered!
@@ -106,12 +127,15 @@ export default {
   destroyed() {
     window.removeEventListener('scroll', this.scrollHandler)
     window.removeEventListener('keydown', this.onKeydown)
+    document.body.removeEventListener('click', this.onClickOutside)
   },
 
   mounted() {
     this.scrollHandler = _.throttle(this.onScroll, 200)
     window.addEventListener('scroll', this.scrollHandler)
     window.addEventListener('keydown', this.onKeydown)
+    document.body.addEventListener('click', this.onClickOutside)
+    window.addEventListener('beforeunload', this.beforeUnload)
     this.$refs.searchInput.focus()
   },
 
