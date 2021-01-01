@@ -17,7 +17,16 @@
         class="text-sm text-default leading-5"
         >{{ bookmark.title }}
       </a>
-      <p class="text-xs text-grey-500 leading-3">{{ date }}</p>
+      <div class="relative">
+        <p class="text-xs text-grey-500 leading-3">
+          {{ dateAdded.format('ll') }}
+        </p>
+        <div class="absolute left-0 top-4 z-50">
+          <Tooltip>
+            {{ dateAdded.format('LT [·] ll') }}
+          </Tooltip>
+        </div>
+      </div>
       <div>
         <TagsRow :bookmark-id="bookmarkId"></TagsRow>
       </div>
@@ -27,6 +36,7 @@
 
 <script>
 import TagsRow from './TagsRow.vue'
+import Tooltip from './Tooltip.vue'
 import moment from 'moment'
 
 export default {
@@ -34,20 +44,24 @@ export default {
 
   components: {
     TagsRow,
+    Tooltip,
   },
 
   props: {
     bookmarkId: String,
   },
 
+  data: function () {
+    return {
+      dateAdded: moment(
+        this.$store.getters.getBookmarkById(this.bookmarkId).dateAdded
+      ),
+    }
+  },
+
   computed: {
     bookmark() {
       return this.$store.getters.getBookmarkById(this.bookmarkId)
-    },
-    date() {
-      const dateAdded = moment(this.bookmark.dateAdded)
-      // ll	-> Sep 4, 1986
-      return dateAdded.format('ll')
     },
     isChecked() {
       return this.$store.getters.getBookmarkById(this.bookmarkId).selected
