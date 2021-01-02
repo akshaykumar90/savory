@@ -18,10 +18,14 @@
         >{{ bookmark.title }}
       </a>
       <div class="relative">
-        <p class="text-xs text-grey-500 leading-3">
+        <p
+          class="text-xs text-grey-500 leading-3"
+          @mouseenter="showTimestampTooltip = true"
+          @mouseleave="showTimestampTooltip = false"
+        >
           {{ dateAdded.format('ll') }}
         </p>
-        <div class="absolute left-0 top-4 z-50">
+        <div class="absolute left-0 top-4 z-50" v-if="showTimestampTooltip">
           <Tooltip>
             {{ dateAdded.format('LT [·] ll') }}
           </Tooltip>
@@ -56,6 +60,7 @@ export default {
       dateAdded: moment(
         this.$store.getters.getBookmarkById(this.bookmarkId).dateAdded
       ),
+      showTimestampTooltip: false,
     }
   },
 
