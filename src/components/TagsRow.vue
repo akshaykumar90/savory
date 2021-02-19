@@ -37,6 +37,7 @@
       <input
         ref="input"
         type="text"
+        autocomplete="off"
         title="Click to add or remove tags"
         v-model="newTag"
         @keydown.tab.prevent="onTab"
