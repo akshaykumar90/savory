@@ -10,7 +10,7 @@
     "build:ext": "cross-env NODE_ENV=production webpack --progress --hide-modules --env production --config config/webpack.config.webext.js"
   },
   "engines": {
-    "node": ">=7.0",
+    "node": "12.x",
     "npm": ">=4.0"
   },
   "dependencies": {
