@@ -7,9 +7,11 @@ import { router } from '../../router'
 
 function getFiltersFromQueryString(filterString) {
   return filterString.split('/').map((filter) => {
-    let peeled = filter.split(':', 2)
-    const type = peeled[0] === 's' ? 'site' : 'tag'
-    const name = peeled[1]
+    // We have to do this dance because `:` can be part of the name of tag
+    const on = ':'
+    let [first, ...rest] = filter.split(on)
+    const type = first === 's' ? 'site' : 'tag'
+    const name = rest.join(on)
     return { type, name }
   })
 }
