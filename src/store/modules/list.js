@@ -22,6 +22,18 @@ function getQueryStringFromFilters(filters) {
     .join('/')
 }
 
+function withSavingSpinner(fn) {
+  return ({ state, commit, dispatch }, obj) => {
+    commit('SET_SAVING')
+    const myOperationId = state.save.operationId
+    return fn({ state, commit, dispatch }, obj)
+      .catch((e) => console.log('error: ', e))
+      .finally(() => {
+        commit('CLEAR_SAVING', myOperationId)
+      })
+  }
+}
+
 class ArgumentBuilder {
   constructor() {
     this.argObj = {}
@@ -408,32 +420,18 @@ const actions = {
     commit('REMOVE_FROM_BULK_ITEMS', id)
   },
 
-  // TODO(akshay:2020-12-28): Wrap this design pattern in a function decorator
-  //  to DRY-up code
-  ADD_TAG_TO_SELECTED: ({ state, commit, dispatch }, { tag }) => {
-    commit('SET_SAVING')
-    const myOperationId = state.save.operationId
+  ADD_TAG_TO_SELECTED: ({ state, dispatch }, { tag }) => {
     return dispatch('ADD_TAG_MANY', { ids: Array.from(state.bulk.ids), tag })
-      .catch((e) => console.log('error: ', e))
-      .finally(() => {
-        commit('CLEAR_SAVING', myOperationId)
-      })
   },
 
-  REMOVE_TAG_FROM_SELECTED: ({ state, commit, dispatch }, { tag }) => {
-    commit('SET_SAVING')
-    const myOperationId = state.save.operationId
+  REMOVE_TAG_FROM_SELECTED: ({ state, dispatch }, { tag }) => {
     return dispatch('REMOVE_TAG_MANY', { ids: Array.from(state.bulk.ids), tag })
-      .catch((e) => console.log('error: ', e))
-      .finally(() => {
-        commit('CLEAR_SAVING', myOperationId)
-      })
   },
 
   DELETE_SELECTED: ({ state, dispatch }) => {
     let currSelected = Array.from(state.bulk.ids)
     dispatch('CLEAR_SELECTED')
-    dispatch('BULK_DELETE_BOOKMARKS', { ids: currSelected })
+    return dispatch('BULK_DELETE_BOOKMARKS', { ids: currSelected })
   },
 
   CLEAR_SELECTED: ({ state, commit }) => {
@@ -569,6 +567,14 @@ const mutations = {
   CLEAR_BULK_ITEMS: (state) => {
     Vue.set(state.bulk, 'ids', new Set())
   },
+}
+
+for (const actionName of [
+  'ADD_TAG_TO_SELECTED',
+  'REMOVE_TAG_FROM_SELECTED',
+  'DELETE_SELECTED',
+]) {
+  actions[actionName] = withSavingSpinner(actions[actionName])
 }
 
 export default {
