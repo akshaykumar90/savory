@@ -24,7 +24,7 @@ export function isMacOS() {
 }
 
 export async function isExtensionInstalled() {
-  if (!browser) {
+  if (!browser || !browser.runtime) {
     return false
   }
   const result = await new Promise((resolve) => {

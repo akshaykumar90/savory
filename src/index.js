@@ -18,14 +18,14 @@ Vue.use(AuthPlugin, {
   audience: process.env.AUTH0_AUDIENCE,
   onLoginCallback: (userId, token) => {
     const message = { type: 'login', token }
-    if (browser !== undefined) {
+    if (browser && browser.runtime) {
       browser.runtime.sendMessage(process.env.EXTENSION_ID, message)
     }
     eventLogger.setUserId(userId)
   },
   onLogoutCallback: () => {
     const message = { type: 'logout' }
-    if (browser !== undefined) {
+    if (browser && browser.runtime) {
       browser.runtime.sendMessage(process.env.EXTENSION_ID, message)
     }
     eventLogger.setUserId(null)
