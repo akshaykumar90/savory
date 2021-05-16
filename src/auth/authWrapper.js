@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import { Auth0Client } from '@auth0/auth0-spa-js'
-import { CustomCredential, Stitch } from 'mongodb-stitch-browser-sdk'
+import { Stitch } from 'mongodb-stitch-browser-sdk'
 import { StitchServiceError } from 'mongodb-stitch-core-sdk'
+import { login as backendLogin, logout as backendLogout } from '../api/backend'
 
 const DEFAULT_LOGIN_CALLBACK = () => console.log('login...')
 const DEFAULT_LOGOUT_CALLBACK = () => console.log('...logout')
@@ -18,30 +19,76 @@ const mongoApp = Stitch.hasAppClient(APP_ID)
 
 let instance
 
+class AuthState {
+  static storage_key = '__savory.client.auth_info'
+
+  static readStateFromStorage() {
+    const rawInfo = localStorage.getItem(AuthState.storage_key)
+    if (!rawInfo) {
+      // Empty state
+      return new this(null)
+    }
+    const userId = rawInfo['user_id']
+    return new this(userId)
+  }
+
+  constructor(userId) {
+    this.userId = userId
+  }
+
+  get isLoggedIn() {
+    return !!this.userId
+  }
+
+  async login(auth0Token) {
+    // TODO: Backend should return userId in login response
+    let resp = await backendLogin(auth0Token)
+    this.userId = resp.userId
+    this._writeState()
+  }
+
+  async logout() {
+    await backendLogout()
+    this._cleanState()
+  }
+
+  _cleanState() {
+    localStorage.removeItem(AuthState.storage_key)
+  }
+
+  _writeState() {
+    const to = {}
+    to['user_id'] = this.userId
+    localStorage.setItem(AuthState.storage_key, JSON.stringify(to))
+  }
+}
+
+const authState = AuthState.readStateFromStorage()
+
 export const getAuthWrapper = () => instance
+
+function handleAuthFailure() {
+  // transparently handle access token error
+  // by using refresh token
+  // if error persists, do what funcWithAuthHandling does
+}
+
+function getNewAccessTokenEveryFewMinutes() {}
 
 function funcWithAuthHandling(f, thisArg) {
   return new Proxy(f, {
     apply(target, __, args) {
-      if (!instance.isAuthenticated) {
-        return Promise.reject('Not logged in!')
-      }
       const remoteOp = target.apply(thisArg, args)
-      remoteOp
-        .then(() => {
-          instance.loading = false
-        })
-        .catch((ex) => {
-          if (
-            ex instanceof StitchServiceError &&
-            ex.errorCodeName === 'InvalidSession'
-          ) {
-            instance.isAuthenticated = false
-            instance.user = null
-            instance.tokenExpiredBeacon = true
-            instance.error = ex
-          }
-        })
+      remoteOp.catch((ex) => {
+        if (
+          ex instanceof StitchServiceError &&
+          ex.errorCodeName === 'InvalidSession'
+        ) {
+          instance.isAuthenticated = false
+          instance.tokenExpiredBeacon = true
+          instance.error = ex
+        }
+      })
       return remoteOp
     },
   })
@@ -60,12 +107,10 @@ export const authWrapper = ({
     data() {
       return {
         loading:
-          mongoApp.auth.isLoggedIn ||
+          authState.isLoggedIn ||
           (window.location.search.includes('code=') &&
             window.location.search.includes('state=')),
-        popupOpen: false,
-        isAuthenticated: mongoApp.auth.isLoggedIn,
-        user: mongoApp.auth.user,
+        isAuthenticated: authState.isLoggedIn,
         auth0Client: null,
         error: null,
         /**
@@ -85,9 +130,8 @@ export const authWrapper = ({
 
       async onLoginSuccess() {
         const token = await this.auth0Client.getTokenSilently()
-        await mongoApp.auth.loginWithCredential(new CustomCredential(token))
-        this.user = mongoApp.auth.user
-        const userId = this.user.identities[0].id
+        await authState.login(token)
+        const userId = authState.userId
         this.isAuthenticated = true
         onLoginCallback(userId, token)
       },
@@ -107,7 +151,6 @@ export const authWrapper = ({
         const loginOptions = {
           ...(initialScreen === 'signUp' && { screen_hint: 'signup' }),
         }
-        this.popupOpen = true
         try {
           // Popup errors out with a timeout if we just close it without
           // logging in
@@ -120,7 +163,6 @@ export const authWrapper = ({
           this.error = e
           throw e
         } finally {
-          this.popupOpen = false
           this.loading = false
         }
       },
@@ -151,8 +193,7 @@ export const authWrapper = ({
        */
       async logout() {
         this.loading = true
-        await mongoApp.auth.logout()
-        this.user = null
+        await authState.logout()
         this.isAuthenticated = false
         onLogoutCallback()
         // Give some time for any async logout callbacks to finish
@@ -171,8 +212,7 @@ export const authWrapper = ({
        * @param token: A valid Auth0 access token
        */
       async loginStitch(token) {
-        await mongoApp.auth.loginWithCredential(new CustomCredential(token))
-        this.user = mongoApp.auth.user
+        await authState.login(token)
         this.isAuthenticated = !!this.user
         this.tokenExpiredBeacon = null
         this.error = null
@@ -184,8 +224,7 @@ export const authWrapper = ({
        * NOTE: This only works in Chrome!
        */
       async logoutStitch() {
-        await mongoApp.auth.logout()
-        this.user = null
+        await authState.logout()
         this.isAuthenticated = false
         this.tokenExpiredBeacon = null
         this.error = null
