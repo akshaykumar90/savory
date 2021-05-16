@@ -1,12 +1,7 @@
 import Vue from 'vue'
 import { Auth0Client } from '@auth0/auth0-spa-js'
-import {
-  CustomCredential,
-  RemoteMongoClient,
-  Stitch,
-} from 'mongodb-stitch-browser-sdk'
+import { CustomCredential, Stitch } from 'mongodb-stitch-browser-sdk'
 import { StitchServiceError } from 'mongodb-stitch-core-sdk'
-import _ from 'lodash'
 
 const DEFAULT_LOGIN_CALLBACK = () => console.log('login...')
 const DEFAULT_LOGOUT_CALLBACK = () => console.log('...logout')
@@ -24,29 +19,6 @@ const mongoApp = Stitch.hasAppClient(APP_ID)
 let instance
 
 export const getAuthWrapper = () => instance
-
-/**
- * This is used to wrap MongoDB Stitch API calls so that we can detect
- * expired tokens ASAP.
- *
- * Intercepts method on `obj` such that rejected promises due to invalid
- * session errors flip the authenticated state. Expects the methods on
- * `obj` to return promises.
- *
- * @param obj: Object to wrap
- * @returns A proxy for the wrapped object
- */
-function withAuthHandling(obj) {
-  const handler = {
-    get(target, propKey, receiver) {
-      if (typeof target[propKey] !== 'function') {
-        return Reflect.get(target, propKey, receiver)
-      }
-      return funcWithAuthHandling(target[propKey], target)
-    },
-  }
-  return new Proxy(obj, handler)
-}
 
 function funcWithAuthHandling(f, thisArg) {
   return new Proxy(f, {
@@ -107,14 +79,6 @@ export const authWrapper = ({
     methods: {
       getMongoApp() {
         return {
-          mongoCollection: _.memoize((name) => {
-            return withAuthHandling(
-              mongoApp
-                .getServiceClient(RemoteMongoClient.factory, 'savorydb')
-                .db('savory')
-                .collection(name)
-            )
-          }),
           callFunction: funcWithAuthHandling(mongoApp.callFunction, mongoApp),
         }
       },
