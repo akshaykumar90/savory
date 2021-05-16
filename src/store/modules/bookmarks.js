@@ -121,7 +121,7 @@ const actions = {
     for (const id of ids) {
       commit('REMOVE_TAG', { id, tag })
     }
-    return bulkRemoveTag({ bookmarkIds: ids, newTag: tag })
+    return bulkRemoveTag({ bookmarkIds: ids, tagToRemove: tag })
   },
 
   FETCH_TAGS_COUNT: ({ commit }) => {
@@ -165,8 +165,8 @@ const mutations = {
   },
 
   SET_TAGS: (state, { items }) => {
-    for (const { tagName, count } of items) {
-      Vue.set(state.tags, tagName, count)
+    for (const { name, count } of items) {
+      Vue.set(state.tags, name, count)
     }
   },
 
