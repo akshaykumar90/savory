@@ -20,6 +20,10 @@ export function getBookmarksWithTag({ tags, site, num, after }) {
   return axios.post('/bookmarks', { tags, site, num, after })
 }
 
+export function searchBookmarks({ query, num, skip, site, tags }) {
+  return axios.post('/bookmarks/search', { query, num, skip, site, tags })
+}
+
 export function getTagsCount() {
   return axios.get('/tags')
 }
@@ -76,8 +80,4 @@ export function markBookmarksImported() {
   return axios.put('/users/me', {
     is_chrome_imported: true,
   })
-}
-
-export function searchBookmarks({ query, num, skip, site, tags }) {
-  return axios.post('/bookmarks/search', { query, num, skip, site, tags })
 }
