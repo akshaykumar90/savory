@@ -40,7 +40,9 @@ export async function importBookmarks({ chunk }) {
 
 export async function deleteBookmarks({ bookmarkIds }) {
   return axios.delete('/bookmarks', {
-    bookmark_ids: bookmarkIds,
+    data: {
+      bookmark_ids: bookmarkIds,
+    },
   })
 }
 
@@ -60,15 +62,19 @@ export function bulkAddTag({ bookmarkIds, newTag }) {
 
 export function removeTag({ bookmarkId, tagToRemove }) {
   return axios.delete('/tags', {
-    name: tagToRemove,
-    bookmark_id: bookmarkId,
+    data: {
+      name: tagToRemove,
+      bookmark_id: bookmarkId,
+    },
   })
 }
 
 export function bulkRemoveTag({ bookmarkIds, tagToRemove }) {
   return axios.delete('/tags/bulk', {
-    name: tagToRemove,
-    bookmark_ids: bookmarkIds,
+    data: {
+      name: tagToRemove,
+      bookmark_ids: bookmarkIds,
+    },
   })
 }
 
