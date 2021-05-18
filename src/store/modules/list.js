@@ -171,7 +171,7 @@ const getters = {
       case 'filtered':
         const [lastItem] = lists[activeType].slice(-1)
         return {
-          after: getters.getBookmarkById(lastItem).dateAdded,
+          before: getters.getBookmarkById(lastItem).dateAdded,
         }
       default:
         return {}

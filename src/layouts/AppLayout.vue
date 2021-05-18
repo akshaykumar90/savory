@@ -6,7 +6,13 @@
     >
       <div class="w-full md:max-w-7xl mx-auto py-1 md:py-2">
         <div
-          class="grid place-content-center md:grid-cols-10 items-center md:gap-x-4"
+          class="
+            grid
+            place-content-center
+            md:grid-cols-10
+            items-center
+            md:gap-x-4
+          "
         >
           <div class="md:col-span-2">
             <router-link to="/">
@@ -25,12 +31,19 @@
           </div>
           <div
             v-if="!$auth.loading"
-            class="hidden md:block md:col-start-10 md:justify-self-end text-xs text-muted mr-4"
+            class="
+              hidden
+              md:block
+              md:col-start-10
+              md:justify-self-end
+              text-xs text-muted
+              mr-4
+            "
           >
-            <button v-if="!$auth.isAuthenticated" @click="login">
+            <button v-if="!$auth.isAuthenticated()" @click="login">
               Sign In
             </button>
-            <button v-if="$auth.isAuthenticated" @click="logout">
+            <button v-if="$auth.isAuthenticated()" @click="logout">
               Sign Out
             </button>
           </div>

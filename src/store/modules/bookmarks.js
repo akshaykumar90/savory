@@ -1,15 +1,4 @@
 import Vue from 'vue'
-import {
-  addTag as dbAddTag,
-  deleteBookmarks,
-  fetchRecent,
-  removeTag as dbRemoveTag,
-  getBookmarksWithTag,
-  getTagsCount,
-  searchBookmarks,
-  bulkAddTag,
-  bulkRemoveTag,
-} from '../../api/mongodb'
 import _ from 'lodash'
 import { domainName } from '../../utils'
 
@@ -97,62 +86,66 @@ const actions = {
     commit('SET_BOOKMARKS_COUNT', {
       count: state.numBookmarks - currSelected.length,
     })
-    return deleteBookmarks({ bookmarkIds: currSelected })
+    return ApiClient.deleteBookmarks({ bookmarkIds: currSelected })
   },
 
   ADD_TAG_FOR_BOOKMARK: ({ commit }, { id, tag }) => {
     commit('ADD_TAG', { id, tag })
-    return dbAddTag({ bookmarkId: id, newTag: tag })
+    return ApiClient.addTag({ bookmarkId: id, newTag: tag })
   },
 
   ADD_TAG_MANY: ({ commit }, { ids, tag }) => {
     for (const id of ids) {
       commit('ADD_TAG', { id, tag })
     }
-    return bulkAddTag({ bookmarkIds: ids, newTag: tag })
+    return ApiClient.bulkAddTag({ bookmarkIds: ids, newTag: tag })
   },
 
   REMOVE_TAG_FROM_BOOKMARK: ({ commit }, { id, tag }) => {
     commit('REMOVE_TAG', { id, tag })
-    return dbRemoveTag({ bookmarkId: id, tagToRemove: tag })
+    return ApiClient.removeTag({ bookmarkId: id, tagToRemove: tag })
   },
 
   REMOVE_TAG_MANY: ({ commit }, { ids, tag }) => {
     for (const id of ids) {
       commit('REMOVE_TAG', { id, tag })
     }
-    return bulkRemoveTag({ bookmarkIds: ids, tagToRemove: tag })
+    return ApiClient.bulkRemoveTag({ bookmarkIds: ids, tagToRemove: tag })
   },
 
   FETCH_TAGS_COUNT: ({ commit }) => {
-    return getTagsCount().then((resp) => {
+    return ApiClient.getTagsCount().then((resp) => {
       commit('SET_TAGS', { items: resp })
     })
   },
 
-  FETCH_BOOKMARKS: ({ commit }, { num, after }) => {
-    return fetchRecent({ num, after }).then((resp) => {
+  FETCH_BOOKMARKS: ({ commit }, { num, before }) => {
+    return ApiClient.fetchRecent({ num, before }).then((resp) => {
       commit('SET_BOOKMARKS', { items: resp.bookmarks })
       commit('SET_BOOKMARKS_COUNT', { count: resp.total })
       return resp
     })
   },
 
-  FETCH_BOOKMARKS_WITH_TAG: ({ commit }, { tags, site, num, after }) => {
-    return getBookmarksWithTag({ tags, site, num, after }).then((resp) => {
-      commit('SET_BOOKMARKS', { items: resp.bookmarks })
-      return resp
-    })
+  FETCH_BOOKMARKS_WITH_TAG: ({ commit }, { tags, site, num, before }) => {
+    return ApiClient.getBookmarksWithTag({ tags, site, num, before }).then(
+      (resp) => {
+        commit('SET_BOOKMARKS', { items: resp.bookmarks })
+        return resp
+      }
+    )
   },
 
   FETCH_BOOKMARKS_WITH_QUERY: (
     { commit },
     { query, num, skip, site, tags }
   ) => {
-    return searchBookmarks({ query, num, skip, site, tags }).then((resp) => {
-      commit('SET_BOOKMARKS', { items: resp.bookmarks })
-      return resp
-    })
+    return ApiClient.searchBookmarks({ query, num, skip, site, tags }).then(
+      (resp) => {
+        commit('SET_BOOKMARKS', { items: resp.bookmarks })
+        return resp
+      }
+    )
   },
 }
 

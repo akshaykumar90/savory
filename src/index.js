@@ -5,6 +5,8 @@ import { router } from './router'
 import { AuthPlugin } from './auth'
 import { browser } from './api/browser'
 import { eventLogger } from './api/events'
+import { clientConfig } from './api/backend'
+import { Client } from './api/backend/client'
 
 eventLogger.init(process.env.AMPLITUDE_API_KEY)
 
@@ -16,6 +18,7 @@ Vue.use(AuthPlugin, {
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
   audience: process.env.AUTH0_AUDIENCE,
+  backendClientConfig: clientConfig,
   onLoginCallback: (userId, token) => {
     const message = { type: 'login', token }
     if (browser && browser.runtime) {
@@ -47,6 +50,8 @@ app.$auth.$watch('tokenExpiredBeacon', (beacon) => {
     app.$auth.logout()
   }
 })
+
+window.ApiClient = new Client(app.$auth, clientConfig)
 
 app.$mount('#app')
 

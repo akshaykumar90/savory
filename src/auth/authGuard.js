@@ -5,7 +5,7 @@ export const authGuard = (to, from, next) => {
 
   const fn = () => {
     let requiredAuthState = to.meta.requiredAuthState
-    let currentAuthState = authService.isAuthenticated ? 'login' : 'logout'
+    let currentAuthState = authService.isAuthenticated() ? 'login' : 'logout'
 
     if (currentAuthState === requiredAuthState) {
       return next()

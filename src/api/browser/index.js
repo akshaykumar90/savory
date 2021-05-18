@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import Bowser from 'bowser'
-import { importBookmarks } from '../mongodb'
 
 export const NUM_MAX_BOOKMARKS = 6000
 
@@ -66,7 +65,7 @@ export async function importBrowserBookmarks(report_progress) {
   console.log('Starting import...')
   let importedBookmarks = 0
   for (const chunk of _.chunk(bookmarks, 100)) {
-    await importBookmarks({ chunk })
+    await ApiClient.importBookmarks({ chunk })
     importedBookmarks += chunk.length
     let percent = importedBookmarks / totalBookmarks
     report_progress({ percent })
