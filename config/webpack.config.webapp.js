@@ -1,4 +1,6 @@
 const path = require('path')
+const os = require('os')
+const fs = require('fs')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
@@ -29,12 +31,21 @@ const commonConfig = merge(base, {
   ],
 })
 
+const homedir = os.homedir()
+const keyFilename = 'savory.test+4-key.pem'
+const certFilename = 'savory.test+4.pem'
+
 const developmentConfig = {
   mode: 'development',
   devtool: 'inline-source-map',
   devServer: {
     contentBase: './dist',
     historyApiFallback: true,
+    public: 'app.savory.test:8080',
+    https: {
+      key: fs.readFileSync(`${homedir}/Projects/certs/${keyFilename}`),
+      cert: fs.readFileSync(`${homedir}/Projects/certs/${certFilename}`),
+    },
   },
 }
 
