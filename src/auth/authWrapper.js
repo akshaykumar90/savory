@@ -11,21 +11,23 @@ const SLEEP_MILLIS = 60000
 const CALLBACK_URL = `${window.location.origin}/provider_cb`
 const LOGOUT_URL = window.location.origin
 
+const LOCAL_STORAGE_KEY = '__savory.client.auth_info'
+const FIELD_USER_ID = 'user_id'
+const FIELD_EXPIRES_AT = 'exp'
+
 let instance
 
 export const getAuthWrapper = () => instance
 
 class AuthState {
-  static storage_key = '__savory.client.auth_info'
-
   static readStateFromStorage() {
-    const rawInfo = localStorage.getItem(AuthState.storage_key)
+    const rawInfo = localStorage.getItem(LOCAL_STORAGE_KEY)
     if (!rawInfo) {
       // Empty state
       return new this(null, null)
     }
-    const userId = rawInfo['user_id']
-    const expiresAt = rawInfo['eat']
+    const userId = rawInfo[FIELD_USER_ID]
+    const expiresAt = rawInfo[FIELD_EXPIRES_AT]
     return new this(userId, expiresAt)
   }
 
@@ -41,20 +43,16 @@ class AuthState {
   cleanState() {
     this.userId = null
     this.expiresAt = null
-    localStorage.removeItem(AuthState.storage_key)
+    localStorage.removeItem(LOCAL_STORAGE_KEY)
   }
 
   updateState({ user_id, expires_at }) {
-    // This function is called for login as well as refresh token responses.
-    // The refresh token response only has the new `expires_at`.
-    if (user_id) {
-      this.userId = user_id
-    }
+    this.userId = user_id
     this.expiresAt = expires_at
     const to = {}
-    to['user_id'] = this.userId
-    to['eat'] = this.expiresAt
-    localStorage.setItem(AuthState.storage_key, JSON.stringify(to))
+    to[FIELD_USER_ID] = this.userId
+    to[FIELD_EXPIRES_AT] = this.expiresAt
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(to))
   }
 }
 
@@ -133,7 +131,6 @@ export const authWrapper = ({
         try {
           // wait for refresh token request to complete
           const resp = await this.refreshPending
-          // TODO: update resp to have updated expiresAt
           authState.updateState(resp)
         } catch (err) {
           this.expireToken()
@@ -150,7 +147,6 @@ export const authWrapper = ({
 
       async onLoginSuccess() {
         const token = await this.auth0Client.getTokenSilently()
-        // TODO: get userId and expiresAt in resp
         const resp = await this._login(token)
         authState.updateState(resp)
         onLoginCallback(authState.userId, token)
