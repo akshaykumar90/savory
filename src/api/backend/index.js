@@ -13,8 +13,8 @@ export const clientConfig = {
   withCredentials: true,
 
   // `xsrfCookieName` is the name of the cookie to use as a value for xsrf token
-  xsrfCookieName: 'XSRF-TOKEN', // default
+  xsrfCookieName: 'csrf_access_token',
 
   // `xsrfHeaderName` is the name of the http header that carries the xsrf token value
-  xsrfHeaderName: 'X-XSRF-TOKEN', // default
+  xsrfHeaderName: 'X-CSRF-Token',
 }
