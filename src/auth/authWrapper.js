@@ -102,7 +102,7 @@ export const authWrapper = ({
       },
 
       _refreshToken() {
-        return this.backendClient.post('/refresh')
+        return this.backendClient.post('/login/refresh')
       },
 
       _runRefreshLoop() {
