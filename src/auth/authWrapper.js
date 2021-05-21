@@ -26,8 +26,9 @@ class AuthState {
       // Empty state
       return new this(null, null)
     }
-    const userId = rawInfo[FIELD_USER_ID]
-    const expiresAt = rawInfo[FIELD_EXPIRES_AT]
+    let decoded = JSON.parse(rawInfo)
+    const userId = decoded[FIELD_USER_ID]
+    const expiresAt = decoded[FIELD_EXPIRES_AT]
     return new this(userId, expiresAt)
   }
 
@@ -131,7 +132,7 @@ export const authWrapper = ({
         try {
           // wait for refresh token request to complete
           const resp = await this.refreshPending
-          authState.updateState(resp)
+          authState.updateState(resp.data)
         } catch (err) {
           this.expireToken()
           throw err
@@ -148,7 +149,8 @@ export const authWrapper = ({
       async onLoginSuccess() {
         const token = await this.auth0Client.getTokenSilently()
         const resp = await this._login(token)
-        authState.updateState(resp)
+        console.log(resp.data)
+        authState.updateState(resp.data)
         onLoginCallback(authState.userId, token)
       },
 
@@ -225,7 +227,7 @@ export const authWrapper = ({
        */
       async silentLogin(token) {
         const resp = await this._login(token)
-        authState.updateState(resp)
+        authState.updateState(resp.data)
         this.tokenExpiredBeacon = null
       },
 

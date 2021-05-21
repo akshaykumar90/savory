@@ -171,7 +171,8 @@ export default {
   async mounted() {
     this.$refs.bar.set(5)
     this.$refs.bar.increase(10)
-    this.userData = await ApiClient.loadUserData()
+    let resp = await ApiClient.loadUserData()
+    this.userData = resp.data
     this.$refs.bar.increase(10)
     if (!this.userData) {
       // We provide `/provider_cb` as the success callback to Auth0 which

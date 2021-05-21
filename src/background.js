@@ -48,12 +48,12 @@ browser.bookmarks.onCreated.addListener(async (__, bookmark) => {
       dateAdded,
       tags: [],
     }
-    let dbBookmark = await ApiClient.createBookmark({
+    let resp = await ApiClient.createBookmark({
       bookmark: savoryBookmark,
     })
     browser.runtime.sendMessage({
       type: 'ON_BOOKMARK_CREATED',
-      bookmark: dbBookmark,
+      bookmark: resp.data,
     })
   }
 })

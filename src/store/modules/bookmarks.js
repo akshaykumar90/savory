@@ -115,22 +115,22 @@ const actions = {
 
   FETCH_TAGS_COUNT: ({ commit }) => {
     return ApiClient.getTagsCount().then((resp) => {
-      commit('SET_TAGS', { items: resp })
+      commit('SET_TAGS', { items: resp.data })
     })
   },
 
   FETCH_BOOKMARKS: ({ commit }, { num, before }) => {
     return ApiClient.fetchRecent({ num, before }).then((resp) => {
-      commit('SET_BOOKMARKS', { items: resp.bookmarks })
-      commit('SET_BOOKMARKS_COUNT', { count: resp.total })
-      return resp
+      commit('SET_BOOKMARKS', { items: resp.data.bookmarks })
+      commit('SET_BOOKMARKS_COUNT', { count: resp.data.total })
+      return resp.data
     })
   },
 
   FETCH_BOOKMARKS_WITH_TAG: ({ commit }, { tags, site, num, before }) => {
     return ApiClient.getBookmarksWithTag({ tags, site, num, before }).then(
       (resp) => {
-        commit('SET_BOOKMARKS', { items: resp.bookmarks })
+        commit('SET_BOOKMARKS', { items: resp.data.bookmarks })
         return resp
       }
     )
@@ -142,7 +142,7 @@ const actions = {
   ) => {
     return ApiClient.searchBookmarks({ query, num, skip, site, tags }).then(
       (resp) => {
-        commit('SET_BOOKMARKS', { items: resp.bookmarks })
+        commit('SET_BOOKMARKS', { items: resp.data.bookmarks })
         return resp
       }
     )
