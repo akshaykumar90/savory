@@ -44,11 +44,11 @@ export class Client {
   ////////////////////////////////////////////////////////////////////////////
 
   fetchRecent({ num, before }) {
-    return this._post('/bookmarks', { num, before })
+    return this._post('/bookmarks/', { num, before })
   }
 
   getBookmarksWithTag({ tags, site, num, after }) {
-    return this._post('/bookmarks', { tags, site, num, after })
+    return this._post('/bookmarks/', { tags, site, num, after })
   }
 
   searchBookmarks({ query, num, skip, site, tags }) {
@@ -56,7 +56,7 @@ export class Client {
   }
 
   getTagsCount() {
-    return this._get('/tags')
+    return this._get('/tags/')
   }
 
   createBookmark({ bookmark }) {
@@ -70,13 +70,13 @@ export class Client {
   }
 
   deleteBookmarks({ bookmarkIds }) {
-    return this._delete('/bookmarks', {
+    return this._delete('/bookmarks/', {
       bookmark_ids: bookmarkIds,
     })
   }
 
   addTag({ bookmarkId, newTag }) {
-    return this._post('/tags', {
+    return this._post('/tags/', {
       name: newTag,
       bookmark_id: bookmarkId,
     })
@@ -90,7 +90,7 @@ export class Client {
   }
 
   removeTag({ bookmarkId, tagToRemove }) {
-    return this._delete('/tags', {
+    return this._delete('/tags/', {
       name: tagToRemove,
       bookmark_id: bookmarkId,
     })
