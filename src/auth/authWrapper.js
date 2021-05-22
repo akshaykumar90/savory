@@ -199,9 +199,19 @@ export const authWrapper = ({
        *
        * NOTE: This only works in Chrome!
        *
+       * FIXME: This and the following function (`silentLogout`) are close to
+       * becoming redundant and are potentially detrimental for a good user
+       * experience.
+       *
+       * These functions are remnants of when the extension had to store access
+       * tokens for the Stitch backend. Now that we rely on cookies for
+       * authentication, and since cookies are automatically sent for requests
+       * to the backend API, we do not have to do this dance of passing tokens
+       * from the web app to extension.
+       *
        * @param userId: All you need is an userId
        */
-      async silentLogin(userId) {
+      silentLogin(userId) {
         authState.updateState({ user_id: userId })
         this.tokenExpiredBeacon = null
       },
@@ -211,9 +221,7 @@ export const authWrapper = ({
        *
        * NOTE: This only works in Chrome!
        */
-      async silentLogout() {
-        // Since we are using cookies for authentication, there is not much to
-        // cleanup except clear out localStorage
+      silentLogout() {
         authState.cleanState()
         this.tokenExpiredBeacon = null
       },
