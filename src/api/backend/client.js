@@ -1,9 +1,12 @@
 import axios from 'axios'
 
 export class Client {
-  constructor(authWrapper, clientConfig) {
+  constructor(authWrapper, clientConfig, reqInterceptor) {
     this.auth = authWrapper
     this.instance = axios.create(clientConfig)
+    if (reqInterceptor) {
+      this.instance.interceptors.request.use(reqInterceptor)
+    }
   }
 
   async _request(config) {

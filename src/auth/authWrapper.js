@@ -1,19 +1,16 @@
 import Vue from 'vue'
 import { Auth0Client } from '@auth0/auth0-spa-js'
 import axios from 'axios'
+import { addXsrfHeader } from '../api/browser'
 
 const DEFAULT_LOGIN_CALLBACK = () => console.log('login...')
 const DEFAULT_LOGOUT_CALLBACK = () => console.log('...logout')
-
-const EXPIRATION_WINDOW_SECS = 300
-const SLEEP_MILLIS = 60000
 
 const CALLBACK_URL = `${window.location.origin}/provider_cb`
 const LOGOUT_URL = window.location.origin
 
 const LOCAL_STORAGE_KEY = '__savory.client.auth_info'
 const FIELD_USER_ID = 'user_id'
-const FIELD_EXPIRES_AT = 'exp'
 
 let instance
 
@@ -24,17 +21,15 @@ class AuthState {
     const rawInfo = localStorage.getItem(LOCAL_STORAGE_KEY)
     if (!rawInfo) {
       // Empty state
-      return new this(null, null)
+      return new this(null)
     }
     let decoded = JSON.parse(rawInfo)
     const userId = decoded[FIELD_USER_ID]
-    const expiresAt = decoded[FIELD_EXPIRES_AT]
-    return new this(userId, expiresAt)
+    return new this(userId)
   }
 
-  constructor(userId, expiresAt) {
+  constructor(userId) {
     this.userId = userId
-    this.expiresAt = expiresAt
   }
 
   get isLoggedIn() {
@@ -43,16 +38,13 @@ class AuthState {
 
   cleanState() {
     this.userId = null
-    this.expiresAt = null
     localStorage.removeItem(LOCAL_STORAGE_KEY)
   }
 
-  updateState({ user_id, expires_at }) {
+  updateState({ user_id }) {
     this.userId = user_id
-    this.expiresAt = expires_at
     const to = {}
     to[FIELD_USER_ID] = this.userId
-    to[FIELD_EXPIRES_AT] = this.expiresAt
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(to))
   }
 }
@@ -85,7 +77,6 @@ export const authWrapper = ({
          */
         tokenExpiredBeacon: null,
         refreshPending: null,
-        nextTimeout: null,
       }
     },
     methods: {
@@ -102,26 +93,10 @@ export const authWrapper = ({
       },
 
       _refreshToken() {
-        return this.backendClient.post('/login/refresh')
-      },
-
-      _runRefreshLoop() {
-        if (
-          !authState.isLoggedIn ||
-          Date.now() / 1000 < authState.expiresAt - EXPIRATION_WINDOW_SECS
-        ) {
-          this.nextTimeout = setTimeout(
-            () => this._runRefreshLoop(),
-            SLEEP_MILLIS
-          )
-          return
-        }
-
-        this.tryRefreshToken().finally(() => {
-          this.nextTimeout = setTimeout(
-            () => this._runRefreshLoop(),
-            SLEEP_MILLIS
-          )
+        return this.backendClient.request({
+          url: '/login/refresh',
+          method: 'post',
+          xsrfCookieName: 'csrf_refresh_token',
         })
       },
 
@@ -149,7 +124,6 @@ export const authWrapper = ({
       async onLoginSuccess() {
         const token = await this.auth0Client.getTokenSilently()
         const resp = await this._login(token)
-        console.log(resp.data)
         authState.updateState(resp.data)
         onLoginCallback(authState.userId, token)
       },
@@ -219,15 +193,12 @@ export const authWrapper = ({
       /**
        * Magic login for extension
        *
-       * Website login can pass the token to the extension via this method.
-       *
        * NOTE: This only works in Chrome!
        *
-       * @param token: A valid Auth0 access token
+       * @param userId: All you need is an userId
        */
-      async silentLogin(token) {
-        const resp = await this._login(token)
-        authState.updateState(resp.data)
+      async silentLogin(userId) {
+        authState.updateState({ user_id: userId })
         this.tokenExpiredBeacon = null
       },
 
@@ -237,7 +208,8 @@ export const authWrapper = ({
        * NOTE: This only works in Chrome!
        */
       async silentLogout() {
-        await this._logout()
+        // Since we are using cookies for authentication, there is not much to
+        // cleanup except clear out localStorage
         authState.cleanState()
         this.tokenExpiredBeacon = null
       },
@@ -260,7 +232,9 @@ export const authWrapper = ({
         redirect_uri: CALLBACK_URL,
       })
       this.backendClient = axios.create(backendClientConfig)
-      this._runRefreshLoop()
+      if (isBackground) {
+        this.backendClient.interceptors.request.use(addXsrfHeader)
+      }
       if (!isBackground) {
         try {
           // If the user is returning to the app after authentication..

@@ -73,3 +73,19 @@ export async function importBrowserBookmarks(report_progress) {
   }
   console.log('...done!')
 }
+
+function getCookie({ name, url }) {
+  return new Promise((resolve) => browser.cookies.get({ name, url }, resolve))
+}
+
+export function addXsrfHeader(config) {
+  return getCookie({
+    url: 'https://api.savory.test',
+    name: config.xsrfCookieName,
+  }).then((cookie) => {
+    if (cookie) {
+      config.headers[config.xsrfHeaderName] = cookie.value
+    }
+    return config
+  })
+}

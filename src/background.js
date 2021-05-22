@@ -1,6 +1,6 @@
 import moment from 'moment'
 import { authWrapper } from './auth'
-import { browser, importBrowserBookmarks } from './api/browser'
+import { addXsrfHeader, browser, importBrowserBookmarks } from './api/browser'
 import { clientConfig } from './api/backend'
 import { Client } from './api/backend/client'
 
@@ -14,7 +14,7 @@ const auth = authWrapper({
   background: true,
 })
 
-window.ApiClient = new Client(auth, clientConfig)
+window.ApiClient = new Client(auth, clientConfig, addXsrfHeader)
 
 /**
  * This is the real event handler for listening to Chrome's bookmark created
