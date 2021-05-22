@@ -31,22 +31,27 @@ const commonConfig = merge(base, {
   ],
 })
 
-const homedir = os.homedir()
-const keyFilename = 'savory.test+4-key.pem'
-const certFilename = 'savory.test+4.pem'
+// Wrap the object inside a function because otherwise the Vercel build fails
+// with ENOENT error because it tries to read the cert and key filepaths which
+// do not exist on the build server.
+function getDevelopmentConfig() {
+  const homedir = os.homedir()
+  const keyFilename = 'savory.test+4-key.pem'
+  const certFilename = 'savory.test+4.pem'
 
-const developmentConfig = {
-  mode: 'development',
-  devtool: 'inline-source-map',
-  devServer: {
-    contentBase: './dist',
-    historyApiFallback: true,
-    public: 'app.savory.test:8080',
-    https: {
-      key: fs.readFileSync(`${homedir}/Projects/certs/${keyFilename}`),
-      cert: fs.readFileSync(`${homedir}/Projects/certs/${certFilename}`),
+  return {
+    mode: 'development',
+    devtool: 'inline-source-map',
+    devServer: {
+      contentBase: './dist',
+      historyApiFallback: true,
+      public: 'app.savory.test:8080',
+      https: {
+        key: fs.readFileSync(`${homedir}/Projects/certs/${keyFilename}`),
+        cert: fs.readFileSync(`${homedir}/Projects/certs/${certFilename}`),
+      },
     },
-  },
+  }
 }
 
 const productionConfig = {
@@ -57,7 +62,7 @@ const productionConfig = {
 module.exports = (env) => {
   switch (env) {
     case 'development':
-      return merge(commonConfig, developmentConfig)
+      return merge(commonConfig, getDevelopmentConfig())
     case 'production':
       return merge(commonConfig, productionConfig)
     default:
