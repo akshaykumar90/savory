@@ -13,7 +13,7 @@ export class Client {
     try {
       return await this.instance.request(config)
     } catch (error) {
-      if (!error.response || error.status !== 403) {
+      if (!error.response || error.response.status !== 403) {
         throw error
       }
       if (config.doNotRefreshOnFailure) {
