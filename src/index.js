@@ -54,9 +54,3 @@ app.$auth.$watch('tokenExpiredBeacon', (beacon) => {
 window.ApiClient = new Client(app.$auth, clientConfig)
 
 app.$mount('#app')
-
-if (process.env.NODE_ENV !== 'production') {
-  if (app.$auth.user) {
-    console.log(`Logged in as: ${app.$auth.user.identities[0].id}`)
-  }
-}
