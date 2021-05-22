@@ -58,7 +58,7 @@ export async function importBrowserBookmarks(report_progress) {
     return {
       title,
       url,
-      dateAdded,
+      date_added: dateAdded,
       tags: [],
     }
   })

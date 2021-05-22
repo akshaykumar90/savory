@@ -442,11 +442,6 @@ const actions = {
 }
 
 const mutations = {
-  // N.B. This is needed for new bookmarks getting added
-  ADD_TO_FRONT: (state, { ids }) => {
-    state.lists['new'] = [...ids, ...state.lists['new']]
-  },
-
   ADD_TO_BACK: (state, { ids }) => {
     const { activeType } = state
     state.lists[activeType] = [...state.lists[activeType], ...ids]

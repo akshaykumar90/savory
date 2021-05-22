@@ -42,18 +42,13 @@ browser.bookmarks.onCreated.addListener(async (__, bookmark) => {
     return
   }
   if (moment(dateAdded).isAfter(moment().subtract(10, 'seconds'))) {
-    const savoryBookmark = {
-      title,
-      url,
-      dateAdded,
-      tags: [],
-    }
-    let resp = await ApiClient.createBookmark({
-      bookmark: savoryBookmark,
-    })
-    browser.runtime.sendMessage({
-      type: 'ON_BOOKMARK_CREATED',
-      bookmark: resp.data,
+    await ApiClient.createBookmark({
+      bookmark: {
+        title,
+        url,
+        date_added: dateAdded,
+        tags: [],
+      },
     })
   }
 })

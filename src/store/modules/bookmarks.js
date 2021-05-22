@@ -18,22 +18,17 @@ function deleteTag(state, tag) {
   }
 }
 
-function newBookmark({ id, title, dateAdded, url, tags }) {
+// The input schema must match backend output schema
+function newBookmark({ id, title, date_added, url, tags }) {
   return {
     id,
     title,
-    dateAdded,
+    dateAdded: date_added,
     url,
     site: domainName(url),
     tags,
     selected: false,
   }
-}
-
-function addBookmark(state, rawBookmark) {
-  const { id, tags } = rawBookmark
-  tags.forEach((t) => addTag(state, t))
-  Vue.set(state.bookmarks, id, newBookmark(rawBookmark))
 }
 
 const state = () => ({
@@ -51,15 +46,6 @@ const getters = {
     return state.bookmarks[id]
   },
 
-  getBookmarkIdsWithSite: (state) => (qsite) => {
-    const unsortedBookmarks = Object.values(state.bookmarks).filter(
-      ({ site }) => qsite === site
-    )
-    return _.orderBy(unsortedBookmarks, ['dateAdded'], ['desc']).map(
-      ({ id }) => id
-    )
-  },
-
   tagNames: (state) => {
     return Array.from(Object.keys(state.tags))
   },
@@ -70,13 +56,6 @@ const getters = {
 }
 
 const actions = {
-  ON_BOOKMARK_CREATED: ({ state, commit }, { bookmark }) => {
-    commit('ADD_BOOKMARK', bookmark)
-    commit('ADD_TO_FRONT', { ids: [bookmark.id] })
-    commit('SET_BOOKMARKS_COUNT', { count: state.numBookmarks + 1 })
-    return Promise.resolve()
-  },
-
   BULK_DELETE_BOOKMARKS: async (
     { state, commit, dispatch },
     { ids: currSelected }
@@ -131,7 +110,7 @@ const actions = {
     return ApiClient.getBookmarksWithTag({ tags, site, num, before }).then(
       (resp) => {
         commit('SET_BOOKMARKS', { items: resp.data.bookmarks })
-        return resp
+        return resp.data
       }
     )
   },
@@ -143,7 +122,7 @@ const actions = {
     return ApiClient.searchBookmarks({ query, num, skip, site, tags }).then(
       (resp) => {
         commit('SET_BOOKMARKS', { items: resp.data.bookmarks })
-        return resp
+        return resp.data
       }
     )
   },
@@ -165,10 +144,6 @@ const mutations = {
 
   SET_BOOKMARKS_COUNT: (state, { count }) => {
     state.numBookmarks = count
-  },
-
-  ADD_BOOKMARK: (state, { id, title, dateAdded, url }) => {
-    addBookmark(state, { id, title, dateAdded, url, tags: [] })
   },
 
   REMOVE_BOOKMARK: (state, { id: idToDelete }) => {
