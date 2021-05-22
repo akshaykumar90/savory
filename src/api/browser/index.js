@@ -80,7 +80,7 @@ function getCookie({ name, url }) {
 
 export function addXsrfHeader(config) {
   return getCookie({
-    url: 'https://api.savory.test',
+    url: process.env.API_COOKIES_URL,
     name: config.xsrfCookieName,
   }).then((cookie) => {
     if (cookie) {
