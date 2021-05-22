@@ -61,8 +61,8 @@ browser.bookmarks.onCreated.addListener(async (__, bookmark) => {
 function onMessage(request, sender, sendResponse) {
   const { type, ...args } = request
   if (type === 'login') {
-    const { token } = args
-    auth.silentLogin(token)
+    const { userId } = args
+    auth.silentLogin(userId)
   } else if (type === 'logout') {
     auth.silentLogout()
   } else if (type === 'test') {
@@ -92,9 +92,9 @@ browser.runtime.onMessageExternal.addListener(onMessage)
 
 browser.runtime.onConnectExternal.addListener(function (port) {
   console.assert(port.name === 'import_bookmarks')
-  port.onMessage.addListener(async function ({ token }) {
+  port.onMessage.addListener(async function ({ userId }) {
     if (!auth.isAuthenticated()) {
-      auth.silentLogin(token)
+      auth.silentLogin(userId)
     }
     await onImportBookmarksMessage(port, 1)
   })

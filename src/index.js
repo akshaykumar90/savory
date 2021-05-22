@@ -19,8 +19,8 @@ Vue.use(AuthPlugin, {
   clientId: process.env.AUTH0_CLIENTID,
   audience: process.env.AUTH0_AUDIENCE,
   backendClientConfig: clientConfig,
-  onLoginCallback: (userId, token) => {
-    const message = { type: 'login', token }
+  onLoginCallback: (userId) => {
+    const message = { type: 'login', userId }
     if (browser && browser.runtime) {
       browser.runtime.sendMessage(process.env.EXTENSION_ID, message)
     }

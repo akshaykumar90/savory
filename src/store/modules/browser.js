@@ -7,11 +7,7 @@ const state = () => ({
 
 const actions = {
   IMPORT_BROWSER_BOOKMARKS: async ({ state, commit }) => {
-    const accessToken = await getAuthWrapper().getAuth0Token()
     return new Promise((resolve, reject) => {
-      if (accessToken === null) {
-        reject('Cannot retrieve access token')
-      }
       const port = browser.runtime.connect(process.env.EXTENSION_ID, {
         name: 'import_bookmarks',
       })
@@ -26,7 +22,7 @@ const actions = {
           resolve()
         }
       })
-      port.postMessage({ token: accessToken })
+      port.postMessage({ userId: getAuthWrapper().loggedInUserId() })
     })
   },
 }

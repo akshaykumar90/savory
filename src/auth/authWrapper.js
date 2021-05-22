@@ -84,6 +84,10 @@ export const authWrapper = ({
         return authState.isLoggedIn
       },
 
+      loggedInUserId() {
+        return authState.userId
+      },
+
       _login(token) {
         return this.backendClient.post('/login/access-token', { token })
       },
