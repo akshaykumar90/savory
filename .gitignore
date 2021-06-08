@@ -7,4 +7,5 @@ yarn-error.log
 .idea
 *.iml
 .env*
+!.env.example
 .vercel
