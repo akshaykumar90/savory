@@ -1,7 +1,8 @@
-import { createBookmark } from './api/mongodb'
 import moment from 'moment'
 import { authWrapper } from './auth'
-import { browser, importBrowserBookmarks } from './api/browser'
+import { addXsrfHeader, browser, importBrowserBookmarks } from './api/browser'
+import { clientConfig } from './api/backend'
+import { Client } from './api/backend/client'
 
 const welcome_page_url = 'https://app.getsavory.co/welcome'
 
@@ -9,8 +10,11 @@ const auth = authWrapper({
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
   audience: process.env.AUTH0_AUDIENCE,
+  backendClientConfig: clientConfig,
   background: true,
 })
+
+window.ApiClient = new Client(auth, clientConfig, addXsrfHeader)
 
 /**
  * This is the real event handler for listening to Chrome's bookmark created
@@ -38,16 +42,13 @@ browser.bookmarks.onCreated.addListener(async (__, bookmark) => {
     return
   }
   if (moment(dateAdded).isAfter(moment().subtract(10, 'seconds'))) {
-    const savoryBookmark = {
-      title,
-      url,
-      dateAdded,
-      tags: [],
-    }
-    let dbBookmark = await createBookmark({ bookmark: savoryBookmark })
-    browser.runtime.sendMessage({
-      type: 'ON_BOOKMARK_CREATED',
-      bookmark: dbBookmark,
+    await ApiClient.createBookmark({
+      bookmark: {
+        title,
+        url,
+        date_added: dateAdded,
+        tags: [],
+      },
     })
   }
 })
@@ -55,17 +56,17 @@ browser.bookmarks.onCreated.addListener(async (__, bookmark) => {
 function onMessage(request, sender, sendResponse) {
   const { type, ...args } = request
   if (type === 'login') {
-    const { token } = args
-    auth.loginStitch(token)
+    const { userId } = args
+    auth.silentLogin(userId)
   } else if (type === 'logout') {
-    auth.logoutStitch()
+    auth.silentLogout()
   } else if (type === 'test') {
     sendResponse(true)
   }
 }
 
 function onImportBookmarksMessage(port, attempt) {
-  if (!auth.isAuthenticated) {
+  if (!auth.isAuthenticated()) {
     if (attempt === 15) {
       return Promise.reject('Not logged in.')
     }
@@ -86,16 +87,16 @@ browser.runtime.onMessageExternal.addListener(onMessage)
 
 browser.runtime.onConnectExternal.addListener(function (port) {
   console.assert(port.name === 'import_bookmarks')
-  port.onMessage.addListener(async function ({ token }) {
-    if (!auth.isAuthenticated) {
-      auth.loginStitch(token)
+  port.onMessage.addListener(async function ({ userId }) {
+    if (!auth.isAuthenticated()) {
+      auth.silentLogin(userId)
     }
     await onImportBookmarksMessage(port, 1)
   })
 })
 
 browser.browserAction.onClicked.addListener(() => {
-  if (!auth.isAuthenticated) {
+  if (!auth.isAuthenticated()) {
     auth.loginWithPopup()
   } else {
     console.log('Already logged in...')

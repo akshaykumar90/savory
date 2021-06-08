@@ -10,7 +10,19 @@
           {{ subtitle }}
         </p>
         <button
-          class="mt-4 bg-primary hover:bg-blue-700 text-lg tracking-wide text-white py-2 px-4 rounded select-none focus:outline-none"
+          class="
+            mt-4
+            bg-primary
+            hover:bg-blue-700
+            text-lg
+            tracking-wide
+            text-white
+            py-2
+            px-4
+            rounded
+            select-none
+            focus:outline-none
+          "
           @click="onButtonClicked"
         >
           {{ buttonText }}
@@ -25,7 +37,6 @@
 
 <script>
 import ProgressBar from '../components/ProgressBar.vue'
-import { loadUserData, markBookmarksImported } from '../api/mongodb'
 import { isChrome, isExtensionInstalled } from '../api/browser'
 import {
   EVENT_ONBOARDING_IMPORT_BOOKMARKS,
@@ -147,7 +158,7 @@ export default {
       try {
         await this.$store.dispatch('IMPORT_BROWSER_BOOKMARKS')
         this.$refs.bar.set(progressBarPercent.IMPORT_FINISH)
-        await markBookmarksImported()
+        await ApiClient.markBookmarksImported()
         this.takeMeToTheApp()
       } catch (e) {
         console.error('Something went wrong: ', e)
@@ -160,7 +171,8 @@ export default {
   async mounted() {
     this.$refs.bar.set(5)
     this.$refs.bar.increase(10)
-    this.userData = await loadUserData()
+    let resp = await ApiClient.loadUserData()
+    this.userData = resp.data
     this.$refs.bar.increase(10)
     if (!this.userData) {
       // We provide `/provider_cb` as the success callback to Auth0 which

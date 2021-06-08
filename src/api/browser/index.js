@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import Bowser from 'bowser'
-import { importBookmarks } from '../mongodb'
 
 export const NUM_MAX_BOOKMARKS = 6000
 
@@ -59,18 +58,34 @@ export async function importBrowserBookmarks(report_progress) {
     return {
       title,
       url,
-      dateAdded,
+      date_added: dateAdded,
       tags: [],
     }
   })
   console.log('Starting import...')
   let importedBookmarks = 0
   for (const chunk of _.chunk(bookmarks, 100)) {
-    await importBookmarks({ chunk })
+    await ApiClient.importBookmarks({ chunk })
     importedBookmarks += chunk.length
     let percent = importedBookmarks / totalBookmarks
     report_progress({ percent })
     console.log(`${Math.floor(percent * 100)}%`)
   }
   console.log('...done!')
+}
+
+function getCookie({ name, url }) {
+  return new Promise((resolve) => browser.cookies.get({ name, url }, resolve))
+}
+
+export function addXsrfHeader(config) {
+  return getCookie({
+    url: process.env.API_COOKIES_URL,
+    name: config.xsrfCookieName,
+  }).then((cookie) => {
+    if (cookie) {
+      config.headers[config.xsrfHeaderName] = cookie.value
+    }
+    return config
+  })
 }

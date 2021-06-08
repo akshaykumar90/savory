@@ -14,8 +14,13 @@
     "persistent": false
   },
   "externally_connectable": {
-    "matches": ["https://*.getsavory.co/*", "http://localhost:8080/*"]
+    "matches": ["https://*.getsavory.co/*", "https://*.savory.test/*"]
   },
   "browser_action": {},
-  "permissions": ["bookmarks"]
+  "permissions": [
+    "bookmarks",
+    "cookies",
+    "https://*.savory.test/",
+    "https://*.getsavory.co/"
+  ]
 }

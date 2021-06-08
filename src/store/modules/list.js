@@ -171,7 +171,7 @@ const getters = {
       case 'filtered':
         const [lastItem] = lists[activeType].slice(-1)
         return {
-          after: getters.getBookmarkById(lastItem).dateAdded,
+          before: getters.getBookmarkById(lastItem).dateAdded,
         }
       default:
         return {}
@@ -442,11 +442,6 @@ const actions = {
 }
 
 const mutations = {
-  // N.B. This is needed for new bookmarks getting added
-  ADD_TO_FRONT: (state, { ids }) => {
-    state.lists['new'] = [...ids, ...state.lists['new']]
-  },
-
   ADD_TO_BACK: (state, { ids }) => {
     const { activeType } = state
     state.lists[activeType] = [...state.lists[activeType], ...ids]

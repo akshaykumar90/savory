@@ -1,131 +1,135 @@
 import Vue from 'vue'
 import { Auth0Client } from '@auth0/auth0-spa-js'
-import {
-  CustomCredential,
-  RemoteMongoClient,
-  Stitch,
-} from 'mongodb-stitch-browser-sdk'
-import { StitchServiceError } from 'mongodb-stitch-core-sdk'
-import _ from 'lodash'
+import axios from 'axios'
+import { addXsrfHeader } from '../api/browser'
 
 const DEFAULT_LOGIN_CALLBACK = () => console.log('login...')
 const DEFAULT_LOGOUT_CALLBACK = () => console.log('...logout')
 
-const callbackUrl = `${window.location.origin}/provider_cb`
+const CALLBACK_URL = `${window.location.origin}/provider_cb`
+const LOGOUT_URL = window.location.origin
 
-const logoutUrl = window.location.origin
-
-const APP_ID = process.env.STITCH_APP_ID
-
-const mongoApp = Stitch.hasAppClient(APP_ID)
-  ? Stitch.getAppClient(APP_ID)
-  : Stitch.initializeAppClient(APP_ID)
+const LOCAL_STORAGE_KEY = '__savory.client.auth_info'
+const FIELD_USER_ID = 'user_id'
 
 let instance
 
 export const getAuthWrapper = () => instance
 
-/**
- * This is used to wrap MongoDB Stitch API calls so that we can detect
- * expired tokens ASAP.
- *
- * Intercepts method on `obj` such that rejected promises due to invalid
- * session errors flip the authenticated state. Expects the methods on
- * `obj` to return promises.
- *
- * @param obj: Object to wrap
- * @returns A proxy for the wrapped object
- */
-function withAuthHandling(obj) {
-  const handler = {
-    get(target, propKey, receiver) {
-      if (typeof target[propKey] !== 'function') {
-        return Reflect.get(target, propKey, receiver)
-      }
-      return funcWithAuthHandling(target[propKey], target)
-    },
+class AuthState {
+  static readStateFromStorage() {
+    const rawInfo = localStorage.getItem(LOCAL_STORAGE_KEY)
+    if (!rawInfo) {
+      // Empty state
+      return new this(null)
+    }
+    let decoded = JSON.parse(rawInfo)
+    const userId = decoded[FIELD_USER_ID]
+    return new this(userId)
   }
-  return new Proxy(obj, handler)
-}
 
-function funcWithAuthHandling(f, thisArg) {
-  return new Proxy(f, {
-    apply(target, __, args) {
-      if (!instance.isAuthenticated) {
-        return Promise.reject('Not logged in!')
-      }
-      const remoteOp = target.apply(thisArg, args)
-      remoteOp
-        .then(() => {
-          instance.loading = false
-        })
-        .catch((ex) => {
-          if (
-            ex instanceof StitchServiceError &&
-            ex.errorCodeName === 'InvalidSession'
-          ) {
-            instance.isAuthenticated = false
-            instance.user = null
-            instance.tokenExpiredBeacon = true
-            instance.error = ex
-          }
-        })
-      return remoteOp
-    },
-  })
+  constructor(userId) {
+    this.userId = userId
+  }
+
+  get isLoggedIn() {
+    return !!this.userId
+  }
+
+  cleanState() {
+    this.userId = null
+    localStorage.removeItem(LOCAL_STORAGE_KEY)
+  }
+
+  updateState({ user_id }) {
+    this.userId = user_id
+    const to = {}
+    to[FIELD_USER_ID] = this.userId
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(to))
+  }
 }
 
 export const authWrapper = ({
   onLoginCallback = DEFAULT_LOGIN_CALLBACK,
   onLogoutCallback = DEFAULT_LOGOUT_CALLBACK,
+  backendClientConfig,
   ...options
 }) => {
   if (instance) return instance
 
   const isBackground = !!options.background
 
+  const authState = AuthState.readStateFromStorage()
+
   instance = new Vue({
     data() {
       return {
         loading:
-          mongoApp.auth.isLoggedIn ||
+          authState.isLoggedIn ||
           (window.location.search.includes('code=') &&
             window.location.search.includes('state=')),
-        popupOpen: false,
-        isAuthenticated: mongoApp.auth.isLoggedIn,
-        user: mongoApp.auth.user,
         auth0Client: null,
-        error: null,
+        backendClient: null,
         /**
-         * This is a one-way latch which is set when we detect that the
-         * MongoDB Stitch access token has expired. Its state can be observed,
-         * and the app can force logout if the beacon is lit.
+         * This is a one-way latch which is set when we detect that the API
+         * access token has expired. Its state can be observed, and the app
+         * can force logout if the beacon is lit.
          */
         tokenExpiredBeacon: null,
+        refreshPending: null,
       }
     },
     methods: {
-      getMongoApp() {
-        return {
-          mongoCollection: _.memoize((name) => {
-            return withAuthHandling(
-              mongoApp
-                .getServiceClient(RemoteMongoClient.factory, 'savorydb')
-                .db('savory')
-                .collection(name)
-            )
-          }),
-          callFunction: funcWithAuthHandling(mongoApp.callFunction, mongoApp),
+      isAuthenticated() {
+        return authState.isLoggedIn
+      },
+
+      loggedInUserId() {
+        return authState.userId
+      },
+
+      _login(token) {
+        return this.backendClient.post('/login/access-token', { token })
+      },
+
+      _logout() {
+        return this.backendClient.post('/logout')
+      },
+
+      _refreshToken() {
+        return this.backendClient.request({
+          url: '/login/refresh',
+          method: 'post',
+          xsrfCookieName: 'csrf_refresh_token',
+        })
+      },
+
+      async tryRefreshToken() {
+        if (!this.refreshPending) {
+          this.refreshPending = this._refreshToken()
         }
+        try {
+          // wait for refresh token request to complete
+          const resp = await this.refreshPending
+          authState.updateState(resp.data)
+        } catch (err) {
+          this.expireToken()
+          throw err
+        } finally {
+          this.refreshPending = null
+        }
+      },
+
+      expireToken() {
+        authState.cleanState()
+        this.tokenExpiredBeacon = true
       },
 
       async onLoginSuccess() {
         const token = await this.auth0Client.getTokenSilently()
-        await mongoApp.auth.loginWithCredential(new CustomCredential(token))
-        this.user = mongoApp.auth.user
-        const userId = this.user.identities[0].id
-        this.isAuthenticated = true
-        onLoginCallback(userId, token)
+        const resp = await this._login(token)
+        authState.updateState(resp.data)
+        onLoginCallback(authState.userId, token)
       },
 
       /**
@@ -134,8 +138,6 @@ export const authWrapper = ({
        * Should not be called from the website, since popups are usually
        * blocked.
        *
-       * We retrieve both Auth0 as well as MongoDB Stitch access tokens here.
-       *
        * @param initialScreen: Popup initial state: 'signUp' or 'login'
        */
       async loginWithPopup(initialScreen) {
@@ -143,20 +145,16 @@ export const authWrapper = ({
         const loginOptions = {
           ...(initialScreen === 'signUp' && { screen_hint: 'signup' }),
         }
-        this.popupOpen = true
         try {
           // Popup errors out with a timeout if we just close it without
           // logging in
           await this.auth0Client.loginWithPopup(loginOptions)
-          this.error = null
           this.loading = true
           // await not needed because everything happens in background
           this.onLoginSuccess()
         } catch (e) {
-          this.error = e
           throw e
         } finally {
-          this.popupOpen = false
           this.loading = false
         }
       },
@@ -170,14 +168,14 @@ export const authWrapper = ({
        */
       loginWithRedirect(initialScreen) {
         const loginOptions = {
-          redirect_uri: callbackUrl,
+          redirect_uri: CALLBACK_URL,
           ...(initialScreen === 'signUp' && { screen_hint: 'signup' }),
         }
         return this.auth0Client.loginWithRedirect(loginOptions)
       },
 
       /**
-       * Logs out the user from MongoDB Stitch as well as Auth0
+       * Logs out the user
        *
        * This method will cause a full-page reload. Any in-memory state would
        * therefore be lost. This is the desired (and load-bearing) behavior.
@@ -187,31 +185,35 @@ export const authWrapper = ({
        */
       async logout() {
         this.loading = true
-        await mongoApp.auth.logout()
-        this.user = null
-        this.isAuthenticated = false
+        await this._logout()
+        authState.cleanState()
         onLogoutCallback()
         // Give some time for any async logout callbacks to finish
         setTimeout(() => {
-          this.auth0Client.logout({ returnTo: logoutUrl })
+          this.auth0Client.logout({ returnTo: LOGOUT_URL })
         }, 1000)
       },
 
       /**
        * Magic login for extension
        *
-       * Website login can pass the token to the extension via this method.
-       *
        * NOTE: This only works in Chrome!
        *
-       * @param token: A valid Auth0 access token
+       * FIXME: This and the following function (`silentLogout`) are close to
+       * becoming redundant and are potentially detrimental for a good user
+       * experience.
+       *
+       * These functions are remnants of when the extension had to store access
+       * tokens for the Stitch backend. Now that we rely on cookies for
+       * authentication, and since cookies are automatically sent for requests
+       * to the backend API, we do not have to do this dance of passing tokens
+       * from the web app to extension.
+       *
+       * @param userId: All you need is an userId
        */
-      async loginStitch(token) {
-        await mongoApp.auth.loginWithCredential(new CustomCredential(token))
-        this.user = mongoApp.auth.user
-        this.isAuthenticated = !!this.user
+      silentLogin(userId) {
+        authState.updateState({ user_id: userId })
         this.tokenExpiredBeacon = null
-        this.error = null
       },
 
       /**
@@ -219,12 +221,9 @@ export const authWrapper = ({
        *
        * NOTE: This only works in Chrome!
        */
-      async logoutStitch() {
-        await mongoApp.auth.logout()
-        this.user = null
-        this.isAuthenticated = false
+      silentLogout() {
+        authState.cleanState()
         this.tokenExpiredBeacon = null
-        this.error = null
       },
 
       async getAuth0Token() {
@@ -236,13 +235,18 @@ export const authWrapper = ({
         }
       },
     },
+
     async created() {
       this.auth0Client = new Auth0Client({
         domain: options.domain,
         client_id: options.clientId,
         audience: options.audience,
-        redirect_uri: callbackUrl,
+        redirect_uri: CALLBACK_URL,
       })
+      this.backendClient = axios.create(backendClientConfig)
+      if (isBackground) {
+        this.backendClient.interceptors.request.use(addXsrfHeader)
+      }
       if (!isBackground) {
         try {
           // If the user is returning to the app after authentication..
@@ -252,13 +256,12 @@ export const authWrapper = ({
           ) {
             // handle the redirect and retrieve tokens
             await this.auth0Client.handleRedirectCallback()
-            this.error = null
             // This needs to be awaited so that we do not early-reset
             // `this.loading` in the `finally` block below
             await this.onLoginSuccess()
           }
         } catch (e) {
-          this.error = e
+          console.error(e)
         } finally {
           this.loading = false
         }

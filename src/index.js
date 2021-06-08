@@ -5,6 +5,8 @@ import { router } from './router'
 import { AuthPlugin } from './auth'
 import { browser } from './api/browser'
 import { eventLogger } from './api/events'
+import { clientConfig } from './api/backend'
+import { Client } from './api/backend/client'
 
 eventLogger.init(process.env.AMPLITUDE_API_KEY)
 
@@ -16,8 +18,9 @@ Vue.use(AuthPlugin, {
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
   audience: process.env.AUTH0_AUDIENCE,
-  onLoginCallback: (userId, token) => {
-    const message = { type: 'login', token }
+  backendClientConfig: clientConfig,
+  onLoginCallback: (userId) => {
+    const message = { type: 'login', userId }
     if (browser && browser.runtime) {
       browser.runtime.sendMessage(process.env.EXTENSION_ID, message)
     }
@@ -48,10 +51,6 @@ app.$auth.$watch('tokenExpiredBeacon', (beacon) => {
   }
 })
 
-app.$mount('#app')
+window.ApiClient = new Client(app.$auth, clientConfig)
 
-if (process.env.NODE_ENV !== 'production') {
-  if (app.$auth.user) {
-    console.log(`Logged in as: ${app.$auth.user.identities[0].id}`)
-  }
-}
+app.$mount('#app')
