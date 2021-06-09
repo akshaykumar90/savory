@@ -50,8 +50,8 @@ export class Client {
     return this._post('/bookmarks/', { num, before })
   }
 
-  getBookmarksWithTag({ tags, site, num, after }) {
-    return this._post('/bookmarks/', { tags, site, num, after })
+  getBookmarksWithTag({ tags, site, num, before }) {
+    return this._post('/bookmarks/', { tags, site, num, before })
   }
 
   searchBookmarks({ query, num, skip, site, tags }) {
