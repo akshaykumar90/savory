@@ -1,6 +1,5 @@
 import Vue from 'vue'
-import _ from 'lodash'
-import { domainName } from '../../utils'
+import { domainName } from '../../lib/utils'
 
 function addTag(state, tag) {
   if (!state.tags.hasOwnProperty(tag)) {
@@ -45,11 +44,6 @@ const getters = {
   getBookmarkById: (state) => (id) => {
     return state.bookmarks[id]
   },
-
-  tagNames: (state) => {
-    return Array.from(Object.keys(state.tags))
-  },
-
   tagsCount: (state) => {
     return Object.entries(state.tags)
   },

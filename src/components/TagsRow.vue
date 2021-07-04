@@ -5,7 +5,18 @@
     v-bind:class="[editMode ? 'border-0 bg-grey-100 rounded -ml-1 pl-1' : '']"
   >
     <button
-      class="text-primary h-6 px-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
+      class="
+        text-primary
+        h-6
+        px-1
+        my-1
+        mr-2
+        text-center text-xs
+        rounded
+        border border-primary
+        select-none
+        focus:outline-none
+      "
       v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
       v-if="bookmarkSite"
       @click="tagClicked({ tagType: 'site' })"
@@ -16,7 +27,18 @@
     <button
       v-for="(tag, index) in bookmarkTags"
       :key="index"
-      class="text-primary h-6 px-1 my-1 mr-2 text-center text-xs rounded border border-primary select-none focus:outline-none"
+      class="
+        text-primary
+        h-6
+        px-1
+        my-1
+        mr-2
+        text-center text-xs
+        rounded
+        border border-primary
+        select-none
+        focus:outline-none
+      "
       v-bind:class="[editMode ? 'bg-default' : 'bg-grey-100']"
       @click="tagClicked({ tagType: 'tag', tagName: tag })"
     >
@@ -32,7 +54,21 @@
         type="text"
         tabindex="-1"
         :placeholder="placeholder"
-        class="block placeholder-default px-0.5 text-xs bg-grey-100 border-0 focus:outline-none focus:ring-0 rounded my-1 py-2 h-6 w-full"
+        class="
+          block
+          placeholder-default
+          px-0.5
+          text-xs
+          bg-grey-100
+          border-0
+          focus:outline-none
+          focus:ring-0
+          rounded
+          my-1
+          py-2
+          h-6
+          w-full
+        "
       />
       <input
         ref="input"
@@ -43,15 +79,33 @@
         @keydown.tab.prevent="onTab"
         @keyup.enter="onEnter"
         @focus="enterEditMode"
-        class="bg-transparent block px-0.5 absolute top-0 left-0 text-default text-xs border-0 focus:outline-none focus:ring-0 rounded my-1 py-2 h-6 w-full"
+        class="
+          bg-transparent
+          block
+          px-0.5
+          absolute
+          top-0
+          left-0
+          text-default text-xs
+          border-0
+          focus:outline-none
+          focus:ring-0
+          rounded
+          my-1
+          py-2
+          h-6
+          w-full
+        "
       />
     </div>
   </div>
 </template>
 
 <script>
+import _ from 'lodash'
+import { lookup } from '../lib/typeahead'
+
 const typeaheadActivationThreshold = 3
-const caseSensitiveTags = false
 
 export const SENTINEL_BULK_EDIT_BOOKMARK_ID = 'WHY NOT ZOIDBERG?'
 
@@ -129,28 +183,6 @@ export default {
         this.$store.dispatch('REMOVE_TAG_FROM_BOOKMARK', dataObj)
       }
     },
-    doSearch(searchQuery) {
-      let searchResults = []
-
-      const allTags = this.$store.getters.tagNames
-      for (let tag of allTags) {
-        const compareable = caseSensitiveTags ? tag : tag.toLowerCase()
-        if (
-          compareable.startsWith(searchQuery) &&
-          !this.bookmarkTags.includes(compareable)
-        ) {
-          searchResults.push(tag)
-        }
-      }
-
-      // Sort the search results by length
-      searchResults.sort((a, b) => {
-        return a.length - b.length
-      })
-
-      return searchResults
-    },
-
     enterEditMode() {
       this.editMode = true
       Event.$on('exitEditMode', this.exitEditMode)
@@ -189,16 +221,15 @@ export default {
         this.tagSuggestion = ''
         return ''
       }
-      const searchQuery = caseSensitiveTags
-        ? this.newTag
-        : this.newTag.toLowerCase()
-      const results = this.doSearch(searchQuery)
-      if (!results.length) {
+      let candidates = lookup(this.$store.state.bookmarks.tags, this.newTag)
+      // Remove existing tags from autocomplete candidates
+      _.pullAll(candidates, this.bookmarkTags)
+      if (!candidates.length) {
         this.tagSuggestion = ''
         return ''
       }
-      this.tagSuggestion = results[0]
-      let suggestion = results[0].split('')
+      this.tagSuggestion = candidates[0]
+      let suggestion = candidates[0].split('')
       let userInput = this.newTag.split('')
       userInput.forEach((letter, key) => {
         if (letter !== suggestion[key]) {
