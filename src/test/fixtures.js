@@ -16,7 +16,10 @@ export function createStore() {
       },
       getBookmarkById: (state) => () => {
         return {
-          id: '1234',
+          id: '1',
+          title:
+            "A long long loooooong bookmark title which just continues marching towards the right like there's no tomorrow",
+          url: 'https://savory.test',
           site: 'savory.test',
           tags: ['small', 'long tag with spaces'],
         }
