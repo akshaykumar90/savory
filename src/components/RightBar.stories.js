@@ -1,7 +1,7 @@
 import RightBar from './RightBar.vue'
 
 export default {
-  title: 'Savory/RightBar',
+  title: 'Savory/Components/RightBar',
   component: RightBar,
   decorators: [
     () => ({

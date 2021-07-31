@@ -1,7 +1,7 @@
 import TagsRow from './TagsRow.vue'
 
 export default {
-  title: 'Savory/TagsRow',
+  title: 'Savory/Components/TagsRow',
   component: TagsRow,
   decorators: [
     () => ({

@@ -1,7 +1,7 @@
 import BookmarkRow from './BookmarkRow.vue'
 
 export default {
-  title: 'Savory/BookmarkRow',
+  title: 'Savory/Components/BookmarkRow',
   component: BookmarkRow,
   decorators: [
     () => ({

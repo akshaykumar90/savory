@@ -1,7 +1,7 @@
 import LoadingSpinner from './LoadingSpinner.vue'
 
 export default {
-  title: 'Savory/LoadingSpinner',
+  title: 'Savory/Components/LoadingSpinner',
   component: LoadingSpinner,
   decorators: [
     () => ({
