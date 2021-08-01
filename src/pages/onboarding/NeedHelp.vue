@@ -1,7 +1,9 @@
 <template>
-  <div class="flex flex-col items-center text-center py-8">
-    <h3 class="text-3xl mt-12 mb-8 text-gray-800">Need help?</h3>
-    <p class="text-xl text-gray-700 mb-4 w-3/4">
+  <div class="flex flex-col items-center max-w-3xl mx-auto text-center lg:py-8">
+    <h3 class="font-bold text-2xl lg:text-3xl mt-12 mb-8 text-gray-800">
+      Need help?
+    </h3>
+    <p class="text-lg lg:text-xl text-gray-700 mb-4 lg:w-3/4">
       If you have a question or want to submit any feedback, the send feedback
       button in the app will come in handy.
     </p>

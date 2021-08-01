@@ -1,9 +1,9 @@
 <template>
-  <div class="flex flex-col items-center text-center py-8">
-    <h3 class="text-3xl mt-12 mb-8 text-gray-800">
+  <div class="flex flex-col items-center max-w-3xl mx-auto text-center lg:py-8">
+    <h3 class="font-bold text-2xl lg:text-3xl mt-12 mb-8 text-gray-800">
       Add tags to your saved links
     </h3>
-    <p class="text-xl text-gray-700 mb-4 w-3/4">
+    <p class="text-lg lg:text-xl text-gray-700 mb-4 lg:w-3/4">
       Organize your tabs and links by adding tags. Use <kbd>enter</kbd> to add
       new tag, use <kbd>tab</kbd> to auto-complete tags.
     </p>
@@ -12,7 +12,7 @@
         pattern-diagonal-lines-md
         bg-blue-100 bg-opacity-70
         text-indigo-300
-        p-8
+        lg:p-8
         my-10
       "
     >
