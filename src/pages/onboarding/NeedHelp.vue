@@ -26,9 +26,9 @@
       Next →
     </button>
     <p class="text-xs leading-5 mt-4 text-gray-700">
-      <a href="#" @click.prevent="$emit('exit-product-tour')" class="underline"
-        >Skip Tour</a
-      >
+      <button @click.prevent="$emit('exit-product-tour')" class="underline">
+        Skip Tour
+      </button>
     </p>
   </div>
 </template>

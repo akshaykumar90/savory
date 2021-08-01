@@ -13,9 +13,9 @@
         alt="install extension"
     /></a>
     <p class="text-xs leading-5 mt-4 text-gray-700">
-      <a href="#" @click.prevent="$emit('exit-product-tour')" class="underline"
-        >Skip</a
-      >
+      <button @click.prevent="$emit('exit-product-tour')" class="underline">
+        Skip
+      </button>
     </p>
   </div>
 </template>
