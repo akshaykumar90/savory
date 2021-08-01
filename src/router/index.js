@@ -4,12 +4,44 @@ import BookmarkList from '../components/BookmarkList.vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import LandingPage from '../pages/LandingPage.vue'
 import SignupPage from '../pages/SignupPage.js'
-import WelcomePage from '../pages/WelcomePage.vue'
 import NotFound from '../pages/NotFound.vue'
 import { authGuard } from '../auth'
 import { store } from '../store'
+import OnboardingLayout from '../layouts/OnboardingLayout.vue'
+import OnboardingSaveLink from '../pages/onboarding/SaveLink.vue'
+import OnboardingAddTags from '../pages/onboarding/AddTags.vue'
+import OnboardingFilterTags from '../pages/onboarding/FilterTags.vue'
+import OnboardingNeedHelp from '../pages/onboarding/NeedHelp.vue'
+import OnboardingInstallExtension from '../pages/onboarding/InstallExtension.vue'
 
 Vue.use(Router)
+
+function getOnboardingRoutes() {
+  let routes = []
+  const screens = [
+    OnboardingSaveLink,
+    OnboardingAddTags,
+    OnboardingFilterTags,
+    OnboardingNeedHelp,
+    OnboardingInstallExtension,
+  ]
+  screens.forEach((item, index) => {
+    let path = index === 0 ? '/welcome' : `/welcome/${index + 1}`
+    routes.push({
+      path: path,
+      name: item.name,
+      component: item,
+      beforeEnter: authGuard,
+      meta: {
+        layout: OnboardingLayout,
+        requiredAuthState: 'login',
+      },
+    })
+  })
+  return routes
+}
+
+const onboardingRoutes = getOnboardingRoutes()
 
 function createRouter() {
   return new Router({
@@ -69,15 +101,7 @@ function createRouter() {
           requiredAuthState: 'login',
         },
       },
-      {
-        path: '/welcome',
-        name: 'welcome',
-        component: WelcomePage,
-        beforeEnter: authGuard,
-        meta: {
-          requiredAuthState: 'login',
-        },
-      },
+      ...onboardingRoutes,
       {
         path: '/landing',
         name: 'landing',
