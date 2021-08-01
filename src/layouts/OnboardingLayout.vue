@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center text-center py-8">
+  <div class="max-w-3xl mx-auto text-center lg:py-8">
     <slot></slot>
   </div>
 </template>

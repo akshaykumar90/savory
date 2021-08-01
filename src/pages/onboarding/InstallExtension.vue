@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center max-w-3xl mx-auto text-center lg:py-8">
+  <div class="flex flex-col items-center">
     <h3 class="font-bold text-2xl lg:text-3xl mt-12 mb-8 text-gray-800">
       Install extension
     </h3>
