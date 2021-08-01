@@ -7,7 +7,9 @@
       If you have a question or want to submit any feedback, the send feedback
       button in the app will come in handy.
     </p>
-    <button
+    <router-link
+      to="/welcome/5"
+      tag="button"
       class="
         mt-4
         bg-primary
@@ -21,14 +23,13 @@
         select-none
         focus:outline-none
       "
-      @click="$emit('tour-continue')"
     >
       Next →
-    </button>
+    </router-link>
     <p class="text-xs leading-5 mt-4 text-gray-700">
-      <button @click.prevent="$emit('exit-product-tour')" class="underline">
+      <router-link to="/" tag="button" class="underline">
         Skip Tour
-      </button>
+      </router-link>
     </p>
   </div>
 </template>

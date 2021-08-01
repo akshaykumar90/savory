@@ -22,7 +22,9 @@
         </video>
       </div>
     </div>
-    <button
+    <router-link
+      to="/welcome/2"
+      tag="button"
       class="
         mt-4
         bg-primary
@@ -36,14 +38,13 @@
         select-none
         focus:outline-none
       "
-      @click="$emit('tour-continue')"
     >
       Next →
-    </button>
+    </router-link>
     <p class="text-xs leading-5 mt-4 text-gray-700">
-      <button @click="$emit('exit-product-tour')" class="underline">
+      <router-link to="/" tag="button" class="underline">
         Skip Tour
-      </button>
+      </router-link>
     </p>
   </div>
 </template>
