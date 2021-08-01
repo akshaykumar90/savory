@@ -6,16 +6,28 @@
     <p class="text-xl text-gray-700 mb-4 w-3/4">
       Filter view allows drilling into your collection.
     </p>
-    <video autoplay loop muted playsinline>
-      <source
-        src="https://res.cloudinary.com/savory/video/upload/v1627742184/app/onboarding/savory_-_filter_nmgueg.webm"
-        type="video/webm"
-      />
-      <source
-        src="https://res.cloudinary.com/savory/video/upload/v1627741722/app/onboarding/savory_-_filter_fdckj9.mp4"
-        type="video/mp4"
-      />
-    </video>
+    <div
+      class="
+        pattern-diagonal-lines-md
+        bg-blue-100 bg-opacity-70
+        text-indigo-300
+        p-8
+        my-10
+      "
+    >
+      <div class="border border-primary filter drop-shadow-md">
+        <video autoplay loop muted playsinline width="700">
+          <source
+            src="https://res.cloudinary.com/savory/video/upload/v1627742184/app/onboarding/savory_-_filter_nmgueg.webm"
+            type="video/webm"
+          />
+          <source
+            src="https://res.cloudinary.com/savory/video/upload/v1627741722/app/onboarding/savory_-_filter_fdckj9.mp4"
+            type="video/mp4"
+          />
+        </video>
+      </div>
+    </div>
     <button
       class="
         mt-4

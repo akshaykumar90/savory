@@ -1,4 +1,5 @@
 @import '~spinkit/spinkit.min.css';
+@import '~pattern.css/dist/pattern.min.css';
 
 @tailwind base;
 

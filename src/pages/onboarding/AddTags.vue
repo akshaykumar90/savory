@@ -7,16 +7,28 @@
       Organize your tabs and links by adding tags. Use <kbd>enter</kbd> to add
       new tag, use <kbd>tab</kbd> to auto-complete tags.
     </p>
-    <video autoplay loop muted playsinline>
-      <source
-        src="https://res.cloudinary.com/savory/video/upload/v1627742184/app/onboarding/savory_-_add_tag_g4qvm0.webm"
-        type="video/webm"
-      />
-      <source
-        src="https://res.cloudinary.com/savory/video/upload/v1627741715/app/onboarding/savory_-_add_tag_lomple.mp4"
-        type="video/mp4"
-      />
-    </video>
+    <div
+      class="
+        pattern-diagonal-lines-md
+        bg-blue-100 bg-opacity-70
+        text-indigo-300
+        p-8
+        my-10
+      "
+    >
+      <div class="border border-primary filter drop-shadow-md">
+        <video autoplay loop muted playsinline width="700">
+          <source
+            src="https://res.cloudinary.com/savory/video/upload/v1627742184/app/onboarding/savory_-_add_tag_g4qvm0.webm"
+            type="video/webm"
+          />
+          <source
+            src="https://res.cloudinary.com/savory/video/upload/v1627741715/app/onboarding/savory_-_add_tag_lomple.mp4"
+            type="video/mp4"
+          />
+        </video>
+      </div>
+    </div>
     <button
       class="
         mt-4
