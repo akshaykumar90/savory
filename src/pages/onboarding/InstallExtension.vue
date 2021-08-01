@@ -7,7 +7,7 @@
       You need the extension to save your tabs. Click below to install the
       extension from the official Chrome Web Store.
     </p>
-    <a href="" class="mt-4"
+    <a :href="installUrl" target="_blank" class="mt-4"
       ><img
         src="https://storage.googleapis.com/chrome-gcs-uploader.appspot.com/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/UV4C4ybeBTsZt43U4xis.png"
         alt="install extension"
@@ -21,7 +21,14 @@
 </template>
 
 <script>
+import { chromeWebStoreUrl } from '../../lib/onboarding'
+
 export default {
   name: 'onboarding-install-extension',
+  data: function () {
+    return {
+      installUrl: chromeWebStoreUrl,
+    }
+  },
 }
 </script>
