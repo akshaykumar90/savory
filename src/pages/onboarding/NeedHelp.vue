@@ -35,7 +35,13 @@
 </template>
 
 <script>
+import { EVENT_ONBOARDING_NEED_HELP, eventLogger } from '../../api/events'
+
 export default {
   name: 'onboarding-need-help',
+
+  mounted() {
+    eventLogger.logEvent(EVENT_ONBOARDING_NEED_HELP)
+  },
 }
 </script>

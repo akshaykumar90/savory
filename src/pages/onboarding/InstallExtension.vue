@@ -20,13 +20,19 @@
 
 <script>
 import { chromeWebStoreUrl } from '../../lib/onboarding'
+import { EVENT_ONBOARDING_INSTALL_EXT, eventLogger } from '../../api/events'
 
 export default {
   name: 'onboarding-install-extension',
+
   data: function () {
     return {
       installUrl: chromeWebStoreUrl,
     }
+  },
+
+  mounted() {
+    eventLogger.logEvent(EVENT_ONBOARDING_INSTALL_EXT)
   },
 }
 </script>

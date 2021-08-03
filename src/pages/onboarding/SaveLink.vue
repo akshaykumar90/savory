@@ -50,7 +50,13 @@
 </template>
 
 <script>
+import { EVENT_ONBOARDING_SAVE_LINK, eventLogger } from '../../api/events'
+
 export default {
   name: 'onboarding-save-link',
+
+  mounted() {
+    eventLogger.logEvent(EVENT_ONBOARDING_SAVE_LINK)
+  },
 }
 </script>
