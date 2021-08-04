@@ -164,4 +164,10 @@ export class Client {
       is_chrome_imported: true,
     })
   }
+
+  markOnboardingSeen() {
+    return this._put('/users/me', {
+      show_onboarding: false,
+    })
+  }
 }

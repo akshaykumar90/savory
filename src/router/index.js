@@ -8,6 +8,7 @@ import NotFound from '../pages/NotFound.vue'
 import { authGuard } from '../auth'
 import { store } from '../store'
 import { getOnboardingRoutes } from '../lib/onboarding'
+import LoginCallback from '../pages/LoginCallback'
 
 Vue.use(Router)
 
@@ -40,9 +41,7 @@ function createRouter() {
       {
         path: '/provider_cb',
         name: 'provider_cb',
-        beforeEnter: (to, from, next) => {
-          next({ name: 'welcome' })
-        },
+        component: LoginCallback,
       },
       {
         path: '/tags/:tag*',
