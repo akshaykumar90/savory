@@ -174,10 +174,10 @@ export default {
     let resp = await ApiClient.loadUserData()
     this.userData = resp.data
     this.$refs.bar.increase(10)
-    if (!this.userData) {
+    if (this.userData.login_count === 1) {
       // We provide `/provider_cb` as the success callback to Auth0 which
-      // redirects to this page. We use empty userData as a proxy for new
-      // user.
+      // redirects to this page. If this is the first login for this user, this
+      // must be a successful signup event.
       eventLogger.logEvent(EVENT_SIGNUP_SUCCESS)
     }
     // This cannot be loaded in `created` because Vue does not wait to resolve
