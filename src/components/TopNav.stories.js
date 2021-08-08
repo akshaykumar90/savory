@@ -20,8 +20,6 @@ export const Default = Template.bind({})
 Default.args = {
   testMode: false,
   isSaving: false,
-  isAuthLoading: false,
-  isAuthenticated: true,
 }
 
 export const Saving = Template.bind({})
