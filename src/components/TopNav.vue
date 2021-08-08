@@ -28,17 +28,24 @@
         <div v-if="isSaving">
           <span class="text-sm text-muted">Saving...</span>
         </div>
-        <div
-          class="
-            hidden
-            md:block
-            md:col-start-10
-            md:justify-self-end
-            text-xs text-muted
-            mr-4
-          "
-        >
-          <button @click="logout">Sign Out</button>
+        <div class="hidden md:block md:col-start-10">
+          <button
+            @click="logout"
+            class="
+              bg-primary
+              hover:bg-blue-700
+              text-xs
+              tracking-wide
+              text-white
+              py-2
+              px-4
+              rounded
+              select-none
+              focus:outline-none
+            "
+          >
+            Sign Out
+          </button>
         </div>
       </div>
     </div>
