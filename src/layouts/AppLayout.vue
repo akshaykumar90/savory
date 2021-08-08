@@ -4,7 +4,7 @@
       :test-mode="testMode"
       :is-saving="isSaving"
       v-on:onLogout="logout"
-    ></TopNav>
+    />
     <div class="w-full md:max-w-7xl mx-auto">
       <div class="md:grid md:grid-cols-10 md:gap-x-4">
         <div class="pt-6 pl-8 hidden md:col-span-2 md:block">
@@ -18,6 +18,9 @@
         </div>
       </div>
     </div>
+    <div class="fixed right-8 bottom-8">
+      <SendFeedback />
+    </div>
   </div>
 </template>
 
@@ -25,6 +28,7 @@
 import SideBar from '../components/SideBar.vue'
 import RightBar from '../components/RightBar.vue'
 import TopNav from '../components/TopNav.vue'
+import SendFeedback from '../components/SendFeedback.vue'
 import _ from 'lodash'
 
 export default {
@@ -34,6 +38,7 @@ export default {
     SideBar,
     RightBar,
     TopNav,
+    SendFeedback,
   },
 
   computed: {
