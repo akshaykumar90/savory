@@ -29,7 +29,6 @@
           <span class="text-sm text-muted">Saving...</span>
         </div>
         <div
-          v-if="!isAuthLoading"
           class="
             hidden
             md:block
@@ -39,8 +38,7 @@
             mr-4
           "
         >
-          <button v-if="!isAuthenticated" @click="login">Sign In</button>
-          <button v-if="isAuthenticated" @click="logout">Sign Out</button>
+          <button @click="logout">Sign Out</button>
         </div>
       </div>
     </div>
@@ -60,18 +58,16 @@ export default {
   props: {
     testMode: Boolean,
     isSaving: Boolean,
-    isAuthLoading: Boolean,
-    isAuthenticated: Boolean,
   },
 
   methods: {
-    login() {
-      // This is a stub. It should never happen. We cannot be in logged-out
-      // state while TopNav is rendered!
-    },
     logout() {
       this.$emit('onLogout')
     },
+  },
+
+  mounted() {
+    this.$refs.searchInput.focus()
   },
 }
 </script>
