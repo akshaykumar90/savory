@@ -28,30 +28,6 @@
         </video>
       </div>
     </div>
-    <router-link
-      to="/welcome/4"
-      tag="button"
-      class="
-        mt-4
-        bg-primary
-        hover:bg-blue-700
-        text-lg
-        tracking-wide
-        text-white
-        py-2
-        px-4
-        rounded
-        select-none
-        focus:outline-none
-      "
-    >
-      Next →
-    </router-link>
-    <p class="text-xs leading-5 mt-4 text-gray-700">
-      <router-link to="/" tag="button" class="underline">
-        Skip Tour
-      </router-link>
-    </p>
   </div>
 </template>
 

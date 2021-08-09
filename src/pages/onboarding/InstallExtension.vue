@@ -12,9 +12,6 @@
         src="https://storage.googleapis.com/chrome-gcs-uploader.appspot.com/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/UV4C4ybeBTsZt43U4xis.png"
         alt="install extension"
     /></a>
-    <p class="text-xs leading-5 mt-4 text-gray-700">
-      <router-link to="/" tag="button" class="underline"> Skip </router-link>
-    </p>
   </div>
 </template>
 

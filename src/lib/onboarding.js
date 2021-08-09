@@ -17,6 +17,8 @@ const screens = [
   OnboardingInstallExtension,
 ]
 
+export const totalScreensNum = screens.length
+
 export function getOnboardingRoutes() {
   let routes = []
   screens.forEach((item, index) => {
@@ -35,12 +37,12 @@ export function getOnboardingRoutes() {
   return routes
 }
 
-export function getProgress(screenName) {
+export function getPosition(screenName) {
   let found = -1
   screens.forEach((item, index) => {
     if (item.name === screenName) {
       found = index
     }
   })
-  return 100 * ((found + 1) / screens.length)
+  return found + 1
 }
