@@ -3,7 +3,7 @@
     <h3 class="font-bold text-2xl lg:text-3xl mt-12 mb-8 text-gray-800">
       Welcome to Savory! Let’s get started.
     </h3>
-    <p class="text-lg lg:text-xl text-gray-700 mb-4 lg:w-3/4">
+    <p class="text-base lg:text-xl text-gray-700 mb-4 lg:w-3/4">
       To save your tabs and links in Chrome, click the star icon. It will add
       the current tab to your Savory collection. It will also add it to your
       Chrome bookmarks which can be safely deleted.

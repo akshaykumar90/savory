@@ -3,7 +3,7 @@
     <h3 class="font-bold text-2xl lg:text-3xl mt-12 mb-8 text-gray-800">
       Need help?
     </h3>
-    <p class="text-lg lg:text-xl text-gray-700 mb-4 lg:w-3/4">
+    <p class="text-base lg:text-xl text-gray-700 mb-12 lg:w-3/4">
       If you have a question or want to submit any feedback, use the
       <img
         class="h-12 inline"

@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-3xl mx-auto text-center lg:py-8">
+  <div class="max-w-3xl mx-4 lg:mx-auto text-center lg:py-8">
     <ProgressBar ref="bar" />
     <router-view />
     <nav>

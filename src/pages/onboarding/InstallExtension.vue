@@ -3,7 +3,7 @@
     <h3 class="font-bold text-2xl lg:text-3xl mt-12 mb-8 text-gray-800">
       Install extension
     </h3>
-    <p class="text-lg lg:text-xl text-gray-700 mb-4 lg:w-3/4">
+    <p class="text-base lg:text-xl text-gray-700 mb-12 lg:w-3/4">
       You need the extension to save your tabs. Click below to install the
       extension from the official Chrome Web Store.
     </p>
