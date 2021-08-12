@@ -4,6 +4,11 @@ module.exports = {
   purge: ['./src/**/*.html', './src/**/*.vue'],
 
   theme: {
+    fontWeight: {
+      normal: 400,
+      medium: 500,
+      bold: 700,
+    },
     extend: {
       fontFamily: {
         sans: ['Inter', ...defaultTheme.fontFamily.sans],
