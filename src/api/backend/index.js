@@ -21,15 +21,14 @@ export const clientConfig = {
   //////////////////////////////////////////////////////////////////////////////
   // Below are custom options defined in client.js
 
-  // Client will only retry these urls.
+  // Client will only retry these urls
   urlsToRetry: ['/bookmarks/add'],
 
   // Total # of requests made will be `maxRetryCount` + 1
   maxRetryCount: 3,
 
-  // Retry interval specified in ms. The client does random exponential backoff
-  // on timeout errors. The gap gets larger and larger -- second request will be
-  // made at 500ms, then 1000ms and the last request will be made 2s after the
-  // first request.
-  errorRetryInterval: 250,
+  // Retry interval specified in ms. Note that this is just the initial value
+  // for the retry interval. The client uses exponential backoff to scale the
+  // interval between retries.
+  errorRetryInterval: 500,
 }
