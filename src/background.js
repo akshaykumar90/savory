@@ -4,7 +4,20 @@ import { addXsrfHeader, browser, importBrowserBookmarks } from './api/browser'
 import { clientConfig } from './api/backend'
 import { Client } from './api/backend/client'
 
-const welcome_page_url = 'https://app.getsavory.co/welcome'
+// Redirect user to the webapp homepage instead of `/welcome` on extension
+// install. Otherwise, we "risk" walking the user through the onboarding
+// workflow again.
+//
+// Why? Because the onboarding workflow has the hook to prompt user to install
+// the extension. So if they have just installed the extension, it's likely they
+// went through those screens just a few seconds ago.
+//
+// Note that the user may have found the extension organically from the chrome
+// web store. In that case, we _do_ want them to go through the onboarding
+// workflow. That still works. Not hardcoding the `/welcome` route here gives
+// router the flexibility to consult the backend to decide whether to show
+// onboarding to users.
+const welcome_page_url = 'https://app.getsavory.co/'
 
 const auth = authWrapper({
   domain: process.env.AUTH0_DOMAIN,
