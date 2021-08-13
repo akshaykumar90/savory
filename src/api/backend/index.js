@@ -17,4 +17,19 @@ export const clientConfig = {
 
   // `xsrfHeaderName` is the name of the http header that carries the xsrf token value
   xsrfHeaderName: 'X-CSRF-Token',
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Below are custom options defined in client.js
+
+  // Client will only retry these urls.
+  urlsToRetry: ['/bookmarks/add'],
+
+  // Total # of requests made will be `maxRetryCount` + 1
+  maxRetryCount: 3,
+
+  // Retry interval specified in ms. The client does random exponential backoff
+  // on timeout errors. The gap gets larger and larger -- second request will be
+  // made at 500ms, then 1000ms and the last request will be made 2s after the
+  // first request.
+  errorRetryInterval: 250,
 }
