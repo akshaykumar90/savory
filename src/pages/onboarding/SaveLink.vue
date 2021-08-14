@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center">
+  <div class="flex flex-col lg:items-center">
     <h3 class="font-bold text-2xl lg:text-3xl mt-12 mb-8 text-gray-800">
       Welcome to Savory! Let’s get started.
     </h3>
@@ -9,7 +9,7 @@
       collection.
     </p>
     <div class="lg:p-8 my-10">
-      <div class="border border-primary filter drop-shadow-md">
+      <div class="inline-block border border-primary filter drop-shadow-md">
         <video autoplay loop muted playsinline width="700">
           <source
             src="https://res.cloudinary.com/savory/video/upload/v1628940683/app/onboarding/save_link_ewufc7.webm"
