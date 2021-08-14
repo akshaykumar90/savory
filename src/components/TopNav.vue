@@ -32,19 +32,18 @@
           <button
             @click="logout"
             class="
-              bg-primary
-              hover:bg-blue-700
-              text-xs
-              tracking-wide
-              text-white
-              py-2
-              px-4
-              rounded
-              select-none
+              inline-block
+              py-2.5
+              px-3
+              rounded-md
+              text-xs text-primary
+              bg-default
+              border border-primary
+              hover:opacity-80
               focus:outline-none
             "
           >
-            Sign Out
+            Sign out
           </button>
         </div>
       </div>
