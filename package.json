@@ -65,7 +65,6 @@
     "jest": "^27.0.6",
     "lodash": "^4.17.13",
     "moment": "^2.24.0",
-    "pattern.css": "^1.0.0",
     "postcss": "^8.2.1",
     "postcss-loader": "^4.1.0",
     "spinkit": "^2.0.1",
