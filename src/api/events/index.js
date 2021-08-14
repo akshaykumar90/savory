@@ -4,9 +4,6 @@ export const EVENT_LANDING_LOAD = 'registration - load landing page'
 export const EVENT_SIGNUP_CTA = 'registration - click cta'
 export const EVENT_SIGNUP_SUCCESS = 'registration - successful signup'
 
-export const EVENT_ONBOARDING_START = 'onboarding - start'
-export const EVENT_ONBOARDING_IMPORT_BOOKMARKS = 'onboarding - import bookmarks'
-
 export const EVENT_ONBOARDING_SAVE_LINK = 'onboarding - save link'
 export const EVENT_ONBOARDING_ADD_TAGS = 'onboarding - add tags'
 export const EVENT_ONBOARDING_FILTER_TAGS = 'onboarding - filter tags'
