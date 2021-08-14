@@ -1,11 +1,14 @@
 <template>
   <div class="flex flex-col items-center">
     <h3 class="font-bold text-2xl lg:text-3xl mt-12 mb-8 text-gray-800">
-      Add tags to your saved links
+      Tags go well with tabs
     </h3>
     <p class="text-base lg:text-xl text-gray-700 mb-4 lg:w-3/4">
-      Organize your tabs and links by adding tags. Use <kbd>enter</kbd> to add
-      new tag, use <kbd>tab</kbd> to auto-complete tags.
+      Organize your saved tabs and bookmarks by adding tags.
+    </p>
+    <p class="text-base lg:text-xl text-gray-700 mb-4 lg:w-3/4">
+      Press <kbd>enter</kbd> to add a new tag, use <kbd>tab</kbd> to
+      auto-complete existing tags.
     </p>
     <div
       class="

@@ -4,7 +4,7 @@
       Click any tag to enter filter view
     </h3>
     <p class="text-base lg:text-xl text-gray-700 mb-4 lg:w-3/4">
-      Filter view allows drilling into your collection.
+      Refine your search by adding more tags to the filter.
     </p>
     <div
       class="
