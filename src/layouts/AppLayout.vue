@@ -1,55 +1,10 @@
 <template>
   <div>
-    <header
-      class="sticky top-0 z-10 shadow"
-      v-bind:class="[testMode ? 'bg-yellow-300' : 'bg-grey-300']"
-    >
-      <div class="w-full md:max-w-7xl mx-auto py-1 md:py-2">
-        <div
-          class="
-            grid
-            place-content-center
-            md:grid-cols-10
-            items-center
-            md:gap-x-4
-          "
-        >
-          <div class="md:col-span-2">
-            <router-link to="/">
-              <img
-                class="w-24 md:w-32 md:ml-6"
-                src="../assets/logo_light.svg"
-                alt="logo"
-              />
-            </router-link>
-          </div>
-          <div class="hidden md:block md:col-span-4">
-            <SearchBar ref="searchInput"></SearchBar>
-          </div>
-          <div v-if="isSaving">
-            <span class="text-sm text-muted">Saving...</span>
-          </div>
-          <div
-            v-if="!$auth.loading"
-            class="
-              hidden
-              md:block
-              md:col-start-10
-              md:justify-self-end
-              text-xs text-muted
-              mr-4
-            "
-          >
-            <button v-if="!$auth.isAuthenticated()" @click="login">
-              Sign In
-            </button>
-            <button v-if="$auth.isAuthenticated()" @click="logout">
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
+    <TopNav
+      :test-mode="testMode"
+      :is-saving="isSaving"
+      v-on:onLogout="logout"
+    />
     <div class="w-full md:max-w-7xl mx-auto">
       <div class="md:grid md:grid-cols-10 md:gap-x-4">
         <div class="pt-6 pl-8 hidden md:col-span-2 md:block">
@@ -63,22 +18,27 @@
         </div>
       </div>
     </div>
+    <div class="fixed right-8 bottom-8">
+      <SendFeedback />
+    </div>
   </div>
 </template>
 
 <script>
-import SearchBar from '../components/SearchBar.vue'
 import SideBar from '../components/SideBar.vue'
 import RightBar from '../components/RightBar.vue'
+import TopNav from '../components/TopNav.vue'
+import SendFeedback from '../components/SendFeedback.vue'
 import _ from 'lodash'
 
 export default {
   name: 'app-layout',
 
   components: {
-    SearchBar,
     SideBar,
     RightBar,
+    TopNav,
+    SendFeedback,
   },
 
   computed: {
@@ -128,10 +88,6 @@ export default {
           'There is pending work. Sure you want to leave?')
       }
     },
-    login() {
-      // This is a stub. It should never happen. We cannot be in logged-out
-      // state while AppLayout is rendered!
-    },
     logout() {
       this.$auth.logout()
     },
@@ -149,7 +105,6 @@ export default {
     window.addEventListener('keydown', this.onKeydown)
     document.body.addEventListener('click', this.onClickOutside)
     window.addEventListener('beforeunload', this.beforeUnload)
-    this.$refs.searchInput.focus()
   },
 
   created() {

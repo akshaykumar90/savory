@@ -4,12 +4,15 @@ import BookmarkList from '../components/BookmarkList.vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import LandingPage from '../pages/LandingPage.vue'
 import SignupPage from '../pages/SignupPage.js'
-import WelcomePage from '../pages/WelcomePage.vue'
 import NotFound from '../pages/NotFound.vue'
 import { authGuard } from '../auth'
 import { store } from '../store'
+import { getOnboardingRoutes } from '../lib/onboarding'
+import LoginCallback from '../pages/LoginCallback'
 
 Vue.use(Router)
+
+const onboardingRoutes = getOnboardingRoutes()
 
 function createRouter() {
   return new Router({
@@ -38,9 +41,7 @@ function createRouter() {
       {
         path: '/provider_cb',
         name: 'provider_cb',
-        beforeEnter: (to, from, next) => {
-          next({ name: 'welcome' })
-        },
+        component: LoginCallback,
       },
       {
         path: '/tags/:tag*',
@@ -69,15 +70,7 @@ function createRouter() {
           requiredAuthState: 'login',
         },
       },
-      {
-        path: '/welcome',
-        name: 'welcome',
-        component: WelcomePage,
-        beforeEnter: authGuard,
-        meta: {
-          requiredAuthState: 'login',
-        },
-      },
+      ...onboardingRoutes,
       {
         path: '/landing',
         name: 'landing',

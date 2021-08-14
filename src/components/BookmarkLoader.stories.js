@@ -1,7 +1,7 @@
 import BookmarkLoader from './BookmarkLoader.vue'
 
 export default {
-  title: 'Savory/BookmarkLoader',
+  title: 'Savory/Components/BookmarkLoader',
   component: BookmarkLoader,
 }
 

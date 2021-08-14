@@ -5,6 +5,12 @@ export function createStore() {
     state: {
       list: {
         activeType: 'new',
+        filter: {
+          active: [
+            /* { type: string, name: string } */
+          ],
+          total: 0,
+        },
       },
     },
     getters: {

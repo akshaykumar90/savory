@@ -1,15 +1,19 @@
 <!-- borrowed from Nuxt! -->
 
 <template>
-  <div class="progress h-1" :class="[canSuccess ? 'bg-primary' : 'bg-red-600']" :style="{
-    'width': percent+'%',
-    'opacity': show ? 1 : 0
-  }"></div>
+  <div
+    class="progress h-1"
+    :class="[canSuccess ? 'bg-primary' : 'bg-red-600']"
+    :style="{
+      width: percent + '%',
+      opacity: show ? 1 : 0,
+    }"
+  ></div>
 </template>
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       percent: 0,
       show: false,
@@ -18,7 +22,7 @@ export default {
     }
   },
   methods: {
-    start () {
+    start() {
       this.show = true
       this.canSuccess = true
       if (this._timer) {
@@ -34,33 +38,33 @@ export default {
       }, 100)
       return this
     },
-    set (num) {
+    set(num) {
       this.show = true
       this.canSuccess = true
       this.percent = Math.floor(num)
       return this
     },
-    get () {
+    get() {
       return Math.floor(this.percent)
     },
-    increase (num) {
+    increase(num) {
       this.percent = this.percent + Math.floor(num)
       return this
     },
-    decrease (num) {
+    decrease(num) {
       this.percent = this.percent - Math.floor(num)
       return this
     },
-    finish () {
+    finish() {
       this.percent = 100
       this.hide()
       return this
     },
-    pause () {
+    pause() {
       clearInterval(this._timer)
       return this
     },
-    hide () {
+    hide() {
       clearInterval(this._timer)
       this._timer = null
       setTimeout(() => {
@@ -73,22 +77,23 @@ export default {
       }, 500)
       return this
     },
-    fail () {
+    fail() {
       this.canSuccess = false
       return this
-    }
-  }
+    },
+  },
 }
 </script>
 
-<style lang="stylus" scoped>
-.progress
-  position: fixed
-  top: 0
-  left: 0
-  right: 0
-  width: 0
-  transition: width 0.2s, opacity 0.4s
-  opacity: 1
-  z-index: 999999
+<style scoped>
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 0;
+  transition: width 0.2s, opacity 0.4s;
+  opacity: 1;
+  z-index: 999999;
+}
 </style>
