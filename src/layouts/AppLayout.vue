@@ -4,6 +4,7 @@
       :test-mode="testMode"
       :is-saving="isSaving"
       v-on:onLogout="logout"
+      ref="topNav"
     />
     <div class="w-full md:max-w-7xl mx-auto">
       <div class="md:grid md:grid-cols-10 md:gap-x-4">
@@ -70,7 +71,7 @@ export default {
     },
     onKeydown(e) {
       if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
-        this.$refs.searchInput.focus()
+        this.$refs.topNav.focusSearchBar()
       }
     },
     onClickOutside() {
