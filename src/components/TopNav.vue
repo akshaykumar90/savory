@@ -70,10 +70,13 @@ export default {
     logout() {
       this.$emit('onLogout')
     },
+    focusSearchBar() {
+      this.$refs.searchInput.focus()
+    },
   },
 
   mounted() {
-    this.$refs.searchInput.focus()
+    this.focusSearchBar()
   },
 }
 </script>
