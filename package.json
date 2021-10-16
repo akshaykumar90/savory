@@ -1,6 +1,6 @@
 {
   "name": "savory",
-  "description": "Bookmark Manager Extension for Chrome",
+  "description": "Webapp for Savory",
   "author": "Akshay Kumar <akshaykumar90@gmail.com>",
   "scripts": {
     "test": "jest",
