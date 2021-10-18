@@ -1,101 +1,51 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import BookmarkList from '../components/BookmarkList.vue'
-import AppLayout from '../layouts/AppLayout.vue'
+import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../pages/LandingPage.vue'
 import SignupPage from '../pages/SignupPage.js'
 import NotFound from '../pages/NotFound.vue'
 import { authGuard } from '../auth'
-import { store } from '../store'
 import { getOnboardingRoutes } from '../lib/onboarding'
 import LoginCallback from '../pages/LoginCallback'
 
-Vue.use(Router)
-
 const onboardingRoutes = getOnboardingRoutes()
 
-function createRouter() {
-  return new Router({
-    mode: 'history',
-    // Vue Router ensures that the Vue.$route variable is updated before
-    // scrollBehavior is called to scroll into position. This lets us use
-    // Async Scrolling here by waiting on the fetch promise that is set on a
-    // watch on the $route variable.
-    scrollBehavior(to, from, savedPosition) {
-      if (store.state.list.fetchPromise) {
-        return store.state.list.fetchPromise.then(() => {
-          if (savedPosition) {
-            return savedPosition
-          } else {
-            return { y: 0 }
-          }
-        })
-      }
-      if (savedPosition) {
-        return savedPosition
-      } else {
-        return { y: 0 }
-      }
+export const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    {
+      path: '/provider_cb',
+      name: 'provider_cb',
+      component: LoginCallback,
     },
-    routes: [
-      {
-        path: '/provider_cb',
-        name: 'provider_cb',
-        component: LoginCallback,
+    {
+      path: '/logout',
+      name: 'logout',
+      beforeEnter: (to, from, next) => {
+        next({ name: 'landing' })
       },
-      {
-        path: '/tags/:tag*',
-        name: 'tags',
-        component: BookmarkList,
-        beforeEnter: authGuard,
-        meta: {
-          layout: AppLayout,
-          requiredAuthState: 'login',
-        },
+    },
+    ...onboardingRoutes,
+    {
+      path: '/landing',
+      name: 'landing',
+      component: LandingPage,
+      beforeEnter: authGuard,
+      meta: {
+        requiredAuthState: 'logout',
       },
-      {
-        path: '/logout',
-        name: 'logout',
-        beforeEnter: (to, from, next) => {
-          next({ name: 'landing' })
-        },
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: SignupPage,
+      beforeEnter: authGuard,
+      meta: {
+        requiredAuthState: 'logout',
       },
-      {
-        path: '/',
-        name: 'app',
-        component: BookmarkList,
-        beforeEnter: authGuard,
-        meta: {
-          layout: AppLayout,
-          requiredAuthState: 'login',
-        },
-      },
-      ...onboardingRoutes,
-      {
-        path: '/landing',
-        name: 'landing',
-        component: LandingPage,
-        beforeEnter: authGuard,
-        meta: {
-          requiredAuthState: 'logout',
-        },
-      },
-      {
-        path: '/signup',
-        name: 'signup',
-        component: SignupPage,
-        beforeEnter: authGuard,
-        meta: {
-          requiredAuthState: 'logout',
-        },
-      },
-      {
-        path: '*',
-        name: '404',
-        component: NotFound,
-      },
-    ],
-  })
-}
-
-export const router = createRouter()
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: '404',
+      component: NotFound,
+    },
+  ],
+})

@@ -47,6 +47,7 @@ export default {
 
   watch: {
     $route(to) {
+      // TODO: https://next.router.vuejs.org/guide/migration/#removal-of-router-getmatchedcomponents
       const matched = this.$router.getMatchedComponents(to)
       if (matched.some(({ name }) => name === componentName)) {
         this.$store.dispatch({

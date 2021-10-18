@@ -241,6 +241,7 @@ const actions = {
         commit('INCR_PAGE')
         const history = window.history
         const stateCopy = { ...history.state, page: state.page }
+        // TODO: https://next.router.vuejs.org/guide/migration/#usage-of-history-state
         history.replaceState(stateCopy, '')
       })
       .finally(() => {
