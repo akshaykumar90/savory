@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import { Auth0Client } from '@auth0/auth0-spa-js'
 import axios from 'axios'
 import { addXsrfHeader } from '../api/browser'
@@ -61,7 +61,7 @@ export const authWrapper = ({
 
   const authState = AuthState.readStateFromStorage()
 
-  instance = new Vue({
+  instance = createApp({
     data() {
       return {
         loading:
