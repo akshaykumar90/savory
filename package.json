@@ -32,9 +32,9 @@
     "axios": "^0.21.1",
     "bowser": "^2.10.0",
     "cross-env": "^5.2.0",
-    "mem": "^4.0.0",
     "npm": "^6.13.4",
-    "vue": "^2.6.11",
+    "vue": "^3.2.0",
+    "vue-router": "^4.0.0",
     "vuex": "^4.0.0"
   },
   "devDependencies": {
@@ -68,10 +68,9 @@
     "tldjs": "^2.3.1",
     "url-loader": "^1.1.2",
     "vue-content-loader": "^0.2.1",
-    "vue-jest": "^3.0.7",
     "vue-loader": "^15.7.0",
-    "vue-router": "^4.0.0",
     "vue-template-compiler": "^2.6.11",
+    "vue3-jest": "27.0.0-alpha.2",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.11.0",
