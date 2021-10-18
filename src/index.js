@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { store } from './store'
 import { router } from './router'
 import { AuthPlugin } from './auth'
 import { browser } from './api/browser'
@@ -33,7 +32,6 @@ app.use(AuthPlugin, {
   },
 })
 
-app.use(store)
 app.use(router)
 
 // This cannot happen from within $auth since it is shared by the user-facing
