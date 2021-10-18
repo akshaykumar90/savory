@@ -10,10 +10,6 @@ import { Client } from './api/backend/client'
 
 eventLogger.init(process.env.AMPLITUDE_API_KEY)
 
-// This is the event hub we'll use in every
-// component to communicate between them.
-window.Event = new Vue()
-
 const app = createApp(App)
 
 app.use(AuthPlugin, {
