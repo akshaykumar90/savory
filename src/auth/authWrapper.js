@@ -273,7 +273,7 @@ export const authWrapper = ({
 }
 
 export const AuthPlugin = {
-  install(Vue, options) {
-    Vue.prototype.$auth = authWrapper(options)
+  install: (app, options) => {
+    app.config.globalProperties.$auth = authWrapper(options)
   },
 }

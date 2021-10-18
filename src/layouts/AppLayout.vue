@@ -94,7 +94,7 @@ export default {
     },
   },
 
-  destroyed() {
+  unmounted() {
     window.removeEventListener('scroll', this.scrollHandler)
     window.removeEventListener('keydown', this.onKeydown)
     document.body.removeEventListener('click', this.onClickOutside)

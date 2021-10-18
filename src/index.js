@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
 import { store } from './store'
 import { router } from './router'
@@ -14,7 +14,9 @@ eventLogger.init(process.env.AMPLITUDE_API_KEY)
 // component to communicate between them.
 window.Event = new Vue()
 
-Vue.use(AuthPlugin, {
+const app = createApp(App)
+
+app.use(AuthPlugin, {
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
   audience: process.env.AUTH0_AUDIENCE,
@@ -35,11 +37,8 @@ Vue.use(AuthPlugin, {
   },
 })
 
-const app = new Vue({
-  router,
-  store,
-  render: (h) => h(App),
-})
+app.use(store)
+app.use(router)
 
 // This cannot happen from within $auth since it is shared by the user-facing
 // app and the background extension. This is a no-op in the background
@@ -53,4 +52,4 @@ app.$auth.$watch('tokenExpiredBeacon', (beacon) => {
 
 window.ApiClient = new Client(app.$auth, clientConfig)
 
-app.$mount('#app')
+app.mount('#app')
