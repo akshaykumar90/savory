@@ -125,7 +125,7 @@ export class AuthClient {
 
   expireToken() {
     this.authState.cleanState()
-    this.state.tokenExpiredBeacon = true
+    this.tokenExpiredBeacon.value = true
   }
 
   async onLoginSuccess() {
