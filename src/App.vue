@@ -1,6 +1,5 @@
 <template>
-  <!--  TODO: This is not working -->
-  <div v-if="this.$auth.loading" class="h-screen grid">
+  <div v-if="this.$auth.loading.value" class="h-screen grid">
     <LoadingSpinner class="place-self-center" />
   </div>
   <component v-else :is="this.$route.meta.layout || 'div'">

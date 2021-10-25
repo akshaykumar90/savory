@@ -30,15 +30,6 @@ export const getRouter = (auth) => {
       },
       ...onboardingRoutes,
       {
-        path: '/',
-        name: 'home',
-        component: LandingPage,
-        beforeEnter: authGuard,
-        meta: {
-          requiredAuthState: 'login',
-        },
-      },
-      {
         path: '/landing',
         name: 'landing',
         component: LandingPage,
