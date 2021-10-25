@@ -1,12 +1,11 @@
 <template>
-  <div id="app">
-    <div v-if="this.$auth.loading" class="h-screen grid">
-      <LoadingSpinner class="place-self-center" />
-    </div>
-    <component v-else :is="this.$route.meta.layout || 'div'">
-      <router-view />
-    </component>
+  <!--  TODO: This is not working -->
+  <div v-if="this.$auth.loading" class="h-screen grid">
+    <LoadingSpinner class="place-self-center" />
   </div>
+  <component v-else :is="this.$route.meta.layout || 'div'">
+    <router-view />
+  </component>
 </template>
 
 <script>

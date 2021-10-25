@@ -1,7 +1,7 @@
-import { createApp } from 'vue'
+import { createApp, watch } from 'vue'
 import App from './App.vue'
-import { router } from './router'
-import { AuthPlugin } from './auth'
+import { getRouter } from './router'
+import { AuthClient } from './auth'
 import { browser } from './api/browser'
 import { eventLogger } from './api/events'
 import { clientConfig } from './api/backend'
@@ -11,11 +11,12 @@ eventLogger.init(process.env.AMPLITUDE_API_KEY)
 
 const app = createApp(App)
 
-app.use(AuthPlugin, {
+const auth = new AuthClient({
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
   audience: process.env.AUTH0_AUDIENCE,
   backendClientConfig: clientConfig,
+  isBackground: false,
   onLoginCallback: (userId) => {
     const message = { type: 'login', userId }
     if (browser && browser.runtime) {
@@ -32,18 +33,24 @@ app.use(AuthPlugin, {
   },
 })
 
+app.config.globalProperties.$auth = auth
+
+const router = getRouter(auth)
+
 app.use(router)
 
-// This cannot happen from within $auth since it is shared by the user-facing
+// This cannot happen from within authClient since it is shared by the user-facing
 // app and the background extension. This is a no-op in the background
 // extension since it cannot prompt the user to log back in (yet). It will
 // just become useless and print error messages in the console.
-app.$auth.$watch('tokenExpiredBeacon', (beacon) => {
+watch(auth.tokenExpiredBeacon, (beacon) => {
   if (beacon) {
-    app.$auth.logout()
+    auth.logout()
   }
 })
 
-window.ApiClient = new Client(app.$auth, clientConfig)
+window.ApiClient = new Client(auth, clientConfig)
 
 app.mount('#app')
+
+auth.initialize()

@@ -1,11 +1,9 @@
-import { getAuthWrapper } from './authWrapper'
+import { watch } from 'vue'
 
-export const authGuard = (to, from, next) => {
-  const authService = getAuthWrapper()
-
+export const getAuthGuard = (auth) => (to, from, next) => {
   const fn = () => {
     let requiredAuthState = to.meta.requiredAuthState
-    let currentAuthState = authService.isAuthenticated() ? 'login' : 'logout'
+    let currentAuthState = auth.isAuthenticated ? 'login' : 'logout'
 
     if (currentAuthState === requiredAuthState) {
       return next()
@@ -18,11 +16,11 @@ export const authGuard = (to, from, next) => {
     return next({ name: 'app', replace: true })
   }
 
-  if (!authService.loading) {
+  if (!auth.loading.value) {
     return fn()
   }
 
-  authService.$watch('loading', (loading) => {
+  watch(auth.loading, (loading) => {
     if (loading === false) {
       return fn()
     }

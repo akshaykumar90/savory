@@ -1,5 +1,3 @@
-import { authGuard } from '../auth'
-
 import OnboardingSaveLink from '../pages/onboarding/SaveLink.vue'
 import OnboardingAddTags from '../pages/onboarding/AddTags.vue'
 import OnboardingFilterTags from '../pages/onboarding/FilterTags.vue'
@@ -27,7 +25,6 @@ export function getOnboardingRoutes() {
       path: path,
       name: item.name,
       component: item,
-      beforeEnter: authGuard,
       meta: {
         layout: OnboardingLayout,
         requiredAuthState: 'login',

@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { authWrapper } from './auth'
+import { AuthClient } from './auth'
 import { addXsrfHeader, browser, importBrowserBookmarks } from './api/browser'
 import { clientConfig } from './api/backend'
 import { Client } from './api/backend/client'
@@ -19,12 +19,12 @@ import { Client } from './api/backend/client'
 // onboarding to users.
 const welcome_page_url = 'https://app.getsavory.co/'
 
-const auth = authWrapper({
+const auth = new AuthClient({
   domain: process.env.AUTH0_DOMAIN,
   clientId: process.env.AUTH0_CLIENTID,
   audience: process.env.AUTH0_AUDIENCE,
   backendClientConfig: clientConfig,
-  background: true,
+  isBackground: true,
 })
 
 window.ApiClient = new Client(auth, clientConfig, addXsrfHeader)
@@ -79,7 +79,7 @@ function onMessage(request, sender, sendResponse) {
 }
 
 function onImportBookmarksMessage(port, attempt) {
-  if (!auth.isAuthenticated()) {
+  if (!auth.isAuthenticated) {
     if (attempt === 15) {
       return Promise.reject('Not logged in.')
     }
@@ -101,7 +101,7 @@ browser.runtime.onMessageExternal.addListener(onMessage)
 browser.runtime.onConnectExternal.addListener(function (port) {
   console.assert(port.name === 'import_bookmarks')
   port.onMessage.addListener(async function ({ userId }) {
-    if (!auth.isAuthenticated()) {
+    if (!auth.isAuthenticated) {
       auth.silentLogin(userId)
     }
     await onImportBookmarksMessage(port, 1)
@@ -109,7 +109,7 @@ browser.runtime.onConnectExternal.addListener(function (port) {
 })
 
 browser.browserAction.onClicked.addListener(() => {
-  if (!auth.isAuthenticated()) {
+  if (!auth.isAuthenticated) {
     auth.loginWithPopup()
   } else {
     console.log('Already logged in...')
