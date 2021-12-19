@@ -1,7 +1,7 @@
 const defaultTheme = require('tailwindcss/defaultTheme')
 
 module.exports = {
-  purge: ['./src/**/*.html', './src/**/*.vue'],
+  content: ['./src/**/*.{html,vue}'],
 
   theme: {
     fontWeight: {
@@ -42,6 +42,4 @@ module.exports = {
       },
     },
   },
-
-  plugins: [require('@tailwindcss/forms')],
 }
