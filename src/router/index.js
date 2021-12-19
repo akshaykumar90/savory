@@ -5,6 +5,7 @@ import NotFound from '../pages/NotFound.vue'
 import { getAuthGuard } from '../auth'
 import { getOnboardingRoutes } from '../lib/onboarding'
 import LoginCallback from '../pages/LoginCallback'
+import BookmarksList from '../components/BookmarksList.vue'
 
 export const getRouter = (auth) => {
   const authGuard = getAuthGuard(auth)
@@ -45,6 +46,15 @@ export const getRouter = (auth) => {
         beforeEnter: authGuard,
         meta: {
           requiredAuthState: 'logout',
+        },
+      },
+      {
+        path: '/',
+        name: 'home',
+        component: BookmarksList,
+        beforeEnter: authGuard,
+        meta: {
+          requiredAuthState: 'login',
         },
       },
       {
