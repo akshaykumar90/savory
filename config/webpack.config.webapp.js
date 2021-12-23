@@ -6,6 +6,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 const merge = require('webpack-merge')
 const base = require('./webpack.config.base.js')
+const { DefinePlugin } = require('webpack')
 
 const commonConfig = merge(base, {
   entry: {
@@ -51,6 +52,11 @@ function getDevelopmentConfig() {
         cert: fs.readFileSync(`${homedir}/Projects/certs/${certFilename}`),
       },
     },
+    plugins: [
+      new DefinePlugin({
+        __VUE_PROD_DEVTOOLS__: true,
+      }),
+    ],
   }
 }
 
