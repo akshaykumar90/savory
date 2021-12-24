@@ -4,6 +4,7 @@
   "author": "Akshay Kumar <akshaykumar90@gmail.com>",
   "scripts": {
     "test": "jest",
+    "pg": "vite",
     "start:dev": "webpack-dev-server --progress --hide-modules --env development --config config/webpack.config.webapp.js",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules --env production --config config/webpack.config.webapp.js",
     "build:vercel": "webpack --progress --hide-modules --env production --config config/webpack.config.webapp.js",
