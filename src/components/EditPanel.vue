@@ -32,27 +32,6 @@
               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm text-sm border-gray-300 rounded-md"
             />
           </div>
-
-          <div>
-            <label
-              for="add-new-tag"
-              class="block text-sm font-medium text-gray-700"
-              >Tags</label
-            >
-            <select
-              id="add-new-tag"
-              name="add-new-tag"
-              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-            >
-              <option>Add new tag</option>
-            </select>
-          </div>
-
-          <div>
-            <div v-for="tag in tags">
-              {{ tag }}
-            </div>
-          </div>
         </div>
       </div>
       <div class="px-4 py-3 bg-gray-50 text-right">
@@ -69,7 +48,7 @@
 
 <script>
 export default {
-  name: 'edit-bookmark',
+  name: 'edit-panel',
   setup() {
     return {
       title:

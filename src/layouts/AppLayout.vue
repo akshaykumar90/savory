@@ -29,22 +29,22 @@
         <bookmark-row />
       </div>
     </main>
-    <section class="hidden col-span-2">
-      <edit-bookmark />
+    <section class="col-span-2">
+      <edit-panel />
     </section>
   </div>
 </template>
 
 <script>
 import BookmarkRow from '../components/BookmarkRow.vue'
-import EditBookmark from '../components/EditBookmark.vue'
+import EditPanel from '../components/EditPanel.vue'
 import { useScroll } from '@vueuse/core'
 
 export default {
   name: 'app-layout',
   components: {
     BookmarkRow,
-    EditBookmark,
+    EditPanel,
   },
   setup() {
     const { y } = useScroll(window)
