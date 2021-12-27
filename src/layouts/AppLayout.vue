@@ -1,8 +1,8 @@
 <template>
   <div>
     <header
-      class="w-full fixed top-0 h-16 z-10 bg-red-200"
-      :class="{ 'drop-shadow-md': scrollTop > 0 }"
+      class="w-full fixed top-0 h-16 z-10 bg-red-200 transition-shadow duration-300"
+      :class="{ 'shadow-lg': scrollTop > 0 }"
     ></header>
     <div class="h-16"></div>
   </div>
