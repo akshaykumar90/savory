@@ -1,5 +1,5 @@
 <template>
-  <div class="pl-8 py-4 border-2 border-yellow-500 rounded" @click="">
+  <div class="pl-8 py-4 border rounded" @click="">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       class="h-8 w-8"
