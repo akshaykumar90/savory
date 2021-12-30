@@ -1,8 +1,8 @@
 <template>
-  <div class="pl-8 py-4 border rounded" @click="">
+  <div class="flex items-start" @click="">
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      class="h-8 w-8"
+      class="h-12 w-12 -mt-1"
       viewBox="0 0 20 20"
       fill="currentColor"
     >
@@ -12,14 +12,16 @@
         clip-rule="evenodd"
       />
     </svg>
-    <h3 class="max-w-[100ch]">{{ b.title }}</h3>
-    <div class="mt-2 flex flex-row space-x-1.5">
-      <a v-for="(tag, index) in b.tags" :key="index">
-        {{ tag }}
-      </a>
-      <a href="#">+</a>
+    <div class="ml-4">
+      <h3>{{ b.title }}</h3>
+      <div class="mt-2 flex flex-row space-x-1.5">
+        <a v-for="(tag, index) in b.tags" :key="index">
+          {{ tag }}
+        </a>
+        <a href="#">+</a>
+      </div>
+      <span class="inline-block mt-2 text-blue-500">4 days ago</span>
     </div>
-    <span class="inline-block mt-2 text-blue-500">4 days ago</span>
   </div>
 </template>
 

@@ -1,7 +1,7 @@
 <script setup>
-import BookmarksList from '../components/BookmarksList.vue'
+import AppLayout from '../layouts/AppLayout.vue'
 </script>
 
 <template>
-  <bookmarks-list />
+  <app-layout></app-layout>
 </template>

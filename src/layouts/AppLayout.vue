@@ -6,17 +6,15 @@
     ></header>
     <div class="h-16"></div>
   </div>
-  <div class="w-[1500px] mx-auto grid grid-cols-6 gap-4">
-    <nav class="bg-green-200">
-      <div class="space-y-10 sticky top-0">
-        <p>Home</p>
-        <p>Reading</p>
-        <p>Podcasts</p>
-        <p>Watching</p>
+  <div class="flex flex-row gap-8 ml-2">
+    <div class="w-[275px]">
+      <div class="fixed top-16 w-[275px]">
+        <NavSidebar></NavSidebar>
       </div>
-    </nav>
-    <main class="col-span-3" ref="main">
-      <div class="space-y-2">
+    </div>
+    <main class="max-w-[600px]">
+      <pagination-card></pagination-card>
+      <div class="space-y-4">
         <bookmark-row />
         <bookmark-row />
         <bookmark-row />
@@ -29,28 +27,14 @@
         <bookmark-row />
       </div>
     </main>
-    <section class="col-span-2">
-      <edit-panel />
-    </section>
   </div>
 </template>
 
-<script>
+<script setup>
 import BookmarkRow from '../components/BookmarkRow.vue'
-import EditPanel from '../components/EditPanel.vue'
+import NavSidebar from '../components/NavSidebar.vue'
+import PaginationCard from '../components/PaginationCard.vue'
 import { useScroll } from '@vueuse/core'
 
-export default {
-  name: 'app-layout',
-  components: {
-    BookmarkRow,
-    EditPanel,
-  },
-  setup() {
-    const { y } = useScroll(window)
-    return {
-      scrollTop: y,
-    }
-  },
-}
+const { y: scrollTop } = useScroll(window)
 </script>
