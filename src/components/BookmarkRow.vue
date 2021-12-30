@@ -20,7 +20,7 @@
         </a>
         <a href="#">+</a>
       </div>
-      <span class="inline-block mt-2 text-blue-500">4 days ago</span>
+      <span class="inline-block mt-2">4 days ago</span>
     </div>
   </div>
 </template>
