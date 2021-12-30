@@ -1,5 +1,5 @@
 <template>
-  <Disclosure as="nav" class="bg-indigo-600" v-slot="{ open }">
+  <Disclosure as="nav" class="bg-white border-b" v-slot="{ open }">
     <div class="px-2 sm:px-4 lg:px-8">
       <div class="relative flex items-center justify-between h-16">
         <!-- Logo section -->
@@ -19,7 +19,7 @@
         <div class="flex-1 flex justify-center lg:justify-end">
           <div class="w-full px-2 lg:px-6">
             <label for="search" class="sr-only">Search bookmarks</label>
-            <div class="relative text-indigo-200 focus-within:text-gray-400">
+            <div class="relative text-black-200 focus-within:text-gray-400">
               <div
                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
               >
@@ -28,7 +28,7 @@
               <input
                 id="search"
                 name="search"
-                class="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-indigo-400 bg-opacity-25 text-indigo-100 placeholder-indigo-200 focus:outline-none focus:bg-white focus:ring-0 focus:placeholder-gray-400 focus:text-gray-900 sm:text-sm"
+                class="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-gray-400 bg-opacity-25 text-black-100 placeholder-black-200 focus:outline-none focus:bg-white focus:ring-0 focus:placeholder-gray-400 focus:text-gray-900 sm:text-sm"
                 placeholder="Search bookmarks"
                 type="search"
               />
@@ -38,7 +38,7 @@
         <div class="flex lg:hidden">
           <!-- Mobile menu button -->
           <DisclosureButton
-            class="bg-indigo-600 inline-flex items-center justify-center p-2 rounded-md text-indigo-400 hover:text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white"
+            class="bg-white-600 inline-flex items-center justify-center p-2 rounded-md text-black-400 hover:text-white hover:bg-black-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white"
           >
             <span class="sr-only">Open main menu</span>
             <MenuIcon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
