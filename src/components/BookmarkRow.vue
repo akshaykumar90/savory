@@ -18,29 +18,21 @@
         <a v-for="(tag, index) in b.tags" :key="index">
           {{ tag }}
         </a>
-        <a href="#">+</a>
+        <tags-button></tags-button>
       </div>
       <span class="inline-block mt-2">4 days ago</span>
     </div>
   </div>
 </template>
 
-<script>
-const item = {
+<script setup>
+import TagsButton from './InlineTagsButton.vue'
+const b = {
   date_added: 1639901969084,
   id: 'kr9kAMLx',
   tags: ['web.dev', 'frontend', 'books', 'performance', 'nextjs'],
   title:
     'How QuintoAndar increased conversion rates and pages per session by improving page performance',
   url: 'https://web.dev/quintoandar/',
-}
-
-export default {
-  name: 'bookmark-row',
-  setup() {
-    return {
-      b: item,
-    }
-  },
 }
 </script>
