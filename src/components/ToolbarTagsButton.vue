@@ -1,11 +1,10 @@
 <template>
   <Popover class="relative" v-slot="{ open }">
     <PopoverButton
-      :class="[
-        open ? 'text-gray-900' : 'text-gray-500',
-        'group bg-white rounded-md inline-flex items-center text-base font-medium hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500',
-      ]"
+      type="button"
+      class="hidden sm:inline-flex -ml-px relative items-center px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
     >
+      <ReplyIcon class="mr-2.5 h-5 w-5 text-gray-400" aria-hidden="true" />
       <span>Tags</span>
     </PopoverButton>
 
@@ -18,7 +17,7 @@
       leave-to-class="opacity-0 translate-y-1"
     >
       <PopoverPanel
-        class="absolute z-10 left-0 mt-3 px-2 w-screen max-w-xs sm:px-0"
+        class="absolute z-50 left-0 mt-3 px-2 w-screen max-w-xs sm:px-0 bg-white"
       >
         <div
           class="ring-1 ring-black ring-opacity-5 overflow-hidden shadow-lg rounded-lg divide-y divide-gray-200"
@@ -48,6 +47,7 @@
 
 <script setup>
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
+import { ReplyIcon } from '@heroicons/vue/solid'
 import TagButton from './TagButton.vue'
 const tags = [
   'web.dev',
