@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-start" @click="">
+  <li class="flex items-start py-4" @click="">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       class="h-12 w-12 -mt-1"
@@ -22,7 +22,7 @@
       </div>
       <span class="inline-block mt-2">4 days ago</span>
     </div>
-  </div>
+  </li>
 </template>
 
 <script setup>

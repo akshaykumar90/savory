@@ -8,8 +8,8 @@
     </div>
     <div class="h-16"></div>
   </div>
-  <div class="flex flex-row gap-8 ml-2">
-    <div class="w-[275px]">
+  <div class="flex flex-row gap-8 sm:ml-2">
+    <div class="hidden sm:block w-[275px]">
       <div class="fixed top-16 w-[275px]">
         <NavSidebar></NavSidebar>
       </div>
@@ -24,12 +24,12 @@
         leave-to-class="opacity-0 -translate-y-6"
       >
         <TopToolbar
-          v-if="show"
+          v-if="true"
           class="fixed z-20 left-0 top-0 right-0"
         ></TopToolbar>
       </transition>
       <pagination-card></pagination-card>
-      <div class="space-y-4" @click="show = !show">
+      <ul role="list" class="flex flex-col divide-y divide-gray-200">
         <bookmark-row />
         <bookmark-row />
         <bookmark-row />
@@ -40,7 +40,7 @@
         <bookmark-row />
         <bookmark-row />
         <bookmark-row />
-      </div>
+      </ul>
     </main>
   </div>
 </template>

@@ -2,7 +2,7 @@
   <Popover class="relative" v-slot="{ open }">
     <PopoverButton
       type="button"
-      class="hidden sm:inline-flex -ml-px relative items-center px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+      class="inline-flex -ml-px relative items-center px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
     >
       <ReplyIcon class="mr-2.5 h-5 w-5 text-gray-400" aria-hidden="true" />
       <span>Tags</span>
