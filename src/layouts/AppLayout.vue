@@ -16,7 +16,7 @@
       leave-to-class="opacity-0 -translate-y-6"
     >
       <TopToolbar
-        v-if="false"
+        v-if="true"
         class="fixed z-20 left-0 top-0 right-0"
       ></TopToolbar>
     </transition>

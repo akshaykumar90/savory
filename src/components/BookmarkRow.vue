@@ -12,7 +12,11 @@
         <a v-for="(tag, index) in b.tags" :key="index">
           {{ tag }}
         </a>
-        <tags-button></tags-button>
+        <tags-popover>
+          <PopoverButton type="button">
+            <span>add tag</span>
+          </PopoverButton>
+        </tags-popover>
       </div>
       <span class="inline-block mt-2">4 days ago</span>
     </div>
@@ -20,7 +24,8 @@
 </template>
 
 <script setup>
-import TagsButton from './InlineTagsButton.vue'
+import TagsPopover from './TagsPopover.vue'
+import { PopoverButton } from '@headlessui/vue'
 import { MenuAlt2Icon } from '@heroicons/vue/solid'
 
 const b = {

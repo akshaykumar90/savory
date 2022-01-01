@@ -6,7 +6,18 @@
         <div>
           <span class="relative z-0 inline-flex rounded-md space-x-3">
             <span class="inline-flex sm:shadow-sm">
-              <tags-button></tags-button>
+              <tags-popover>
+                <PopoverButton
+                  type="button"
+                  class="inline-flex -ml-px relative items-center px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+                >
+                  <ReplyIcon
+                    class="mr-2.5 h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                  <span>Tags</span>
+                </PopoverButton>
+              </tags-popover>
             </span>
 
             <span class="inline-flex sm:shadow-sm">
@@ -30,6 +41,8 @@
 
 <script setup>
 import { ArchiveIcon as ArchiveIconSolid } from '@heroicons/vue/solid'
+import { ReplyIcon } from '@heroicons/vue/solid'
+import { PopoverButton } from '@headlessui/vue'
 
-import TagsButton from './ToolbarTagsButton.vue'
+import TagsPopover from './TagsPopover.vue'
 </script>
