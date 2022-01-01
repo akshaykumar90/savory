@@ -12,7 +12,11 @@
       <PopoverPanel
         class="absolute z-50 left-0 mt-3 px-2 w-screen max-w-xs sm:px-0"
       >
-        <edit-tags></edit-tags>
+        <div
+          class="bg-white ring-1 ring-black ring-opacity-5 overflow-hidden shadow-lg rounded-lg"
+        >
+          <edit-tags></edit-tags>
+        </div>
       </PopoverPanel>
     </transition>
   </Popover>

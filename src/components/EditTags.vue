@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="bg-white ring-1 ring-black ring-opacity-5 overflow-hidden shadow-lg rounded-lg divide-y divide-gray-200"
-  >
+  <div class="divide-y divide-gray-200">
     <div class="px-4 py-5 sm:p-6">
       <div class="flex">
         <label for="add-tag" class="sr-only">Add tag</label>
