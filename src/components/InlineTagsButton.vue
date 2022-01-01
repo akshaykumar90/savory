@@ -1,5 +1,5 @@
 <template>
-  <Popover class="relative" v-slot="{ open }">
+  <Popover class="inline relative" v-slot="{ open }">
     <PopoverButton type="button">
       <span>add tag</span>
     </PopoverButton>

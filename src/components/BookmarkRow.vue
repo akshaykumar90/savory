@@ -14,7 +14,7 @@
     </svg>
     <div class="ml-4">
       <h3>{{ b.title }}</h3>
-      <div class="mt-2 flex flex-row space-x-1.5">
+      <div class="mt-2 flex flex-row flex-wrap gap-1.5">
         <a v-for="(tag, index) in b.tags" :key="index">
           {{ tag }}
         </a>
