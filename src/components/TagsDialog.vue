@@ -63,7 +63,7 @@
   </TransitionRoot>
 </template>
 
-<script>
+<script setup>
 import { ref } from 'vue'
 import {
   TransitionRoot,
@@ -73,27 +73,17 @@ import {
   DialogTitle,
 } from '@headlessui/vue'
 
-export default {
-  components: {
-    TransitionRoot,
-    TransitionChild,
-    Dialog,
-    DialogOverlay,
-    DialogTitle,
-  },
+const isOpen = ref(false)
 
-  setup() {
-    const isOpen = ref(false)
-
-    return {
-      isOpen,
-      closeModal() {
-        isOpen.value = false
-      },
-      openModal() {
-        isOpen.value = true
-      },
-    }
-  },
+function closeModal() {
+  isOpen.value = false
 }
+
+function openModal() {
+  isOpen.value = true
+}
+
+defineExpose({
+  openModal,
+})
 </script>
