@@ -1,9 +1,11 @@
 <template>
   <li class="flex items-start py-4 gap-2" @click="">
-    <MenuAlt2Icon
-      class="flex-none h-5 w-5 mt-0.5 mx-4 text-gray-400"
-      aria-hidden="true"
-    />
+    <button>
+      <MenuAlt2Icon
+        class="flex-none h-5 w-5 mt-0.5 mx-4 text-gray-400"
+        aria-hidden="true"
+      />
+    </button>
     <div>
       <h3>{{ b.title }}</h3>
       <div class="mt-2 flex flex-row flex-wrap gap-1.5">
