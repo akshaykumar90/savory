@@ -1,18 +1,10 @@
 <template>
-  <li class="flex items-start py-4" @click="">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      class="h-12 w-12 -mt-1"
-      viewBox="0 0 20 20"
-      fill="currentColor"
-    >
-      <path
-        fill-rule="evenodd"
-        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-        clip-rule="evenodd"
-      />
-    </svg>
-    <div class="ml-4">
+  <li class="flex items-start py-4 gap-2" @click="">
+    <MenuAlt2Icon
+      class="flex-none h-5 w-5 mt-0.5 mx-4 text-gray-400"
+      aria-hidden="true"
+    />
+    <div>
       <h3>{{ b.title }}</h3>
       <div class="mt-2 flex flex-row flex-wrap gap-1.5">
         <a v-for="(tag, index) in b.tags" :key="index">
@@ -27,6 +19,8 @@
 
 <script setup>
 import TagsButton from './InlineTagsButton.vue'
+import { MenuAlt2Icon } from '@heroicons/vue/solid'
+
 const b = {
   date_added: 1639901969084,
   id: 'kr9kAMLx',

@@ -1,5 +1,5 @@
 <template>
-  <div class="border-b">
+  <div>
     <nav
       class="bg-white py-3 flex mx-3 gap-4 items-center justify-between"
       aria-label="Pagination"
