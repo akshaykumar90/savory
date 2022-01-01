@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div class="h-16"></div>
     <div
       class="w-full fixed top-0 h-16 z-10 transition-shadow"
       :class="{ 'shadow-lg': scrollTop > 0 }"
@@ -19,7 +20,6 @@
         class="fixed z-20 left-0 top-0 right-0"
       ></TopToolbar>
     </transition>
-    <div class="h-16"></div>
   </div>
   <div class="flex flex-row gap-4 sm:mx-2">
     <div class="hidden sm:block flex-none w-[275px]">

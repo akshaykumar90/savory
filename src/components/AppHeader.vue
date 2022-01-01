@@ -7,8 +7,8 @@
           <div class="flex-shrink-0">
             <a href="#">
               <img
-                class="h-8 w-auto"
-                src="https://tailwindui.com/img/logos/workflow-mark-indigo-300.svg"
+                class="h-14 w-auto"
+                src="../assets/logo_light.svg"
                 alt="Savory"
               />
             </a>
@@ -19,7 +19,9 @@
         <div class="flex-1 flex justify-center lg:justify-end">
           <div class="w-full px-2 lg:px-6">
             <label for="search" class="sr-only">Search bookmarks</label>
-            <div class="relative text-black-200 focus-within:text-gray-400">
+            <div
+              class="relative text-black-200 focus-within:text-gray-400 h-[46px]"
+            >
               <div
                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
               >
@@ -28,7 +30,7 @@
               <input
                 id="search"
                 name="search"
-                class="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-gray-400 bg-opacity-25 text-black-100 placeholder-black-200 focus:outline-none focus:bg-white focus:ring-0 focus:placeholder-gray-400 focus:text-gray-900 sm:text-sm"
+                class="block w-full h-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-gray-400 bg-opacity-25 text-black-100 placeholder-black-200 focus:outline-none focus:bg-white focus:ring-0 focus:placeholder-gray-400 focus:text-gray-900 sm:text-sm"
                 placeholder="Search bookmarks"
                 type="search"
               />
@@ -55,11 +57,19 @@
                   class="bg-indigo-700 flex text-sm rounded-full text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-700 focus:ring-white"
                 >
                   <span class="sr-only">Open user menu</span>
-                  <img
-                    class="h-8 w-8 rounded-full"
-                    src="https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=256&h=256&q=80"
-                    alt=""
-                  />
+                  <span
+                    class="inline-block h-8 w-8 rounded-full overflow-hidden bg-blue-800"
+                  >
+                    <svg
+                      class="h-full w-full text-gray-300"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z"
+                      />
+                    </svg>
+                  </span>
                 </MenuButton>
               </div>
               <transition
