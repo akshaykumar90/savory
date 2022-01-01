@@ -1,9 +1,20 @@
 <template>
   <div class="border-b">
     <nav
-      class="bg-white py-3 flex flex-row-reverse mx-3 gap-4 items-center justify-between sm:justify-start"
+      class="bg-white py-3 flex mx-3 gap-4 items-center justify-between"
       aria-label="Pagination"
     >
+      <div>
+        <p class="text-sm text-gray-700">
+          <span class="font-medium">{{ start }}</span>
+          {{ ' - ' }}
+          <span class="font-medium">{{ end }}</span>
+          {{ ' ' }}
+          of
+          {{ ' ' }}
+          <span class="font-medium">{{ total }}</span>
+        </p>
+      </div>
       <span class="relative z-0 inline-flex shadow-sm rounded-md">
         <button
           type="button"
@@ -20,17 +31,6 @@
           <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
         </button>
       </span>
-      <div>
-        <p class="text-sm text-gray-700">
-          <span class="font-medium">{{ start }}</span>
-          {{ ' - ' }}
-          <span class="font-medium">{{ end }}</span>
-          {{ ' ' }}
-          of
-          {{ ' ' }}
-          <span class="font-medium">{{ total }}</span>
-        </p>
-      </div>
     </nav>
   </div>
 </template>
