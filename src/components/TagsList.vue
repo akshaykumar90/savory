@@ -2,7 +2,7 @@
   <ul role="list" class="divide-y divide-gray-200">
     <li v-for="tag in tags" :key="tag" class="py-4 flex">
       <div class="w-full mx-4 flex flex-row justify-between">
-        <span class="text-gray-900">{{ tag }}</span>
+        <span class="text-gray-900 line-clamp-1">{{ tag }}</span>
         <span class="text-gray-900">20</span>
       </div>
     </li>
@@ -13,6 +13,7 @@
 const tags = [
   'web.dev',
   'frontend',
+  'performance performance performance performance',
   'books',
   'performance',
   'nextjs',
@@ -32,7 +33,6 @@ const tags = [
   'web.dev',
   'frontend',
   'books',
-  'performance',
   'nextjs',
   'performance',
   'web.dev',
