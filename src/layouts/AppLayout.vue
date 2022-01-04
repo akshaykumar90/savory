@@ -28,7 +28,8 @@
       </div>
     </div>
     <main class="border-l border-r border-b w-full max-w-[600px]">
-      <bookmarks-list></bookmarks-list>
+      <bookmarks-list v-if="false"></bookmarks-list>
+      <tags-list v-else></tags-list>
     </main>
   </div>
   <footer class="hidden sm:block h-16"></footer>
@@ -39,6 +40,7 @@ import NavSidebar from '../components/NavSidebar.vue'
 import AppHeader from '../components/AppHeader.vue'
 import TopToolbar from '../components/TopToolbar.vue'
 import BookmarksList from '../components/BookmarksList.vue'
+import TagsList from '../components/TagsList.vue'
 import { useScroll } from '@vueuse/core'
 
 const { y: scrollTop } = useScroll(window)
