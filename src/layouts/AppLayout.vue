@@ -27,10 +27,11 @@
         <NavSidebar></NavSidebar>
       </div>
     </div>
-    <main class="border-l border-r max-w-[600px]">
+    <main class="border-l border-r border-b w-full max-w-[600px]">
       <bookmarks-list></bookmarks-list>
     </main>
   </div>
+  <footer class="hidden sm:block h-16"></footer>
 </template>
 
 <script setup>
