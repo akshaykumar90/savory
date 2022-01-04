@@ -16,7 +16,7 @@
       leave-to-class="opacity-0 -translate-y-6"
     >
       <TopToolbar
-        v-if="true"
+        v-if="false"
         class="fixed z-20 left-0 top-0 right-0"
       ></TopToolbar>
     </transition>
@@ -28,34 +28,17 @@
       </div>
     </div>
     <main class="border-l border-r max-w-[600px]">
-      <pagination-card class="border-b"></pagination-card>
-      <ul role="list" class="flex flex-col divide-y divide-gray-200">
-        <bookmark-row />
-        <bookmark-row />
-        <bookmark-row />
-        <bookmark-row />
-        <bookmark-row />
-        <bookmark-row />
-        <bookmark-row />
-        <bookmark-row />
-        <bookmark-row />
-        <bookmark-row />
-      </ul>
+      <bookmarks-list></bookmarks-list>
     </main>
   </div>
 </template>
 
 <script setup>
-import BookmarkRow from '../components/BookmarkRow.vue'
 import NavSidebar from '../components/NavSidebar.vue'
 import AppHeader from '../components/AppHeader.vue'
 import TopToolbar from '../components/TopToolbar.vue'
-import PaginationCard from '../components/PaginationCard.vue'
+import BookmarksList from '../components/BookmarksList.vue'
 import { useScroll } from '@vueuse/core'
-
-import { ref } from 'vue'
-
-const show = ref(false)
 
 const { y: scrollTop } = useScroll(window)
 </script>
