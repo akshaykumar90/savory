@@ -2,7 +2,13 @@
   <li class="flex items-start py-4 gap-2" @click="">
     <button>
       <MenuAlt2Icon
+        v-if="!b.selected"
         class="flex-none h-5 w-5 mt-0.5 mx-4 text-gray-400"
+        aria-hidden="true"
+      />
+      <CheckIcon
+        v-else
+        class="flex-none h-6 w-6 mt-0.5 mx-3.5 text-gray-600"
         aria-hidden="true"
       />
     </button>
@@ -27,6 +33,7 @@
 import TagsPopover from './TagsPopover.vue'
 import { PopoverButton } from '@headlessui/vue'
 import { MenuAlt2Icon } from '@heroicons/vue/solid'
+import { CheckCircleIcon as CheckIcon } from '@heroicons/vue/solid'
 
 const b = {
   date_added: 1639901969084,
@@ -35,5 +42,6 @@ const b = {
   title:
     'How QuintoAndar increased conversion rates and pages per session by improving page performance',
   url: 'https://web.dev/quintoandar/',
+  selected: false,
 }
 </script>
