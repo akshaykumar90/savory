@@ -28,7 +28,7 @@
       </div>
     </div>
     <main class="border-l border-r border-b w-full max-w-[600px]">
-      <bookmarks-list v-if="false"></bookmarks-list>
+      <bookmarks-list v-if="true"></bookmarks-list>
       <tags-list v-else></tags-list>
     </main>
   </div>

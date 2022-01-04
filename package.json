@@ -31,6 +31,7 @@
     "@babel/polyfill": "^7.0.0",
     "@headlessui/vue": "^1.4.2",
     "@heroicons/vue": "^1.0.5",
+    "@tailwindcss/line-clamp": "^0.3.0",
     "@vueuse/core": "^7.4.1",
     "amplitude-js": "^7.3.3",
     "axios": "^0.21.1",
