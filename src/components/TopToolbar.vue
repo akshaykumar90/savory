@@ -1,6 +1,14 @@
 <template>
   <div class="bg-white h-16 flex items-center justify-between sm:justify-start">
-    <div class="px-4 sm:px-6 lg:px-8">1 selected</div>
+    <div class="flex items-center px-4">
+      <button
+        type="button"
+        class="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-gray-600 bg-transparent hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        <XIcon class="h-5 w-5" aria-hidden="true" />
+      </button>
+      <div class="mx-4">1 selected</div>
+    </div>
     <div class="px-4 sm:px-6 lg:px-8">
       <div class="py-3 flex justify-between">
         <div>
@@ -60,6 +68,7 @@
 
 <script setup>
 import { ArchiveIcon as ArchiveIconSolid } from '@heroicons/vue/solid'
+import { XIcon } from '@heroicons/vue/solid'
 import { ReplyIcon } from '@heroicons/vue/solid'
 import { PopoverButton } from '@headlessui/vue'
 
