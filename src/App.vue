@@ -1,22 +1,13 @@
 <template>
-  <div v-if="this.$auth.loading.value" class="h-screen grid">
-    <LoadingSpinner class="place-self-center" />
-  </div>
-  <component v-else :is="this.$route.meta.layout || 'div'">
-    <router-view />
-  </component>
+  <router-view />
+  <VueQueryDevTools :initialIsOpen="true" />
 </template>
 
-<script>
-import LoadingSpinner from './components/LoadingSpinner.vue'
+<script setup>
+import { useQueryProvider } from 'vue-query'
+import { VueQueryDevTools } from 'vue-query/devtools'
 
-export default {
-  name: 'app',
-
-  components: {
-    LoadingSpinner,
-  },
-}
+useQueryProvider()
 </script>
 
 <style src="./assets/app.css"></style>

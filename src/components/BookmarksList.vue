@@ -1,6 +1,6 @@
 <template>
   <pagination-card class="border-b"></pagination-card>
-  <ul role="list" class="flex flex-col divide-y divide-gray-200">
+  <ul role="list" v-if="data" class="flex flex-col divide-y divide-gray-200">
     <bookmark-row
       v-for="item in data['bookmarks']"
       :key="item['id']"
@@ -13,17 +13,10 @@
 <script setup>
 import BookmarkRow from '../components/BookmarkRow.vue'
 import PaginationCard from '../components/PaginationCard.vue'
+import { useQuery } from 'vue-query'
 
-const data = {
-  bookmarks: [
-    {
-      date_added: 1641302018753,
-      id: 'AxYKVywr',
-      site: 'ishadeed.com',
-      tags: ['css'],
-      title: 'Handling Short And Long Content In CSS - Ahmad Shadeed',
-      url: 'https://ishadeed.com/article/css-short-long-content/',
-    },
-  ],
-}
+const fetcher = () =>
+  ApiClient.fetchRecent({ num: 50 }).then((resp) => resp.data)
+
+const { data } = useQuery('recent', fetcher)
 </script>
