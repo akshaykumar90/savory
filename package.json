@@ -35,18 +35,17 @@
     "@tailwindcss/forms": "^0.4.0-alpha.2",
     "@vueuse/core": "^7.4.1",
     "amplitude-js": "^7.3.3",
+    "autoprefixer": "^10.4.0",
     "axios": "^0.21.1",
     "bowser": "^2.10.0",
-    "vue": "^3.2.0",
-    "vue-query": "^1.15.0",
-    "vue-router": "^4.0.0",
     "lodash": "^4.17.13",
     "moment": "^2.24.0",
     "spinkit": "^2.0.1",
     "tailwindcss": "^3.0.7",
     "tldjs": "^2.3.1",
-    "autoprefixer": "^10.4.0",
-    "vuex": "^4.0.0"
+    "vue": "^3.2.0",
+    "vue-query": "^1.15.0",
+    "vue-router": "^4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",
