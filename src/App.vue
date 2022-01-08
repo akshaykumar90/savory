@@ -1,11 +1,9 @@
 <template>
   <router-view />
-  <VueQueryDevTools :initialIsOpen="true" />
 </template>
 
 <script setup>
 import { useQueryProvider } from 'vue-query'
-import { VueQueryDevTools } from 'vue-query/devtools'
 
 useQueryProvider()
 </script>
