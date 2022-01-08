@@ -14,7 +14,6 @@ const commonConfig = merge(base, {
   },
   output: {
     path: path.join(__dirname, '../dist'),
-    filename: '[name].js',
     publicPath: '/',
   },
   plugins: [
