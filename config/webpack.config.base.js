@@ -1,4 +1,3 @@
-const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
 const Dotenv = require('dotenv-webpack')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
@@ -51,16 +50,11 @@ module.exports = {
           },
         ],
       },
-      {
-        test: /\.styl(us)?$/,
-        use: ['vue-style-loader', 'css-loader', 'stylus-loader'],
-      },
     ],
   },
   plugins: [
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
     new VueLoaderPlugin(),
-    new FriendlyErrorsPlugin(),
     new Dotenv({
       systemvars: true,
     }),

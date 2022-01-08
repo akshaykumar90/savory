@@ -4,7 +4,7 @@ const fs = require('fs')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
-const merge = require('webpack-merge')
+const { merge } = require('webpack-merge')
 const base = require('./webpack.config.base.js')
 const { DefinePlugin } = require('webpack')
 
@@ -23,12 +23,14 @@ const commonConfig = merge(base, {
       chunks: ['webapp'],
       filename: 'index.html',
     }),
-    new CopyWebpackPlugin([
-      {
-        from: 'src/assets/icons/*.png',
-        flatten: true,
-      },
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/assets/icons/*.png',
+          to: '[name][ext]',
+        },
+      ],
+    }),
   ],
 })
 
@@ -44,9 +46,12 @@ function getDevelopmentConfig() {
     mode: 'development',
     devtool: 'inline-source-map',
     devServer: {
-      contentBase: './dist',
+      static: {
+        directory: path.join(__dirname, 'dist'),
+      },
       historyApiFallback: true,
-      public: 'app.savory.test:8080',
+      host: 'app.savory.test',
+      port: 8080,
       https: {
         key: fs.readFileSync(`${homedir}/Projects/certs/${keyFilename}`),
         cert: fs.readFileSync(`${homedir}/Projects/certs/${certFilename}`),
@@ -66,12 +71,11 @@ const productionConfig = {
 }
 
 module.exports = (env) => {
-  switch (env) {
-    case 'development':
-      return merge(commonConfig, getDevelopmentConfig())
-    case 'production':
-      return merge(commonConfig, productionConfig)
-    default:
-      throw new Error('No matching configuration was found!')
+  if (env.development) {
+    return merge(commonConfig, getDevelopmentConfig())
   }
+  if (env.production) {
+    return merge(commonConfig, productionConfig)
+  }
+  throw new Error('No matching configuration was found!')
 }
