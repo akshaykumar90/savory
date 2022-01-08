@@ -12,7 +12,7 @@
         aria-hidden="true"
       />
     </button>
-    <div>
+    <div class="pr-2">
       <h3 class="line-clamp-2">{{ title }}</h3>
       <div class="mt-2 flex flex-row flex-wrap gap-1.5">
         <a v-for="(tag, index) in tags" :key="index">
