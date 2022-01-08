@@ -21,6 +21,11 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto',
+      },
+      {
         test: /\.(png|jpg|gif|svg)$/,
         loader: 'url-loader',
         options: {

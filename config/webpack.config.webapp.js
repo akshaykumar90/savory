@@ -19,7 +19,7 @@ const commonConfig = merge(base, {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, '../src', 'bookmarks.html'),
+      template: path.join(__dirname, '../src', 'index.html'),
       chunks: ['webapp'],
       filename: 'index.html',
     }),
