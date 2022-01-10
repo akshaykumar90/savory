@@ -1,4 +1,6 @@
 import { createApp, watch } from 'vue'
+import { createPinia } from 'pinia'
+
 import App from './App.vue'
 import { getRouter } from './router'
 import { AuthClient } from './auth'
@@ -38,6 +40,8 @@ app.config.globalProperties.$auth = auth
 const router = getRouter(auth)
 
 app.use(router)
+
+app.use(createPinia())
 
 // This cannot happen from within authClient since it is shared by the user-facing
 // app and the background extension. This is a no-op in the background
