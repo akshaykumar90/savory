@@ -13,10 +13,11 @@
 <script setup>
 import BookmarkRow from '../components/BookmarkRow.vue'
 import PaginationCard from '../components/PaginationCard.vue'
-import { useQuery } from 'vue-query'
 
-const fetcher = () =>
-  ApiClient.fetchRecent({ num: 50 }).then((resp) => resp.data)
+import { useRoute } from 'vue-router'
+import useBookmarks from '../composables/useBookmarks'
 
-const { data } = useQuery('recent', fetcher)
+const route = useRoute()
+
+const { data } = useBookmarks(route.name, route.query)
 </script>

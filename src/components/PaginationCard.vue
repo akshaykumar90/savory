@@ -6,13 +6,13 @@
     >
       <div>
         <p class="text-sm text-gray-700">
-          <span class="font-medium">{{ page.start }}</span>
+          <span class="font-medium">1</span>
           {{ ' - ' }}
-          <span class="font-medium">{{ page.end }}</span>
+          <span class="font-medium">100</span>
           {{ ' ' }}
           of
           {{ ' ' }}
-          <span class="font-medium">{{ page.total }}</span>
+          <span class="font-medium">{{ lastBookmarkDateAdded }}</span>
         </p>
       </div>
       <span class="relative z-0 inline-flex shadow-sm rounded-md">
@@ -27,7 +27,7 @@
         <button
           type="button"
           class="-ml-px relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-          @click="page.next()"
+          @click="nextPage"
         >
           <span class="sr-only">Next</span>
           <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
@@ -39,7 +39,28 @@
 
 <script setup>
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/solid'
-import { usePageStore } from '../stores/page'
+// import { usePageStore } from '../stores/page'
 
-const page = usePageStore()
+import { useRoute, useRouter } from 'vue-router'
+import useBookmarks from '../composables/useBookmarks'
+import { computed, isRef, ref } from 'vue'
+
+const route = useRoute()
+const router = useRouter()
+
+const { data } = useBookmarks(route.name, route.query)
+
+const lastBookmarkDateAdded = computed(() => {
+  if (data.value) {
+    let items = data.value.bookmarks
+    return items.at(-1).date_added
+  }
+})
+
+function nextPage() {
+  console.log(lastBookmarkDateAdded.value)
+  router.push({ name: 'all', query: { before: lastBookmarkDateAdded.value } })
+}
+
+// const page = usePageStore()
 </script>

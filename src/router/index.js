@@ -51,6 +51,29 @@ export const getRouter = (auth) => {
       {
         path: '/',
         name: 'home',
+        redirect: '/all',
+      },
+      {
+        path: '/all',
+        name: 'all',
+        component: AppLayout,
+        beforeEnter: authGuard,
+        meta: {
+          requiredAuthState: 'login',
+        },
+      },
+      {
+        path: '/tag',
+        name: 'tag',
+        component: AppLayout,
+        beforeEnter: authGuard,
+        meta: {
+          requiredAuthState: 'login',
+        },
+      },
+      {
+        path: '/search',
+        name: 'search',
         component: AppLayout,
         beforeEnter: authGuard,
         meta: {
