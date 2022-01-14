@@ -4,14 +4,18 @@ export const usePageStore = defineStore('page', {
   state: () => ({
     itemsPerPage: 100,
     page: 1,
-    total: 1432,
+    total: 0,
+    pageToBefore: {},
   }),
   getters: {
+    before(state) {
+      return state.pageToBefore[state.page]
+    },
     maxPage(state) {
       return Math.ceil(state.total / state.itemsPerPage)
     },
     start(state) {
-      return state.itemsPerPage * (state.page - 1) + 1
+      return state.total && state.itemsPerPage * (state.page - 1) + 1
     },
     end(state) {
       return Math.min(this.start + state.itemsPerPage - 1, state.total)
@@ -24,15 +28,8 @@ export const usePageStore = defineStore('page', {
     },
   },
   actions: {
-    next() {
-      if (this.hasNext) {
-        this.page++
-      }
-    },
-    previous() {
-      if (this.hasPrevious) {
-        this.page--
-      }
+    savePosition(page, position) {
+      this.pageToBefore[page] = position
     },
   },
 })

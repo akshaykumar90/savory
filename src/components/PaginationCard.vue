@@ -5,21 +5,21 @@
       aria-label="Pagination"
     >
       <div>
-        <p class="text-sm text-gray-700">
-          <span class="font-medium">1</span>
+        <p class="text-sm text-gray-700" v-if="data">
+          <span class="font-medium">{{ store.start }}</span>
           {{ ' - ' }}
-          <span class="font-medium">100</span>
+          <span class="font-medium">{{ store.end }}</span>
           {{ ' ' }}
           of
           {{ ' ' }}
-          <span v-if="data" class="font-medium">{{ data.total }}</span>
+          <span v-if="data" class="font-medium">{{ store.total }}</span>
         </p>
       </div>
       <span class="relative z-0 inline-flex shadow-sm rounded-md">
         <button
           type="button"
           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-          @click="page.previous()"
+          @click="previousPage"
         >
           <span class="sr-only">Previous</span>
           <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
@@ -42,21 +42,36 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/solid'
 
 import { useRoute, useRouter } from 'vue-router'
 import useBookmarks from '../composables/useBookmarks'
-import { computed } from 'vue'
+import { usePageStore } from '../stores/page'
+import { watch } from 'vue'
 
 const route = useRoute()
 const router = useRouter()
 
-const { data } = useBookmarks(computed(() => route.query.before))
+const store = usePageStore()
 
-const lastBookmarkDateAdded = computed(() => {
-  if (data.value) {
-    let items = data.value.bookmarks
-    return items.at(-1).date_added
-  }
-})
+const { data } = useBookmarks()
 
 function nextPage() {
-  router.push({ name: 'all', query: { before: lastBookmarkDateAdded.value } })
+  if (store.hasNext) {
+    router.push({ name: route.name, query: { page: store.page + 1 } })
+  }
 }
+
+function previousPage() {
+  if (store.hasPrevious) {
+    router.push({ name: route.name, query: { page: store.page - 1 } })
+  }
+}
+
+// TODO: If you refresh a page with `page` query parameter, it does not work because backend does not support that
+// Replace the location in address bar of browser to "fix" it
+
+watch(
+  () => route.query.page,
+  // TODO: Make this wait until data fetch is successful
+  (page) => {
+    store.page = page ? Number(page) : 1
+  }
+)
 </script>

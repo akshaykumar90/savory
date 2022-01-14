@@ -51,11 +51,6 @@ export const getRouter = (auth) => {
       {
         path: '/',
         name: 'home',
-        redirect: '/all',
-      },
-      {
-        path: '/all',
-        name: 'all',
         component: AppLayout,
         beforeEnter: authGuard,
         meta: {

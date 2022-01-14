@@ -14,11 +14,7 @@
 import BookmarkRow from '../components/BookmarkRow.vue'
 import PaginationCard from '../components/PaginationCard.vue'
 
-import { useRoute } from 'vue-router'
 import useBookmarks from '../composables/useBookmarks'
-import { computed } from 'vue'
 
-const route = useRoute()
-
-const { data } = useBookmarks(computed(() => route.query.before))
+const { data } = useBookmarks()
 </script>
