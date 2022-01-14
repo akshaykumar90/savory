@@ -12,7 +12,7 @@
           {{ ' ' }}
           of
           {{ ' ' }}
-          <span class="font-medium">{{ lastBookmarkDateAdded }}</span>
+          <span v-if="data" class="font-medium">{{ data.total }}</span>
         </p>
       </div>
       <span class="relative z-0 inline-flex shadow-sm rounded-md">
@@ -39,16 +39,15 @@
 
 <script setup>
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/solid'
-// import { usePageStore } from '../stores/page'
 
 import { useRoute, useRouter } from 'vue-router'
 import useBookmarks from '../composables/useBookmarks'
-import { computed, isRef, ref } from 'vue'
+import { computed } from 'vue'
 
 const route = useRoute()
 const router = useRouter()
 
-const { data } = useBookmarks(route.name, route.query)
+const { data } = useBookmarks(computed(() => route.query.before))
 
 const lastBookmarkDateAdded = computed(() => {
   if (data.value) {
@@ -58,9 +57,6 @@ const lastBookmarkDateAdded = computed(() => {
 })
 
 function nextPage() {
-  console.log(lastBookmarkDateAdded.value)
   router.push({ name: 'all', query: { before: lastBookmarkDateAdded.value } })
 }
-
-// const page = usePageStore()
 </script>
