@@ -24,7 +24,7 @@
                     class="mr-2.5 h-5 w-5 text-gray-400"
                     aria-hidden="true"
                   />
-                  <span>Tags</span>
+                  <span>Edit</span>
                 </PopoverButton>
               </tags-popover>
             </span>
@@ -39,7 +39,7 @@
                   class="mr-2.5 h-5 w-5 text-gray-400"
                   aria-hidden="true"
                 />
-                <span>Tags</span>
+                <span>Edit</span>
                 <tags-dialog ref="tagsDialog"></tags-dialog>
               </button>
             </span>

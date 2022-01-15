@@ -21,13 +21,18 @@
         <a v-for="(tag, index) in data.tags" :key="index">
           {{ tag }}
         </a>
+      </div>
+      <div class="mt-2 flex flex-row gap-1.5">
+        <span class="inline-block">4 days ago</span>
+        {{ '·' }}
         <tags-popover :bookmark-id="bookmarkId">
           <popover-button type="button">
-            <span>add tag</span>
+            <span>edit</span>
           </popover-button>
         </tags-popover>
+        {{ '·' }}
+        <button>delete</button>
       </div>
-      <span class="inline-block mt-2">4 days ago</span>
     </div>
   </li>
 </template>
