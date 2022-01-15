@@ -15,10 +15,10 @@
       />
     </button>
     <div class="pr-2">
-      <h3 class="line-clamp-2">{{ title }}</h3>
+      <h3 class="line-clamp-2">{{ data.title }}</h3>
       <div class="mt-2 flex flex-row flex-wrap gap-1.5">
-        <a href="#" v-if="site">{{ site }}</a>
-        <a v-for="(tag, index) in tags" :key="index">
+        <a href="#" v-if="data.site">{{ data.site }}</a>
+        <a v-for="(tag, index) in data.tags" :key="index">
           {{ tag }}
         </a>
         <tags-popover :bookmark-id="bookmarkId">
@@ -39,6 +39,7 @@ import { MenuAlt2Icon } from '@heroicons/vue/solid'
 import { CheckCircleIcon as CheckIcon } from '@heroicons/vue/solid'
 import { computed } from 'vue'
 import { useSelectionStore } from '../stores/selection'
+import { useBookmark } from '../composables/useBookmark'
 
 export default {
   components: {
@@ -50,8 +51,10 @@ export default {
   props: ['bookmarkId', 'site', 'tags', 'title'],
   setup(props) {
     const store = useSelectionStore()
+    const { data } = useBookmark(props.bookmarkId)
     const selected = computed(() => store.selectedIds.has(props.bookmarkId))
     return {
+      data,
       check: () => store.add(props.bookmarkId),
       uncheck: () => store.remove(props.bookmarkId),
       selected,
