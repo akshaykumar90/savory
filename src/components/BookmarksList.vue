@@ -6,6 +6,7 @@
       :key="item['id']"
       :title="item['title']"
       :tags="item['tags']"
+      :site="item['site']"
     />
   </ul>
 </template>

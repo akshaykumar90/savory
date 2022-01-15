@@ -15,13 +15,14 @@
     <div class="pr-2">
       <h3 class="line-clamp-2">{{ title }}</h3>
       <div class="mt-2 flex flex-row flex-wrap gap-1.5">
+        <a href="#" v-if="site">{{ site }}</a>
         <a v-for="(tag, index) in tags" :key="index">
           {{ tag }}
         </a>
         <tags-popover>
-          <PopoverButton type="button">
+          <popover-button type="button">
             <span>add tag</span>
-          </PopoverButton>
+          </popover-button>
         </tags-popover>
       </div>
       <span class="inline-block mt-2">4 days ago</span>
@@ -29,13 +30,26 @@
   </li>
 </template>
 
-<script setup>
+<script>
 import TagsPopover from './TagsPopover.vue'
 import { PopoverButton } from '@headlessui/vue'
 import { MenuAlt2Icon } from '@heroicons/vue/solid'
 import { CheckCircleIcon as CheckIcon } from '@heroicons/vue/solid'
+import { ref } from 'vue'
 
-defineProps(['tags', 'title'])
-
-const selected = false
+export default {
+  components: {
+    MenuAlt2Icon,
+    CheckIcon,
+    PopoverButton,
+    TagsPopover,
+  },
+  props: ['site', 'tags', 'title'],
+  setup() {
+    const selected = ref(false)
+    return {
+      selected,
+    }
+  },
+}
 </script>
