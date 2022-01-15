@@ -16,7 +16,7 @@
       leave-to-class="opacity-0 -translate-y-6"
     >
       <TopToolbar
-        v-if="false"
+        v-if="showToolbar"
         class="fixed z-20 left-0 top-0 right-0"
       ></TopToolbar>
     </transition>
@@ -42,6 +42,12 @@ import TopToolbar from '../components/TopToolbar.vue'
 import BookmarksList from '../components/BookmarksList.vue'
 import TagsList from '../components/TagsList.vue'
 import { useScroll } from '@vueuse/core'
+import { computed } from 'vue'
+import { useSelectionStore } from '../stores/selection'
 
 const { y: scrollTop } = useScroll(window)
+
+const store = useSelectionStore()
+
+const showToolbar = computed(() => store.selectedIds.size > 0)
 </script>

@@ -37,8 +37,8 @@ import TagsPopover from './TagsPopover.vue'
 import { PopoverButton } from '@headlessui/vue'
 import { MenuAlt2Icon } from '@heroicons/vue/solid'
 import { CheckCircleIcon as CheckIcon } from '@heroicons/vue/solid'
-import { ref } from 'vue'
-import { useSelectedStore } from '../stores/selection'
+import { computed } from 'vue'
+import { useSelectionStore } from '../stores/selection'
 
 export default {
   components: {
@@ -49,11 +49,8 @@ export default {
   },
   props: ['bookmarkId', 'site', 'tags', 'title'],
   setup(props) {
-    const store = useSelectedStore()
-    const selected = ref(store.isBookmarkSelected(props.bookmarkId))
-    store.$subscribe(() => {
-      selected.value = store.isBookmarkSelected(props.bookmarkId)
-    })
+    const store = useSelectionStore()
+    const selected = computed(() => store.selectedIds.has(props.bookmarkId))
     return {
       check: () => store.add(props.bookmarkId),
       uncheck: () => store.remove(props.bookmarkId),

@@ -4,10 +4,11 @@
       <button
         type="button"
         class="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-gray-600 bg-transparent hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        @click="clearSelected"
       >
         <XIcon class="h-5 w-5" aria-hidden="true" />
       </button>
-      <div class="mx-4">1 selected</div>
+      <div class="mx-4">{{ numSelected }} selected</div>
     </div>
     <div class="px-4 sm:px-6 lg:px-8">
       <div class="py-3 flex justify-between">
@@ -75,10 +76,16 @@ import { PopoverButton } from '@headlessui/vue'
 import TagsPopover from './TagsPopover.vue'
 import TagsDialog from './TagsDialog.vue'
 import DeleteConfirmation from './DeleteConfirmation.vue'
+import { useSelectionStore } from '../stores/selection'
 
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const tagsDialog = ref(null)
+
+const store = useSelectionStore()
+
+const numSelected = computed(() => store.selectedIds.size)
+const clearSelected = () => store.clear()
 
 function openTagsDialog() {
   tagsDialog.value.openModal()
