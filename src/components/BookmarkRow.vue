@@ -5,11 +5,13 @@
         v-if="!selected"
         class="flex-none h-5 w-5 mt-0.5 mx-4 text-gray-400"
         aria-hidden="true"
+        @click="check"
       />
       <CheckIcon
         v-else
         class="flex-none h-6 w-6 mt-0.5 mx-3.5 text-gray-600"
         aria-hidden="true"
+        @click="uncheck"
       />
     </button>
     <div class="pr-2">
@@ -36,6 +38,7 @@ import { PopoverButton } from '@headlessui/vue'
 import { MenuAlt2Icon } from '@heroicons/vue/solid'
 import { CheckCircleIcon as CheckIcon } from '@heroicons/vue/solid'
 import { ref } from 'vue'
+import { useSelectedStore } from '../stores/selection'
 
 export default {
   components: {
@@ -45,9 +48,15 @@ export default {
     TagsPopover,
   },
   props: ['bookmarkId', 'site', 'tags', 'title'],
-  setup() {
-    const selected = ref(false)
+  setup(props) {
+    const store = useSelectedStore()
+    const selected = ref(store.isBookmarkSelected(props.bookmarkId))
+    store.$subscribe(() => {
+      selected.value = store.isBookmarkSelected(props.bookmarkId)
+    })
     return {
+      check: () => store.add(props.bookmarkId),
+      uncheck: () => store.remove(props.bookmarkId),
       selected,
     }
   },
