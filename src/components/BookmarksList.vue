@@ -4,6 +4,7 @@
     <bookmark-row
       v-for="item in data['bookmarks']"
       :key="item['id']"
+      :bookmarkId="item['id']"
       :title="item['title']"
       :tags="item['tags']"
       :site="item['site']"

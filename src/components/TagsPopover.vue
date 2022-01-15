@@ -15,7 +15,7 @@
         <div
           class="bg-white ring-1 ring-black ring-opacity-5 overflow-hidden shadow-lg rounded-lg"
         >
-          <edit-tags></edit-tags>
+          <edit-tags :bookmark-id="bookmarkId"></edit-tags>
         </div>
       </PopoverPanel>
     </transition>
@@ -25,4 +25,6 @@
 <script setup>
 import { Popover, PopoverPanel } from '@headlessui/vue'
 import EditTags from './EditTags.vue'
+
+defineProps(['bookmarkId'])
 </script>

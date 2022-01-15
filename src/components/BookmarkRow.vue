@@ -19,7 +19,7 @@
         <a v-for="(tag, index) in tags" :key="index">
           {{ tag }}
         </a>
-        <tags-popover>
+        <tags-popover :bookmark-id="bookmarkId">
           <popover-button type="button">
             <span>add tag</span>
           </popover-button>
@@ -44,7 +44,7 @@ export default {
     PopoverButton,
     TagsPopover,
   },
-  props: ['site', 'tags', 'title'],
+  props: ['bookmarkId', 'site', 'tags', 'title'],
   setup() {
     const selected = ref(false)
     return {

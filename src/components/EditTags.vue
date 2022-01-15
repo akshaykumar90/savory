@@ -20,17 +20,20 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import TagButton from './TagButton.vue'
-const tags = [
-  'web.dev',
-  'frontend',
-  'books',
-  'performance',
-  'nextjs',
-  'performance',
-  'web.dev',
-  'frontend',
-  'angularjs',
-]
+import useBookmark from '../composables/useBookmark'
+
+export default {
+  components: {
+    TagButton,
+  },
+  props: ['bookmarkId'],
+  setup(props) {
+    const { data } = useBookmark(props.bookmarkId)
+    return {
+      tags: data.value.tags,
+    }
+  },
+}
 </script>
