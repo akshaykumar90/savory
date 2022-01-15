@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="flex flex-wrap gap-2 px-4 py-4 sm:px-6">
-      <tag-button v-for="tag in data.tags">
+      <tag-button v-for="tag in tags">
         {{ tag }}
       </tag-button>
     </div>
@@ -24,27 +24,29 @@
 
 <script>
 import TagButton from './TagButton.vue'
-import { useBookmark, useAddTag } from '../composables/useBookmark'
 import { ref } from 'vue'
+import useBulkEditBookmarks from '../composables/useBulkEditBookmarks'
+import useEditBookmark from '../composables/useEditBookmark'
 
 export default {
   components: {
     TagButton,
   },
-  props: ['bookmarkId'],
+  props: {
+    bookmarkId: String,
+    bulk: Boolean,
+  },
   setup(props) {
     const newTag = ref('')
-    const { data } = useBookmark(props.bookmarkId)
-    const addTagMutation = useAddTag()
-    const onEnter = () =>
-      addTagMutation.mutate({
-        bookmarkId: props.bookmarkId,
-        newTag: newTag.value,
-      })
+    const { tags, addTag } = props.bulk
+      ? useBulkEditBookmarks()
+      : props.bookmarkId
+      ? useEditBookmark(props.bookmarkId)
+      : { tags: ref(null), addTag: () => {} }
     return {
       newTag,
-      onEnter,
-      data,
+      tags,
+      onEnter: () => addTag(newTag.value),
     }
   },
 }

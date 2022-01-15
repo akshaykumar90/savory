@@ -15,7 +15,7 @@
         <div>
           <span class="relative z-0 inline-flex rounded-md space-x-3">
             <span class="hidden sm:inline-flex sm:shadow-sm">
-              <tags-popover>
+              <tags-popover bulk>
                 <PopoverButton
                   type="button"
                   class="inline-flex -ml-px relative items-center px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"

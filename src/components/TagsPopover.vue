@@ -15,16 +15,26 @@
         <div
           class="bg-white ring-1 ring-black ring-opacity-5 overflow-hidden shadow-lg rounded-lg"
         >
-          <edit-tags :bookmark-id="bookmarkId"></edit-tags>
+          <edit-tags :bookmark-id="bookmarkId" :bulk="bulk"></edit-tags>
         </div>
       </PopoverPanel>
     </transition>
   </Popover>
 </template>
 
-<script setup>
+<script>
 import { Popover, PopoverPanel } from '@headlessui/vue'
 import EditTags from './EditTags.vue'
 
-defineProps(['bookmarkId'])
+export default {
+  components: {
+    PopoverPanel,
+    Popover,
+    EditTags,
+  },
+  props: {
+    bookmarkId: String,
+    bulk: Boolean,
+  },
+}
 </script>
