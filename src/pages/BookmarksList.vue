@@ -16,7 +16,18 @@
 import BookmarkRow from '../components/BookmarkRow.vue'
 import PaginationCard from '../components/PaginationCard.vue'
 
-import useBookmarks from '../composables/useBookmarks'
+import useBookmarksPage from '../composables/useBookmarksPage'
+import { watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { usePageStore } from '../stores/page'
 
-const { data } = useBookmarks()
+const { data } = useBookmarksPage()
+
+const route = useRoute()
+
+const store = usePageStore()
+
+watch([() => route.name, () => route.query], (newValues, oldValues) => {
+  store.onRouteUpdate(newValues, oldValues)
+})
 </script>

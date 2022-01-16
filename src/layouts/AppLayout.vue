@@ -28,8 +28,7 @@
       </div>
     </div>
     <main class="border-l border-r border-b w-full max-w-[600px]">
-      <bookmarks-list v-if="true"></bookmarks-list>
-      <tags-list v-else></tags-list>
+      <router-view></router-view>
     </main>
   </div>
   <footer class="hidden sm:block h-16"></footer>
@@ -39,8 +38,6 @@
 import NavSidebar from '../components/NavSidebar.vue'
 import AppHeader from '../components/AppHeader.vue'
 import TopToolbar from '../components/TopToolbar.vue'
-import BookmarksList from '../components/BookmarksList.vue'
-import TagsList from '../components/TagsList.vue'
 import { useScroll } from '@vueuse/core'
 import { computed } from 'vue'
 import { useSelectionStore } from '../stores/selection'

@@ -41,37 +41,37 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/solid'
 
 import { useRoute, useRouter } from 'vue-router'
-import useBookmarks from '../composables/useBookmarks'
+import useBookmarksPage from '../composables/useBookmarksPage'
 import { usePageStore } from '../stores/page'
-import { watch } from 'vue'
 
 const route = useRoute()
 const router = useRouter()
 
 const store = usePageStore()
 
-const { data } = useBookmarks()
+const { data } = useBookmarksPage()
 
 function nextPage() {
   if (store.hasNext) {
-    router.push({ name: route.name, query: { page: store.page + 1 } })
+    router.push({
+      name: route.name,
+      query: {
+        ...route.query,
+        page: store.page + 1,
+      },
+    })
   }
 }
 
 function previousPage() {
   if (store.hasPrevious) {
-    router.push({ name: route.name, query: { page: store.page - 1 } })
+    router.push({
+      name: route.name,
+      query: {
+        ...route.query,
+        page: store.page - 1,
+      },
+    })
   }
 }
-
-// TODO: If you refresh a page with `page` query parameter, it does not work because backend does not support that
-// Replace the location in address bar of browser to "fix" it
-
-watch(
-  () => route.query.page,
-  // TODO: Make this wait until data fetch is successful
-  (page) => {
-    store.page = page ? Number(page) : 1
-  }
-)
 </script>
