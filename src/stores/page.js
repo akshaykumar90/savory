@@ -22,27 +22,11 @@ export const usePageStore = defineStore('page', {
     tags: [],
     search: '',
     page: 1,
-    total: 0,
     pageToBefore: new Map(),
   }),
   getters: {
     before(state) {
       return state.pageToBefore.get(state.page)
-    },
-    maxPage(state) {
-      return Math.ceil(state.total / state.itemsPerPage)
-    },
-    start(state) {
-      return state.total && state.itemsPerPage * (state.page - 1) + 1
-    },
-    end(state) {
-      return Math.min(this.start + state.itemsPerPage - 1, state.total)
-    },
-    hasNext(state) {
-      return state.page < this.maxPage
-    },
-    hasPrevious(state) {
-      return state.page > 1
     },
   },
   actions: {

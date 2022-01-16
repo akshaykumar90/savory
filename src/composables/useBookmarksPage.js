@@ -15,33 +15,47 @@ export default function useBookmarksPage() {
     queryKey,
     async () => {
       let resp
+      const [pageNo, num] = [page.value, itemsPerPage.value]
+      const start = num * (pageNo - 1) + 1
+      const end = start + num - 1
+
       const commonArgs = {
         ...(site.value && { site: site.value }),
         ...(tags.value.length && { tags: tags.value }),
-        num: itemsPerPage.value,
+        num,
       }
       if (search.value !== '') {
         const args = {
           ...commonArgs,
           query: search.value,
-          skip: (page.value - 1) * itemsPerPage.value,
+          skip: (pageNo - 1) * num,
         }
         resp = await ApiClient.searchBookmarks(args)
       } else {
         const args = {
           ...commonArgs,
-          before: store.before,
+          before: store.pageToBefore.get(pageNo),
         }
         resp = await ApiClient.getBookmarksWithTag(args)
       }
-      return resp.data
+
+      const serverData = resp.data
+      const maxPageNo = Math.ceil(serverData.total / num)
+
+      return {
+        ...serverData,
+        page: pageNo,
+        start,
+        end: Math.min(end, serverData.total),
+        hasNext: pageNo < maxPageNo,
+        hasPrevious: pageNo > 1,
+      }
     },
     {
       keepPreviousData: true,
       onSuccess: (data) => {
         let lastBookmarkDateAdded = data.bookmarks.at(-1).date_added
-        store.savePosition(store.page + 1, lastBookmarkDateAdded)
-        store.total = data.total
+        store.savePosition(data.page + 1, lastBookmarkDateAdded)
         for (const bookmark of data.bookmarks) {
           queryClient.setQueryData(['bookmarks', bookmark.id], bookmark)
         }
