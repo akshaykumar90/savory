@@ -17,10 +17,19 @@
     <div class="pr-2">
       <h3 class="line-clamp-2">{{ data.title }}</h3>
       <div class="mt-2 flex flex-row flex-wrap gap-1.5">
-        <a href="#" v-if="data.site">{{ data.site }}</a>
-        <a v-for="(tag, index) in data.tags" :key="index">
+        <router-link
+          v-if="data.site"
+          :to="{ path: '/tag', query: { site: data.site } }"
+        >
+          {{ data.site }}
+        </router-link>
+        <router-link
+          v-for="(tag, index) in data.tags"
+          :key="index"
+          :to="{ path: '/tag', query: { name: tag } }"
+        >
           {{ tag }}
-        </a>
+        </router-link>
       </div>
       <div class="mt-2 flex flex-row gap-1.5">
         <span class="inline-block">4 days ago</span>
