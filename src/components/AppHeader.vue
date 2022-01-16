@@ -5,13 +5,13 @@
         <!-- Logo section -->
         <div class="flex items-center px-2 lg:px-0 xl:w-64">
           <div class="flex-shrink-0">
-            <a href="#">
+            <router-link to="/">
               <img
                 class="h-14 w-auto"
                 src="../assets/logo_light.svg"
                 alt="Savory"
               />
-            </a>
+            </router-link>
           </div>
         </div>
 
