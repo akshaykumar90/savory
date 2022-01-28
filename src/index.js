@@ -39,6 +39,8 @@ app.config.globalProperties.$auth = auth
 
 const router = getRouter(auth)
 
+window.router = router
+
 app.use(router)
 
 app.use(createPinia())

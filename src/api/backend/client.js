@@ -95,16 +95,12 @@ export class Client {
 
   ////////////////////////////////////////////////////////////////////////////
 
-  fetchRecent({ num, before }) {
-    return this._post('/bookmarks/', { num, before })
+  getBookmarks({ tags, site, num, cursor }) {
+    return this._post('/bookmarks/', { tags, site, num, cursor })
   }
 
-  getBookmarksWithTag({ tags, site, num, before }) {
-    return this._post('/bookmarks/', { tags, site, num, before })
-  }
-
-  searchBookmarks({ query, num, skip, site, tags }) {
-    return this._post('/bookmarks/search', { query, num, skip, site, tags })
+  searchBookmarks({ query, tags, site, num, cursor }) {
+    return this._post('/bookmarks/search', { query, tags, site, num, cursor })
   }
 
   getTagsCount() {

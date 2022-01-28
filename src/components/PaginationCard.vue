@@ -6,12 +6,6 @@
     >
       <div>
         <p class="text-sm text-gray-700" v-if="data">
-          <span class="font-medium">{{ data.start }}</span>
-          {{ ' - ' }}
-          <span class="font-medium">{{ data.end }}</span>
-          {{ ' ' }}
-          of
-          {{ ' ' }}
           <span class="font-medium">{{ data.total }}</span>
         </p>
       </div>
@@ -20,7 +14,7 @@
           type="button"
           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
           @click="previousPage"
-          :disabled="isFetching || !data.hasPrevious"
+          :disabled="isFetching || !data.cursor_info.has_previous_page"
         >
           <span class="sr-only">Previous</span>
           <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
@@ -29,7 +23,7 @@
           type="button"
           class="-ml-px relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
           @click="nextPage"
-          :disabled="isFetching || !data.hasNext"
+          :disabled="isFetching || !data.cursor_info.has_next_page"
         >
           <span class="sr-only">Next</span>
           <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
@@ -58,7 +52,7 @@ function nextPage() {
     name: route.name,
     query: {
       ...route.query,
-      page: store.page + 1,
+      cursor: data.value.cursor_info.next_cursor,
     },
   })
 }
@@ -68,7 +62,7 @@ function previousPage() {
     name: route.name,
     query: {
       ...route.query,
-      page: store.page - 1,
+      cursor: data.value.cursor_info.previous_cursor,
     },
   })
 }
