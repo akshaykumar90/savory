@@ -95,6 +95,10 @@ export class Client {
 
   ////////////////////////////////////////////////////////////////////////////
 
+  getBookmark({ bookmark_id }) {
+    return this._get(`/bookmarks/${bookmark_id}`)
+  }
+
   getBookmarks({ tags, site, num, cursor }) {
     return this._post('/bookmarks/', { tags, site, num, cursor })
   }
