@@ -1,7 +1,7 @@
 <template>
-  <Disclosure as="nav" class="bg-white border-b" v-slot="{ open }">
+  <Disclosure as="nav" class="border-b bg-white" v-slot="{ open }">
     <div class="px-2 sm:px-4 lg:px-8">
-      <div class="relative flex items-center justify-between h-16">
+      <div class="relative flex h-16 items-center justify-between">
         <!-- Logo section -->
         <div class="flex items-center px-2 lg:px-0 xl:w-64">
           <div class="flex-shrink-0">
@@ -16,21 +16,21 @@
         </div>
 
         <!-- Search section -->
-        <div class="flex-1 flex justify-center lg:justify-end">
+        <div class="flex flex-1 justify-center lg:justify-end">
           <div class="w-full px-2 lg:px-6">
             <label for="search" class="sr-only">Search bookmarks</label>
             <div
-              class="relative text-black-200 focus-within:text-gray-400 h-[46px]"
+              class="text-black-200 relative h-[46px] focus-within:text-gray-400"
             >
               <div
-                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
               >
                 <SearchIcon class="h-5 w-5" aria-hidden="true" />
               </div>
               <input
                 id="search"
                 name="search"
-                class="block w-full h-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-gray-400 bg-opacity-25 text-black-100 placeholder-black-200 focus:outline-none focus:bg-white focus:ring-1 focus:placeholder-gray-400 focus:text-gray-900 sm:text-sm"
+                class="text-black-100 placeholder-black-200 block h-full w-full rounded-md border border-transparent bg-gray-400 bg-opacity-25 py-2 pl-10 pr-3 leading-5 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 focus:outline-none focus:ring-1 sm:text-sm"
                 placeholder="Search bookmarks"
                 type="search"
               />
@@ -40,7 +40,7 @@
         <div class="flex lg:hidden">
           <!-- Mobile menu button -->
           <DisclosureButton
-            class="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            class="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             <span class="sr-only">Open main menu</span>
             <MenuIcon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
@@ -51,14 +51,14 @@
         <div class="hidden lg:block lg:w-80">
           <div class="flex items-center justify-end">
             <!-- Profile dropdown -->
-            <Menu as="div" class="ml-4 relative flex-shrink-0">
+            <Menu as="div" class="relative ml-4 flex-shrink-0">
               <div>
                 <MenuButton
-                  class="bg-indigo-700 flex text-sm rounded-full text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-700 focus:ring-white"
+                  class="flex rounded-full bg-indigo-700 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700"
                 >
                   <span class="sr-only">Open user menu</span>
                   <span
-                    class="inline-block h-8 w-8 rounded-full overflow-hidden bg-blue-800"
+                    class="inline-block h-8 w-8 overflow-hidden rounded-full bg-blue-800"
                   >
                     <svg
                       class="h-full w-full text-gray-300"
@@ -81,7 +81,7 @@
                 leave-to-class="transform opacity-0 scale-95"
               >
                 <MenuItems
-                  class="origin-top-right absolute z-10 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                  class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                 >
                   <MenuItem v-slot="{ active }">
                     <a
@@ -112,41 +112,41 @@
     </div>
 
     <DisclosurePanel class="lg:hidden">
-      <div class="pt-2 pb-3 space-y-1">
+      <div class="space-y-1 pt-2 pb-3">
         <DisclosureButton
           as="a"
           href="#"
-          class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+          class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
         >
           Inbox
         </DisclosureButton>
         <DisclosureButton
           as="a"
           href="#"
-          class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+          class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
         >
           Reading
         </DisclosureButton>
         <DisclosureButton
           as="a"
           href="#"
-          class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+          class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
         >
           Watching
         </DisclosureButton>
       </div>
-      <div class="pt-2 pb-3 border-t border-gray-200 space-y-1">
+      <div class="space-y-1 border-t border-gray-200 pt-2 pb-3">
         <DisclosureButton
           as="a"
           href="#"
-          class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+          class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
         >
           Your Profile
         </DisclosureButton>
         <DisclosureButton
           as="a"
           href="#"
-          class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+          class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
         >
           Sign out
         </DisclosureButton>

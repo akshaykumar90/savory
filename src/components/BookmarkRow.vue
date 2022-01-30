@@ -1,15 +1,15 @@
 <template>
-  <li class="flex items-start py-4 gap-2" @click="">
+  <li class="flex items-start gap-2 py-4" @click="">
     <button>
       <MenuAlt2Icon
         v-if="!selected"
-        class="flex-none h-5 w-5 mt-0.5 mx-4 text-gray-400"
+        class="mx-4 mt-0.5 h-5 w-5 flex-none text-gray-400"
         aria-hidden="true"
         @click="check"
       />
       <CheckIcon
         v-else
-        class="flex-none h-6 w-6 mt-0.5 mx-3.5 text-gray-600"
+        class="mx-3.5 mt-0.5 h-6 w-6 flex-none text-gray-600"
         aria-hidden="true"
         @click="uncheck"
       />

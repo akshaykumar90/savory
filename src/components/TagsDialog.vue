@@ -31,7 +31,7 @@
             leave-to="opacity-0 scale-95"
           >
             <div
-              class="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl"
+              class="my-8 inline-block w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
             >
               <edit-tags></edit-tags>
             </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-3xl mx-4 lg:mx-auto lg:text-center lg:py-8">
+  <div class="mx-4 max-w-3xl lg:mx-auto lg:py-8 lg:text-center">
     <ProgressBar ref="bar" />
     <router-view />
     <nav>
@@ -7,24 +7,11 @@
         v-if="current < total"
         :to="`/welcome/${current + 1}`"
         tag="button"
-        class="
-          inline-block
-          mt-4
-          bg-primary
-          hover:bg-blue-700
-          text-lg
-          tracking-wide
-          text-white
-          py-2
-          px-4
-          rounded
-          select-none
-          focus:outline-none
-        "
+        class="mt-4 inline-block select-none rounded bg-primary py-2 px-4 text-lg tracking-wide text-white hover:bg-blue-700 focus:outline-none"
       >
         Next →
       </router-link>
-      <p class="text-xs leading-5 mt-4 text-gray-700">
+      <p class="mt-4 text-xs leading-5 text-gray-700">
         <router-link to="/" tag="button" class="underline">
           Skip Tour
         </router-link>

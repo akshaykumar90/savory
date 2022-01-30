@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-col lg:items-center">
-    <h3 class="font-bold text-2xl lg:text-3xl mt-12 mb-8 text-gray-800">
+    <h3 class="mt-12 mb-8 text-2xl font-bold text-gray-800 lg:text-3xl">
       Need help?
     </h3>
-    <p class="text-base lg:text-xl text-gray-700 mb-12 lg:w-3/4">
+    <p class="mb-12 text-base text-gray-700 lg:w-3/4 lg:text-xl">
       If you have a question or want to submit any feedback, use the
       <img
-        class="h-12 inline"
+        class="inline h-12"
         src="https://res.cloudinary.com/savory/image/upload/v1628437717/app/onboarding/feedback-btn_fspsua.png"
         alt="Bugs & Feedback"
       />

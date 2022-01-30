@@ -8,7 +8,7 @@
           v-model="newTag"
           name="add-tag"
           id="add-tag"
-          class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           placeholder="Add a tag"
           @keyup.enter="onEnter"
         />

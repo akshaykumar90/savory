@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-col lg:items-center">
-    <h3 class="font-bold text-2xl lg:text-3xl mt-12 mb-8 text-gray-800">
+    <h3 class="mt-12 mb-8 text-2xl font-bold text-gray-800 lg:text-3xl">
       Install extension
     </h3>
-    <p class="text-base lg:text-xl text-gray-700 mb-4 lg:w-3/4">
+    <p class="mb-4 text-base text-gray-700 lg:w-3/4 lg:text-xl">
       You would need the extension to start saving your tabs.
     </p>
-    <p class="text-base lg:text-xl text-gray-700 mb-4 lg:w-3/4">
+    <p class="mb-4 text-base text-gray-700 lg:w-3/4 lg:text-xl">
       Click below to install the official Chrome extension for Savory from
       Chrome Web Store.
     </p>

@@ -1,9 +1,9 @@
 <template>
-  <div class="bg-white h-16 flex items-center justify-between sm:justify-start">
+  <div class="flex h-16 items-center justify-between bg-white sm:justify-start">
     <div class="flex items-center px-4">
       <button
         type="button"
-        class="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-gray-600 bg-transparent hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        class="inline-flex items-center rounded-full border border-transparent bg-transparent p-2 text-gray-600 shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
         @click="clearSelected"
       >
         <XIcon class="h-5 w-5" aria-hidden="true" />
@@ -11,14 +11,14 @@
       <div class="mx-4">{{ numSelected }} selected</div>
     </div>
     <div class="px-4 sm:px-6 lg:px-8">
-      <div class="py-3 flex justify-between">
+      <div class="flex justify-between py-3">
         <div>
-          <span class="relative z-0 inline-flex rounded-md space-x-3">
+          <span class="relative z-0 inline-flex space-x-3 rounded-md">
             <span class="hidden sm:inline-flex sm:shadow-sm">
               <tags-popover bulk>
                 <PopoverButton
                   type="button"
-                  class="inline-flex -ml-px relative items-center px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+                  class="relative -ml-px inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
                 >
                   <ReplyIcon
                     class="mr-2.5 h-5 w-5 text-gray-400"
@@ -32,7 +32,7 @@
             <span class="inline-flex sm:hidden">
               <button
                 type="button"
-                class="inline-flex -ml-px relative items-center px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+                class="relative -ml-px inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
                 @click="openTagsDialog"
               >
                 <ReplyIcon
@@ -47,7 +47,7 @@
             <span class="inline-flex sm:shadow-sm">
               <button
                 type="button"
-                class="inline-flex -ml-px relative items-center px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+                class="relative -ml-px inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
                 @click="openDeleteConfirmation"
               >
                 <ArchiveIconSolid

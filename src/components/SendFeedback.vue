@@ -1,23 +1,6 @@
 <template>
   <a
-    class="
-      relative
-      appearance-none
-      inline-block
-      select-none
-      no-underline
-      bg-green-600
-      hover:bg-green-700
-      text-white text-sm
-      font-medium
-      text-center
-      align-middle
-      py-1.5
-      px-4
-      rounded-md
-      shadow-md
-      border border-opacity-20 border-green-900
-    "
+    class="relative inline-block select-none appearance-none rounded-md border border-green-900 border-opacity-20 bg-green-600 py-1.5 px-4 text-center align-middle text-sm font-medium text-white no-underline shadow-md hover:bg-green-700"
     :href="url"
     target="_blank"
     >Bugs & Feedback</a

@@ -2,7 +2,7 @@
   <div>
     <div class="h-16"></div>
     <div
-      class="w-full fixed top-0 h-16 z-10 transition-shadow"
+      class="fixed top-0 z-10 h-16 w-full transition-shadow"
       :class="{ 'shadow-lg': scrollTop > 0 }"
     >
       <AppHeader></AppHeader>
@@ -17,21 +17,21 @@
     >
       <TopToolbar
         v-if="showToolbar"
-        class="fixed z-20 left-0 top-0 right-0"
+        class="fixed left-0 top-0 right-0 z-20"
       ></TopToolbar>
     </transition>
   </div>
   <div class="flex flex-row gap-4 sm:mx-2">
-    <div class="hidden sm:block flex-none w-[275px]">
+    <div class="hidden w-[275px] flex-none sm:block">
       <div class="fixed top-16 w-[275px]">
         <NavSidebar></NavSidebar>
       </div>
     </div>
-    <main class="border-l border-r border-b w-full max-w-[600px]">
+    <main class="w-full max-w-[600px] border-l border-r border-b">
       <router-view></router-view>
     </main>
   </div>
-  <footer class="hidden sm:block h-16"></footer>
+  <footer class="hidden h-16 sm:block"></footer>
 </template>
 
 <script setup>

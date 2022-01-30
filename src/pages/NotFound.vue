@@ -1,7 +1,7 @@
 <template>
   <div>
     <header
-      class="bg-opacity-90 bg-gray-100 sticky top-0 z-50 px-4 py-4 md:px-16 flex justify-center md:justify-between items-center"
+      class="sticky top-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-90 px-4 py-4 md:justify-between md:px-16"
     >
       <div>
         <router-link to="/">
@@ -9,17 +9,15 @@
         </router-link>
       </div>
     </header>
-    <section class="max-w-3xl mx-auto px-4">
-      <div class="flex flex-col items-center text-center py-8">
-        <h3 class="text-3xl mt-12 mb-8 text-gray-800">
-          Page Not Found
-        </h3>
-        <p class="text-xl text-gray-700 mb-4 w-3/4">
+    <section class="mx-auto max-w-3xl px-4">
+      <div class="flex flex-col items-center py-8 text-center">
+        <h3 class="mt-12 mb-8 text-3xl text-gray-800">Page Not Found</h3>
+        <p class="mb-4 w-3/4 text-xl text-gray-700">
           We could not find what you were looking for.
         </p>
         <router-link to="/">
           <button
-            class="mt-4 bg-primary hover:bg-blue-700 text-lg tracking-wide text-white py-2 px-4 rounded select-none focus:outline-none"
+            class="mt-4 select-none rounded bg-primary py-2 px-4 text-lg tracking-wide text-white hover:bg-blue-700 focus:outline-none"
           >
             Go back home
           </button>

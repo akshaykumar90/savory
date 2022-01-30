@@ -1,11 +1,11 @@
 <template>
   <span
-    class="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-indigo-100 text-indigo-800"
+    class="inline-flex items-center rounded-md bg-indigo-100 px-2.5 py-0.5 text-sm font-medium text-indigo-800"
   >
     <slot></slot>
     <button
       type="button"
-      class="flex-shrink-0 ml-1 h-4 w-4 rounded-md inline-flex items-center justify-center text-indigo-400 hover:bg-indigo-200 hover:text-indigo-500 focus:outline-none focus:bg-indigo-500 focus:text-white"
+      class="ml-1 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-md text-indigo-400 hover:bg-indigo-200 hover:text-indigo-500 focus:bg-indigo-500 focus:text-white focus:outline-none"
     >
       <span class="sr-only">Remove tag</span>
       <svg class="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">

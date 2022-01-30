@@ -1,7 +1,7 @@
 <template>
   <div>
     <nav
-      class="bg-white py-3 flex mx-3 gap-4 items-center justify-between"
+      class="mx-3 flex items-center justify-between gap-4 bg-white py-3"
       aria-label="Pagination"
     >
       <div>
@@ -9,10 +9,10 @@
           <span class="font-medium">{{ data.total }}</span>
         </p>
       </div>
-      <span class="relative z-0 inline-flex shadow-sm rounded-md">
+      <span class="relative z-0 inline-flex rounded-md shadow-sm">
         <button
           type="button"
-          class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          class="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           @click="previousPage"
           :disabled="isFetching || !data.cursor_info.has_previous_page"
         >
@@ -21,7 +21,7 @@
         </button>
         <button
           type="button"
-          class="-ml-px relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          class="relative -ml-px inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           @click="nextPage"
           :disabled="isFetching || !data.cursor_info.has_next_page"
         >

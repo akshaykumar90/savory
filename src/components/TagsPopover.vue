@@ -10,10 +10,10 @@
       leave-to-class="opacity-0 translate-y-1"
     >
       <PopoverPanel
-        class="absolute z-50 left-0 mt-3 px-2 w-screen max-w-xs sm:px-0"
+        class="absolute left-0 z-50 mt-3 w-screen max-w-xs px-2 sm:px-0"
       >
         <div
-          class="bg-white ring-1 ring-black ring-opacity-5 overflow-hidden shadow-lg rounded-lg"
+          class="overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5"
         >
           <edit-tags :bookmark-id="bookmarkId" :bulk="bulk"></edit-tags>
         </div>
