@@ -6,19 +6,41 @@ import { useMutation, useQueryClient } from 'vue-query'
 function useBulkAddTag() {
   const queryClient = useQueryClient()
 
-  const updateCache = (bookmarkId, newTag) => {
-    const oldBookmark = queryClient.getQueryData(['bookmarks', bookmarkId])
-
-    const updatedBookmark = {
-      ...oldBookmark,
-      tags: [...oldBookmark.tags, newTag],
-    }
-    queryClient.setQueryData(['bookmarks', bookmarkId], updatedBookmark)
+  const updateCache = (queryKey, newTag) => {
+    queryClient.setQueryData(queryKey, (old) => {
+      return {
+        ...old,
+        tags: [...old.tags, newTag],
+      }
+    })
   }
 
   return useMutation((values) => ApiClient.bulkAddTag(values), {
-    onSuccess: (data, { bookmarkIds, newTag }) => {
-      bookmarkIds.forEach((bookmarkId) => updateCache(bookmarkId, newTag))
+    onMutate: ({ bookmarkIds, newTag }) => {
+      let oldValues = []
+      bookmarkIds.forEach((bookmarkId) => {
+        const queryKey = ['bookmarks', bookmarkId]
+        oldValues.push(queryClient.getQueryData(queryKey))
+        // Optimistic updates
+        updateCache(queryKey, newTag)
+      })
+
+      return () => {
+        oldValues.forEach((oldValue) => {
+          const queryKey = ['bookmarks', oldValue.id]
+          queryClient.setQueryData(queryKey, oldValue)
+        })
+      }
+    },
+    onError: (error, variables, rollback) => {
+      if (rollback) {
+        rollback()
+      }
+    },
+    onSettled: (data, error, { bookmarkIds }) => {
+      bookmarkIds.forEach((bookmarkId) =>
+        queryClient.invalidateQueries(['bookmarks', bookmarkId])
+      )
     },
   })
 }

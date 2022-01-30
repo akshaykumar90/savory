@@ -6,14 +6,27 @@ function useAddTag() {
   const queryClient = useQueryClient()
 
   return useMutation((values) => ApiClient.addTag(values), {
-    onSuccess: (data, { bookmarkId, newTag }) => {
-      const oldBookmark = queryClient.getQueryData(['bookmarks', bookmarkId])
+    onMutate: ({ bookmarkId, newTag }) => {
+      const queryKey = ['bookmarks', bookmarkId]
+      const oldValue = queryClient.getQueryData(queryKey)
 
-      const updatedBookmark = {
-        ...oldBookmark,
-        tags: [...oldBookmark.tags, newTag],
+      // Optimistic update
+      queryClient.setQueryData(queryKey, (old) => {
+        return {
+          ...old,
+          tags: [...old.tags, newTag],
+        }
+      })
+
+      return () => queryClient.setQueryData(queryKey, oldValue)
+    },
+    onError: (error, variables, rollback) => {
+      if (rollback) {
+        rollback()
       }
-      queryClient.setQueryData(['bookmarks', bookmarkId], updatedBookmark)
+    },
+    onSettled: (data, error, { bookmarkId }) => {
+      queryClient.invalidateQueries(['bookmarks', bookmarkId])
     },
   })
 }
