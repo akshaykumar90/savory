@@ -15,8 +15,7 @@
       </div>
     </div>
     <div class="flex flex-wrap gap-2 px-4 py-4 sm:px-6">
-      <tag-button v-for="tag in tags">
-        {{ tag }}
+      <tag-button v-for="tag in tags" :name="tag" :onRemove="onRemove">
       </tag-button>
     </div>
   </div>
@@ -38,15 +37,16 @@ export default {
   },
   setup(props) {
     const newTag = ref('')
-    const { tags, addTag } = props.bulk
+    const { tags, addTag, removeTag } = props.bulk
       ? useBulkEditBookmarks()
       : props.bookmarkId
       ? useEditBookmark(props.bookmarkId)
-      : { tags: ref(null), addTag: () => {} }
+      : { tags: ref(null), addTag: () => {}, removeTag: () => {} }
     return {
       newTag,
       tags,
       onEnter: () => addTag(newTag.value),
+      onRemove: removeTag,
     }
   },
 }
