@@ -54,7 +54,11 @@
                   as="h3"
                   class="text-lg font-medium leading-6 text-gray-900"
                 >
-                  Delete bookmark?
+                  {{
+                    idsToDelete.length > 1
+                      ? `Delete ${idsToDelete.length} bookmarks?`
+                      : 'Delete bookmark?'
+                  }}
                 </DialogTitle>
               </div>
             </div>
@@ -62,7 +66,7 @@
               <button
                 type="button"
                 class="inline-flex w-full justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-                @click="closeModal"
+                @click="onDelete"
               >
                 Delete
               </button>
@@ -82,7 +86,7 @@
   </TransitionRoot>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import {
   Dialog,
@@ -92,18 +96,51 @@ import {
   TransitionRoot,
 } from '@headlessui/vue'
 import { ExclamationIcon } from '@heroicons/vue/outline'
+import { useDeleteBookmarks } from '../composables/useBookmark'
+import { useSelectionStore } from '../stores/selection'
 
-const isOpen = ref(false)
+export default {
+  components: {
+    Dialog,
+    DialogOverlay,
+    DialogTitle,
+    TransitionChild,
+    TransitionRoot,
+    ExclamationIcon,
+  },
+  setup() {
+    const isOpen = ref(false)
+    const idsToDelete = ref([])
 
-function closeModal() {
-  isOpen.value = false
+    const store = useSelectionStore()
+    const deleteBookmarkMutation = useDeleteBookmarks()
+
+    const onDelete = () => {
+      deleteBookmarkMutation.mutate({ bookmarkIds: idsToDelete.value })
+      store.removeMultiple(idsToDelete.value)
+      isOpen.value = false
+    }
+
+    const closeModal = () => {
+      isOpen.value = false
+    }
+
+    const openModal = (bookmarkIds) => {
+      // If the modal is already open, ignore.
+      if (isOpen.value) {
+        return
+      }
+      idsToDelete.value = bookmarkIds
+      isOpen.value = true
+    }
+
+    return {
+      isOpen,
+      idsToDelete,
+      onDelete,
+      closeModal,
+      openModal,
+    }
+  },
 }
-
-function openModal() {
-  isOpen.value = true
-}
-
-defineExpose({
-  openModal,
-})
 </script>

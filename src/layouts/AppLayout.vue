@@ -32,6 +32,7 @@
     </main>
   </div>
   <footer class="hidden h-16 sm:block"></footer>
+  <delete-confirmation ref="deleteConfirmation"></delete-confirmation>
 </template>
 
 <script setup>
@@ -39,12 +40,17 @@ import NavSidebar from '../components/NavSidebar.vue'
 import AppHeader from '../components/AppHeader.vue'
 import TopToolbar from '../components/TopToolbar.vue'
 import { useScroll } from '@vueuse/core'
-import { computed } from 'vue'
+import { computed, provide, ref } from 'vue'
 import { useSelectionStore } from '../stores/selection'
+import DeleteConfirmation from '../components/DeleteConfirmation.vue'
 
 const { y: scrollTop } = useScroll(window)
 
 const store = useSelectionStore()
 
 const showToolbar = computed(() => store.selectedIds.size > 0)
+
+const deleteConfirmation = ref(null)
+
+provide('deleteConfirmation', deleteConfirmation)
 </script>

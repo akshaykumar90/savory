@@ -11,6 +11,9 @@ export const useSelectionStore = defineStore('selected', {
     remove(bookmarkId) {
       this.selectedIds.delete(bookmarkId)
     },
+    removeMultiple(bookmarkIds) {
+      bookmarkIds.forEach((x) => this.remove(x))
+    },
     clear() {
       this.selectedIds.clear()
     },

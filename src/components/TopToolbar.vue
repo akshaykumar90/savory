@@ -48,16 +48,13 @@
               <button
                 type="button"
                 class="relative -ml-px inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
-                @click="openDeleteConfirmation"
+                @click="onDelete"
               >
                 <ArchiveIconSolid
                   class="mr-2.5 h-5 w-5 text-gray-400"
                   aria-hidden="true"
                 />
                 <span>Delete</span>
-                <delete-confirmation
-                  ref="deleteConfirmation"
-                ></delete-confirmation>
               </button>
             </span>
           </span>
@@ -75,10 +72,9 @@ import { PopoverButton } from '@headlessui/vue'
 
 import TagsPopover from './TagsPopover.vue'
 import TagsDialog from './TagsDialog.vue'
-import DeleteConfirmation from './DeleteConfirmation.vue'
 import { useSelectionStore } from '../stores/selection'
 
-import { computed, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 
 const tagsDialog = ref(null)
 
@@ -91,9 +87,9 @@ function openTagsDialog() {
   tagsDialog.value.openModal()
 }
 
-const deleteConfirmation = ref(null)
+let deleteConfirmation = inject('deleteConfirmation')
 
-function openDeleteConfirmation() {
-  deleteConfirmation.value.openModal()
+function onDelete() {
+  deleteConfirmation.value.openModal(Array.from(store.selectedIds))
 }
 </script>

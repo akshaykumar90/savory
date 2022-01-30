@@ -15,16 +15,16 @@
       />
     </button>
     <div class="pr-2">
-      <h3 class="line-clamp-2">{{ data.title }}</h3>
+      <h3 class="line-clamp-2">{{ bookmark.title }}</h3>
       <div class="mt-2 flex flex-row flex-wrap gap-1.5">
         <router-link
-          v-if="data.site"
-          :to="{ path: '/tag', query: { site: data.site } }"
+          v-if="bookmark.site"
+          :to="{ path: '/tag', query: { site: bookmark.site } }"
         >
-          {{ data.site }}
+          {{ bookmark.site }}
         </router-link>
         <router-link
-          v-for="(tag, index) in data.tags"
+          v-for="(tag, index) in bookmark.tags"
           :key="index"
           :to="{ path: '/tag', query: { name: tag } }"
         >
@@ -40,7 +40,9 @@
           </popover-button>
         </tags-popover>
         {{ '·' }}
-        <button>delete</button>
+        <button type="button" @click="onDelete">
+          <span>delete</span>
+        </button>
       </div>
     </div>
   </li>
@@ -51,7 +53,7 @@ import TagsPopover from './TagsPopover.vue'
 import { PopoverButton } from '@headlessui/vue'
 import { MenuAlt2Icon } from '@heroicons/vue/solid'
 import { CheckCircleIcon as CheckIcon } from '@heroicons/vue/solid'
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 import { useSelectionStore } from '../stores/selection'
 import { useBookmark } from '../composables/useBookmark'
 
@@ -67,8 +69,13 @@ export default {
     const store = useSelectionStore()
     const { data } = useBookmark(props.bookmarkId)
     const selected = computed(() => store.selectedIds.has(props.bookmarkId))
+    let deleteConfirmation = inject('deleteConfirmation')
+    const onDelete = () => {
+      deleteConfirmation.value.openModal([props.bookmarkId])
+    }
     return {
-      data,
+      bookmark: data,
+      onDelete,
       check: () => store.add(props.bookmarkId),
       uncheck: () => store.remove(props.bookmarkId),
       selected,
