@@ -18,16 +18,21 @@ import PaginationCard from '../components/PaginationCard.vue'
 
 import useBookmarksPage from '../composables/useBookmarksPage'
 import { watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { usePageStore } from '../stores/page'
+import { useQueryClient } from 'vue-query'
 
 const { data } = useBookmarksPage()
 
 const route = useRoute()
 
 const store = usePageStore()
+const queryClient = useQueryClient()
 
-watch([() => route.name, () => route.query], (newValues, oldValues) => {
-  store.onRouteUpdate(newValues, oldValues)
+watch([() => route.name, () => route.query], (newValues) => {
+  const [name, query] = newValues
+  store.onRouteUpdate({ name, query })
 })
+
+onBeforeRouteUpdate((to) => store.onBeforeRouteUpdate(to, queryClient))
 </script>

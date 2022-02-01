@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import { storeToRefs } from 'pinia'
 
 import { usePageStore } from '../stores/page'
+import { fetchBookmarks } from '../lib/bookmarks'
 
 export default function useBookmarksPage() {
   const queryClient = useQueryClient()
@@ -13,28 +14,14 @@ export default function useBookmarksPage() {
 
   return useQuery(
     queryKey,
-    async () => {
-      let resp
-      const num = itemsPerPage.value
-
-      const commonArgs = {
-        ...(site.value && { site: site.value }),
-        ...(tags.value.length && { tags: tags.value }),
-        ...(cursor.value && { cursor: cursor.value }),
-        num,
-      }
-      if (search.value !== '') {
-        const args = {
-          ...commonArgs,
-          query: search.value,
-        }
-        resp = await ApiClient.searchBookmarks(args)
-      } else {
-        resp = await ApiClient.getBookmarks(commonArgs)
-      }
-
-      return resp.data
-    },
+    () =>
+      fetchBookmarks({
+        site: site.value,
+        tags: tags.value,
+        search: search.value,
+        cursor: cursor.value,
+        itemsPerPage: itemsPerPage.value,
+      }),
     {
       keepPreviousData: true,
       onSuccess: (data) => {

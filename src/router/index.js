@@ -7,6 +7,18 @@ import { getAuthGuard } from '../auth'
 import { getOnboardingRoutes } from '../lib/onboarding'
 import LoginCallback from '../pages/LoginCallback'
 import AppLayout from '../layouts/AppLayout.vue'
+import { usePageStore } from '../stores/page'
+
+const bookmarksListScrollBehavior = (savedPosition) => {
+  const store = usePageStore()
+  return store.fetchPromise.then(() => {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  })
+}
 
 export const getRouter = (auth) => {
   const authGuard = getAuthGuard(auth)
@@ -17,6 +29,16 @@ export const getRouter = (auth) => {
 
   return createRouter({
     history: createWebHistory(),
+    scrollBehavior(to, from, savedPosition) {
+      if (to.meta.customScrollBehavior) {
+        return to.meta.customScrollBehavior(savedPosition)
+      }
+      if (savedPosition) {
+        return savedPosition
+      } else {
+        return { top: 0 }
+      }
+    },
     routes: [
       {
         path: '/provider_cb',
@@ -51,32 +73,14 @@ export const getRouter = (auth) => {
       },
       {
         path: '/',
+        alias: ['/tag', '/search'],
         name: 'home',
         component: BookmarksList,
         beforeEnter: authGuard,
         meta: {
           layout: AppLayout,
           requiredAuthState: 'login',
-        },
-      },
-      {
-        path: '/tag',
-        name: 'tag',
-        component: BookmarksList,
-        beforeEnter: authGuard,
-        meta: {
-          layout: AppLayout,
-          requiredAuthState: 'login',
-        },
-      },
-      {
-        path: '/search',
-        name: 'search',
-        component: BookmarksList,
-        beforeEnter: authGuard,
-        meta: {
-          layout: AppLayout,
-          requiredAuthState: 'login',
+          customScrollBehavior: bookmarksListScrollBehavior,
         },
       },
       {
