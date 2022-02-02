@@ -202,6 +202,7 @@ watch(
     } else {
       query.value = routeQuery.q
     }
-  }
+  },
+  { immediate: true }
 )
 </script>
