@@ -36,11 +36,10 @@
 <script setup>
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/solid'
 
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import useBookmarksPage from '../composables/useBookmarksPage'
 import { usePageStore } from '../stores/page'
 
-const route = useRoute()
 const router = useRouter()
 
 const store = usePageStore()
@@ -48,22 +47,12 @@ const store = usePageStore()
 const { isFetching, data } = useBookmarksPage()
 
 function nextPage() {
-  router.push({
-    path: route.path,
-    query: {
-      ...route.query,
-      cursor: data.value.cursor_info.next_cursor,
-    },
-  })
+  let cursor = data.value.cursor_info.next_cursor
+  store.updateCursor(cursor, router)
 }
 
 function previousPage() {
-  router.push({
-    path: route.path,
-    query: {
-      ...route.query,
-      cursor: data.value.cursor_info.previous_cursor,
-    },
-  })
+  let cursor = data.value.cursor_info.previous_cursor
+  store.updateCursor(cursor, router)
 }
 </script>

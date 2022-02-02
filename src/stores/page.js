@@ -48,7 +48,7 @@ function getNormalizedPage(routeName, routeQuery) {
 
 export const usePageStore = defineStore('page', {
   state: () => ({
-    itemsPerPage: 100,
+    itemsPerPage: 10,
     fetchPromise: Promise.resolve({}),
     ...getNormalizedPage(
       window.router.currentRoute.value.name,
@@ -73,6 +73,18 @@ export const usePageStore = defineStore('page', {
               })
             )
             .then(() => ({}))
+    },
+    updateCursor(cursor, router) {
+      let path = router.currentRoute.value.path
+      router.push({
+        path,
+        query: {
+          ...(this.site && { site: this.site }),
+          ...(this.tags.length && { name: this.tags }),
+          ...(this.search && { q: this.search }),
+          ...(cursor && { cursor }),
+        },
+      })
     },
   },
 })
