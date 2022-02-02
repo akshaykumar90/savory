@@ -31,6 +31,8 @@
 
 import { defineStore } from 'pinia'
 import { fetchBookmarks } from '../lib/bookmarks'
+import { useSelectionStore } from './selection'
+import _ from 'lodash'
 
 function getNormalizedPage(routeName, routeQuery) {
   const tags = !routeQuery.name
@@ -57,8 +59,19 @@ export const usePageStore = defineStore('page', {
   }),
   actions: {
     onRouteUpdate(newRoute) {
-      const normalizedPage = getNormalizedPage(newRoute.name, newRoute.query)
-      this.$patch(normalizedPage)
+      const store = useSelectionStore()
+      const newPage = getNormalizedPage(newRoute.name, newRoute.query)
+      const sameSite = newPage.site === this.site
+      // We cannot directly compare `this.tags` here because it is actually a
+      // proxy created by the Vue reactivity system
+      const sameTags = _.isEqual(newPage.tags, Array.from(this.tags))
+      const sameSearchQuery = newPage.search === this.search
+
+      if (!sameSite || !sameTags || !sameSearchQuery) {
+        store.clear()
+      }
+
+      this.$patch(newPage)
     },
     onBeforeRouteUpdate(newRoute, queryClient) {
       let queryParams = getNormalizedPage(newRoute.name, newRoute.query)
