@@ -28,11 +28,15 @@
                 <SearchIcon class="h-5 w-5" aria-hidden="true" />
               </div>
               <input
+                type="text"
+                placeholder="Search bookmarks"
+                autocomplete="off"
+                spellcheck="false"
                 id="search"
                 name="search"
                 class="text-black-100 placeholder-black-200 block h-full w-full rounded-md border border-transparent bg-gray-400 bg-opacity-25 py-2 pl-10 pr-3 leading-5 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 focus:outline-none focus:ring-1 sm:text-sm"
-                placeholder="Search bookmarks"
-                type="search"
+                v-model="query"
+                @keyup="doSearch"
               />
             </div>
           </div>
@@ -167,4 +171,21 @@ import {
 } from '@headlessui/vue'
 import { SearchIcon } from '@heroicons/vue/solid'
 import { MenuIcon, XIcon } from '@heroicons/vue/outline'
+import { ref } from 'vue'
+
+import _ from 'lodash'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+let query = ref('')
+
+const doSearch = _.debounce(function () {
+  let q = query.value.trim()
+  if (q) {
+    router.push({ path: '/search', query: { q } })
+  } else {
+    router.push('/')
+  }
+}, 300)
 </script>
