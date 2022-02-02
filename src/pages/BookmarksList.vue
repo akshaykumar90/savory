@@ -29,10 +29,10 @@ const route = useRoute()
 const store = usePageStore()
 const queryClient = useQueryClient()
 
-watch([() => route.name, () => route.query], (newValues) => {
-  const [name, query] = newValues
-  store.onRouteUpdate({ name, query })
-})
+watch(
+  () => route.query,
+  (routeQuery) => store.onRouteUpdate(routeQuery)
+)
 
 onBeforeRouteUpdate((to) => store.onBeforeRouteUpdate(to, queryClient))
 </script>

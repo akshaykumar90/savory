@@ -34,7 +34,7 @@ import { fetchBookmarks } from '../lib/bookmarks'
 import { useSelectionStore } from './selection'
 import _ from 'lodash'
 
-function getNormalizedPage(routeName, routeQuery) {
+function getNormalizedPage(routeQuery) {
   const tags = !routeQuery.name
     ? []
     : Array.isArray(routeQuery.name)
@@ -52,15 +52,12 @@ export const usePageStore = defineStore('page', {
   state: () => ({
     itemsPerPage: 10,
     fetchPromise: Promise.resolve({}),
-    ...getNormalizedPage(
-      window.router.currentRoute.value.name,
-      window.router.currentRoute.value.query
-    ),
+    ...getNormalizedPage(window.router.currentRoute.value.query),
   }),
   actions: {
-    onRouteUpdate(newRoute) {
+    onRouteUpdate(routeQuery) {
       const store = useSelectionStore()
-      const newPage = getNormalizedPage(newRoute.name, newRoute.query)
+      const newPage = getNormalizedPage(routeQuery)
       const sameSite = newPage.site === this.site
       // We cannot directly compare `this.tags` here because it is actually a
       // proxy created by the Vue reactivity system
@@ -74,7 +71,7 @@ export const usePageStore = defineStore('page', {
       this.$patch(newPage)
     },
     onBeforeRouteUpdate(newRoute, queryClient) {
-      let queryParams = getNormalizedPage(newRoute.name, newRoute.query)
+      let queryParams = getNormalizedPage(newRoute.query)
       const queryKey = ['pages', queryParams]
       this.fetchPromise = queryClient.getQueryData(queryKey)
         ? Promise.resolve({})
