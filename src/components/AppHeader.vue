@@ -171,13 +171,14 @@ import {
 } from '@headlessui/vue'
 import { SearchIcon } from '@heroicons/vue/solid'
 import { MenuIcon, XIcon } from '@heroicons/vue/outline'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import _ from 'lodash'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { usePageStore } from '../stores/page'
 
 const router = useRouter()
+const route = useRoute()
 const store = usePageStore()
 
 let query = ref('')
@@ -190,4 +191,15 @@ const doSearch = _.debounce(function () {
     router.push('/')
   }
 }, 300)
+
+watch(
+  () => route.path,
+  (path) => {
+    if (path !== '/search') {
+      query.value = ''
+    } else {
+      query.value = route.query.q
+    }
+  }
+)
 </script>
