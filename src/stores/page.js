@@ -86,5 +86,15 @@ export const usePageStore = defineStore('page', {
         },
       })
     },
+    updateSearch(query, router) {
+      router.push({
+        path: '/search',
+        query: {
+          ...(this.site && { site: this.site }),
+          ...(this.tags.length && { name: this.tags }),
+          ...(query && { q: query }),
+        },
+      })
+    },
   },
 })

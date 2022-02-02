@@ -175,15 +175,17 @@ import { ref } from 'vue'
 
 import _ from 'lodash'
 import { useRouter } from 'vue-router'
+import { usePageStore } from '../stores/page'
 
 const router = useRouter()
+const store = usePageStore()
 
 let query = ref('')
 
 const doSearch = _.debounce(function () {
   let q = query.value.trim()
   if (q) {
-    router.push({ path: '/search', query: { q } })
+    store.updateSearch(q, router)
   } else {
     router.push('/')
   }
