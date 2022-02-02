@@ -49,7 +49,7 @@ const { isFetching, data } = useBookmarksPage()
 
 function nextPage() {
   router.push({
-    name: route.name,
+    path: route.path,
     query: {
       ...route.query,
       cursor: data.value.cursor_info.next_cursor,
@@ -59,7 +59,7 @@ function nextPage() {
 
 function previousPage() {
   router.push({
-    name: route.name,
+    path: route.path,
     query: {
       ...route.query,
       cursor: data.value.cursor_info.previous_cursor,
