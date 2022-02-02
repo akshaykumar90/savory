@@ -28,7 +28,7 @@
                 <SearchIcon class="h-5 w-5" aria-hidden="true" />
               </div>
               <input
-                type="text"
+                type="search"
                 placeholder="Search bookmarks"
                 autocomplete="off"
                 spellcheck="false"
@@ -36,7 +36,6 @@
                 name="search"
                 class="text-black-100 placeholder-black-200 block h-full w-full rounded-md border border-transparent bg-gray-400 bg-opacity-25 py-2 pl-10 pr-3 leading-5 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 focus:outline-none focus:ring-1 sm:text-sm"
                 v-model="query"
-                @keyup="doSearch"
               />
             </div>
           </div>
@@ -183,14 +182,17 @@ const store = usePageStore()
 
 let query = ref('')
 
-const doSearch = _.debounce(function () {
-  let q = query.value.trim()
-  if (q) {
-    store.updateSearch(q, router)
-  } else {
-    router.push('/')
-  }
-}, 300)
+watch(
+  query,
+  _.debounce(function () {
+    let q = query.value.trim()
+    if (q) {
+      store.updateSearch(q, router)
+    } else {
+      router.push('/')
+    }
+  }, 300)
+)
 
 watch(
   () => route.path,
