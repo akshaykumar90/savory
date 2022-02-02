@@ -188,19 +188,19 @@ watch(
     let q = query.value.trim()
     if (q) {
       store.updateSearch(q, router)
-    } else {
+    } else if (route.path === '/search') {
       router.push('/')
     }
   }, 300)
 )
 
 watch(
-  () => route.path,
-  (path) => {
-    if (path !== '/search') {
+  () => route.query,
+  (routeQuery) => {
+    if (route.path !== '/search') {
       query.value = ''
     } else {
-      query.value = route.query.q
+      query.value = routeQuery.q
     }
   }
 )
