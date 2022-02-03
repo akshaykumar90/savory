@@ -195,13 +195,9 @@ watch(
 )
 
 watch(
-  () => route.query,
-  (routeQuery) => {
-    if (route.path !== '/search') {
-      query.value = ''
-    } else {
-      query.value = routeQuery.q
-    }
+  () => store.search,
+  (searchQuery) => {
+    query.value = searchQuery
   },
   { immediate: true }
 )
