@@ -45,10 +45,14 @@ export default {
       : props.bookmarkId
       ? useEditBookmark(props.bookmarkId)
       : { tags: ref(null), addTag: () => {}, removeTag: () => {} }
+    const onEnter = () => {
+      addTag(newTag.value)
+      newTag.value = ''
+    }
     return {
       newTag,
       tags,
-      onEnter: () => addTag(newTag.value),
+      onEnter,
       onRemove: removeTag,
     }
   },
