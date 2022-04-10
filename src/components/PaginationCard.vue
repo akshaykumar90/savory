@@ -70,6 +70,10 @@ watch(
   (newData) => {
     if (newData) {
       const totalItems = newData.total
+      if (totalItems == 0) {
+        placemarkMessage.value = 'Nothing to see here'
+        return
+      }
       const itemsStr = totalItems > 1 ? 'bookmarks' : 'bookmark'
       if (store.tags.length > 0) {
         const tagsStr = store.tags.join(', ')
