@@ -33,7 +33,7 @@
             <div
               class="my-8 inline-block w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
             >
-              <edit-tags></edit-tags>
+              <edit-tags :bookmark-id="bookmarkId" :bulk="bulk"></edit-tags>
             </div>
           </TransitionChild>
         </div>
@@ -42,7 +42,7 @@
   </TransitionRoot>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import {
   TransitionRoot,
@@ -52,17 +52,31 @@ import {
 } from '@headlessui/vue'
 import EditTags from './EditTags.vue'
 
-const isOpen = ref(false)
-
-function closeModal() {
-  isOpen.value = false
+export default {
+  components: {
+    TransitionRoot,
+    TransitionChild,
+    Dialog,
+    DialogOverlay,
+    EditTags,
+  },
+  props: {
+    bookmarkId: String,
+    bulk: Boolean,
+  },
+  setup() {
+    const isOpen = ref(false)
+    const closeModal = () => {
+      isOpen.value = false
+    }
+    const openModal = () => {
+      isOpen.value = true
+    }
+    return {
+      openModal,
+      closeModal,
+      isOpen,
+    }
+  },
 }
-
-function openModal() {
-  isOpen.value = true
-}
-
-defineExpose({
-  openModal,
-})
 </script>

@@ -40,7 +40,7 @@
                   aria-hidden="true"
                 />
                 <span>Edit</span>
-                <tags-dialog ref="tagsDialog"></tags-dialog>
+                <tags-dialog ref="tagsDialog" bulk></tags-dialog>
               </button>
             </span>
 

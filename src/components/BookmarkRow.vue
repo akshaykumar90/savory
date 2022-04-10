@@ -34,11 +34,19 @@
       <div class="mt-2 flex flex-row gap-1.5">
         <span class="inline-block">4 days ago</span>
         {{ '·' }}
-        <tags-popover :bookmark-id="bookmarkId">
-          <popover-button type="button">
+        <span class="hidden sm:inline-flex">
+          <tags-popover :bookmark-id="bookmarkId">
+            <popover-button type="button">
+              <span>edit</span>
+            </popover-button>
+          </tags-popover>
+        </span>
+        <span class="inline-flex sm:hidden">
+          <button type="button" @click="openTagsDialog">
             <span>edit</span>
-          </popover-button>
-        </tags-popover>
+          </button>
+          <tags-dialog ref="tagsDialog" :bookmark-id="bookmarkId"></tags-dialog>
+        </span>
         {{ '·' }}
         <button type="button" @click="onDelete">
           <span>delete</span>
@@ -55,7 +63,9 @@ import { MenuAlt2Icon } from '@heroicons/vue/solid'
 import { CheckCircleIcon as CheckIcon } from '@heroicons/vue/solid'
 import { computed, inject } from 'vue'
 import { useSelectionStore } from '../stores/selection'
+import TagsDialog from './TagsDialog.vue'
 import { useBookmark } from '../composables/useBookmark'
+import { ref } from 'vue'
 
 export default {
   components: {
@@ -63,19 +73,26 @@ export default {
     CheckIcon,
     PopoverButton,
     TagsPopover,
+    TagsDialog,
   },
   props: ['bookmarkId', 'site', 'tags', 'title'],
   setup(props) {
     const store = useSelectionStore()
     const { data } = useBookmark(props.bookmarkId)
     const selected = computed(() => store.selectedIds.has(props.bookmarkId))
+    const tagsDialog = ref(null)
     let deleteConfirmation = inject('deleteConfirmation')
     const onDelete = () => {
       deleteConfirmation.value.openModal([props.bookmarkId])
     }
+    const openTagsDialog = () => {
+      tagsDialog.value.openModal()
+    }
     return {
       bookmark: data,
       onDelete,
+      tagsDialog,
+      openTagsDialog,
       check: () => store.add(props.bookmarkId),
       uncheck: () => store.remove(props.bookmarkId),
       selected,
