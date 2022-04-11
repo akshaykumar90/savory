@@ -16,6 +16,7 @@
           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           placeholder="Add a tag"
           @keyup.enter="onEnter"
+          ref="addTagInput"
         />
       </div>
     </div>
@@ -36,8 +37,12 @@ export default {
     bookmarkId: String,
     bulk: Boolean,
   },
+  mounted() {
+    this.$refs.addTagInput.focus()
+  },
   setup(props) {
     const newTag = ref('')
+    const addTagInput = ref(null)
     const { tags, addTag, removeTag } = props.bulk
       ? useBulkEditBookmarks()
       : props.bookmarkId
@@ -49,6 +54,7 @@ export default {
     }
     return {
       newTag,
+      addTagInput,
       tags,
       onEnter,
       onRemove: removeTag,
