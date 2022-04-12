@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../pages/LandingPage.vue'
 import BookmarksPage from '../pages/BookmarksPage.vue'
+import TagsPage from '../pages/TagsPage.vue'
 import SignupPage from '../pages/SignupPage.js'
 import NotFound from '../pages/NotFound.vue'
 import { getAuthGuard } from '../auth'
@@ -81,6 +82,16 @@ export const getRouter = (auth) => {
           layout: AppLayout,
           requiredAuthState: 'login',
           customScrollBehavior: bookmarksPageScrollBehavior,
+        },
+      },
+      {
+        path: '/tags',
+        name: 'tags',
+        component: TagsPage,
+        beforeEnter: authGuard,
+        meta: {
+          layout: AppLayout,
+          requiredAuthState: 'login',
         },
       },
       {
