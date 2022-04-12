@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../pages/LandingPage.vue'
-import BookmarksList from '../pages/BookmarksList.vue'
+import BookmarksList from '../pages/BookmarksPage.vue'
 import SignupPage from '../pages/SignupPage.js'
 import NotFound from '../pages/NotFound.vue'
 import { getAuthGuard } from '../auth'
