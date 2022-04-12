@@ -2,10 +2,10 @@
   <div class="flex flex-grow flex-col overflow-y-auto bg-white pb-4">
     <div class="mt-5 flex flex-grow flex-col">
       <nav class="flex-1 space-y-1 bg-white px-2" aria-label="Sidebar">
-        <a
+        <router-link
           v-for="item in navigation"
           :key="item.name"
-          :href="item.href"
+          :to="item.href"
           :class="[
             item.current
               ? 'bg-gray-100 text-gray-900'
@@ -35,7 +35,7 @@
           >
             {{ item.count }}
           </span>
-        </a>
+        </router-link>
       </nav>
     </div>
   </div>
@@ -48,7 +48,7 @@ const navigation = [
   { name: 'Inbox', icon: InboxIcon, href: '#', current: true },
   { name: 'Reading', icon: FolderIcon, href: '#', count: 3, current: false },
   { name: 'Playlist', icon: FolderIcon, href: '#', count: 4, current: false },
-  { name: 'Recent', icon: CalendarIcon, href: '#', current: false },
+  { name: 'Recent', icon: CalendarIcon, href: '/tags', current: false },
 ]
 
 export default {
