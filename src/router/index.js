@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../pages/LandingPage.vue'
-import BookmarksList from '../pages/BookmarksPage.vue'
+import BookmarksPage from '../pages/BookmarksPage.vue'
 import SignupPage from '../pages/SignupPage.js'
 import NotFound from '../pages/NotFound.vue'
 import { getAuthGuard } from '../auth'
@@ -9,7 +9,7 @@ import LoginCallback from '../pages/LoginCallback'
 import AppLayout from '../layouts/AppLayout.vue'
 import { usePageStore } from '../stores/page'
 
-const bookmarksListScrollBehavior = (savedPosition) => {
+const bookmarksPageScrollBehavior = (savedPosition) => {
   const store = usePageStore()
   return store.fetchPromise.then(() => {
     if (savedPosition) {
@@ -75,12 +75,12 @@ export const getRouter = (auth) => {
         path: '/',
         alias: ['/tag', '/search'],
         name: 'home',
-        component: BookmarksList,
+        component: BookmarksPage,
         beforeEnter: authGuard,
         meta: {
           layout: AppLayout,
           requiredAuthState: 'login',
-          customScrollBehavior: bookmarksListScrollBehavior,
+          customScrollBehavior: bookmarksPageScrollBehavior,
         },
       },
       {
