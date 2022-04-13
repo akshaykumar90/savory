@@ -37,6 +37,7 @@ import { computed, ref } from 'vue'
 import useBulkEditBookmarks from '../composables/useBulkEditBookmarks'
 import useEditBookmark from '../composables/useEditBookmark'
 import { lookup } from '../lib/typeahead'
+import { useTags } from '../composables/useTags'
 
 export default {
   components: {
@@ -51,8 +52,13 @@ export default {
   },
   setup(props) {
     const newTag = ref('')
+
     const tagSuggestion = ref('')
+    const { data } = useTags()
+    const allTags = computed(() => data.value || [])
+
     const addTagInput = ref(null)
+
     const { tags, addTag, removeTag } = props.bulk
       ? useBulkEditBookmarks()
       : props.bookmarkId
@@ -67,8 +73,7 @@ export default {
         tagSuggestion.value = ''
         return ''
       }
-      // TODO
-      let candidates = lookup([], newTag.value)
+      let candidates = lookup(allTags.value, newTag.value)
       // Remove existing tags from autocomplete candidates
       _.pullAll(candidates, tags.value)
       if (!candidates.length) {
@@ -77,7 +82,7 @@ export default {
       }
       tagSuggestion.value = candidates[0]
       let suggestion = candidates[0].split('')
-      let userInput = this.newTag.split('')
+      let userInput = newTag.value.split('')
       userInput.forEach((letter, key) => {
         if (letter !== suggestion[key]) {
           suggestion[key] = letter

@@ -4,6 +4,10 @@ export function useTags() {
   const key = ['tags']
   return useQuery(key, async () => {
     let resp = await ApiClient.getTagsCount()
-    return resp.data
+    let result = {}
+    for (const { name, count } of resp.data) {
+      result[name] = count
+    }
+    return result
   })
 }

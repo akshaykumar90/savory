@@ -70,7 +70,7 @@ watch(
   (newData) => {
     if (newData) {
       const totalItems = newData.total
-      if (totalItems == 0) {
+      if (totalItems === 0) {
         placemarkMessage.value = 'Nothing to see here'
         return
       }
