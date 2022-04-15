@@ -17,10 +17,10 @@ import BookmarkRow from '../components/BookmarkRow.vue'
 import PaginationCard from '../components/PaginationCard.vue'
 
 import useBookmarksPage from '../composables/useBookmarksPage'
-import { watch } from 'vue'
+import { onMounted, watch } from 'vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { usePageStore } from '../stores/page'
-import { useQueryClient } from 'vue-query'
+import { useQueryClient, useIsMutating } from 'vue-query'
 
 const { data } = useBookmarksPage()
 
@@ -28,6 +28,7 @@ const route = useRoute()
 
 const store = usePageStore()
 const queryClient = useQueryClient()
+const isMutating = useIsMutating()
 
 watch(
   () => route.query,
@@ -35,4 +36,16 @@ watch(
 )
 
 onBeforeRouteUpdate((to) => store.onBeforeRouteUpdate(to, queryClient))
+
+onMounted(() => {
+  window.addEventListener('beforeunload', (event) => {
+    if (isMutating.value > 0) {
+      // Cancel the event as stated by the standard.
+      event.preventDefault()
+      // Older browsers supported custom message
+      return (event.returnValue =
+        'There is pending work. Sure you want to leave?')
+    }
+  })
+})
 </script>
