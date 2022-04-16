@@ -63,29 +63,21 @@ const store = usePageStore()
 
 const { isFetching, data } = useBookmarksPage()
 
-const placemarkMessage = ref('')
-
-watch(
-  () => data.value,
-  (newData) => {
-    if (newData) {
-      const totalItems = newData.total
-      if (totalItems === 0) {
-        placemarkMessage.value = 'Nothing to see here'
-        return
-      }
-      const itemsStr = totalItems > 1 ? 'bookmarks' : 'bookmark'
-      if (store.tags.length > 0) {
-        const tagsStr = store.tags.join(', ')
-        placemarkMessage.value = `${totalItems} ${itemsStr} in ${tagsStr}`
-      } else if (store.site) {
-        placemarkMessage.value = `${totalItems} ${itemsStr} in ${store.site}`
-      } else {
-        placemarkMessage.value = `${totalItems} ${itemsStr}`
-      }
-    }
+const placemarkMessage = computed(() => {
+  const totalItems = data.value.total
+  if (totalItems === 0) {
+    return 'Nothing to see here'
   }
-)
+  const itemsStr = totalItems > 1 ? 'bookmarks' : 'bookmark'
+  if (data.value.tags.length > 0) {
+    const tagsStr = data.value.tags.join(', ')
+    return `${totalItems} ${itemsStr} in ${tagsStr}`
+  } else if (data.value.site) {
+    return `${totalItems} ${itemsStr} in ${data.value.site}`
+  } else {
+    return `${totalItems} ${itemsStr}`
+  }
+})
 
 const showClearFiltersButton = computed(
   () => store.tags.length > 0 || store.site

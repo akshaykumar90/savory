@@ -5,7 +5,7 @@ export async function fetchBookmarks({
   cursor,
   itemsPerPage,
 }) {
-  let resp
+  let bookmarksResponsePromise
 
   const commonArgs = {
     ...(site && { site }),
@@ -18,10 +18,16 @@ export async function fetchBookmarks({
       ...commonArgs,
       query: search,
     }
-    resp = await ApiClient.searchBookmarks(args)
+    bookmarksResponsePromise = ApiClient.searchBookmarks(args)
   } else {
-    resp = await ApiClient.getBookmarks(commonArgs)
+    bookmarksResponsePromise = ApiClient.getBookmarks(commonArgs)
   }
 
-  return resp.data
+  let bookmarks = await bookmarksResponsePromise
+
+  return {
+    ...bookmarks.data,
+    site,
+    tags,
+  }
 }
