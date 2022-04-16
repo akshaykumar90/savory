@@ -111,6 +111,10 @@ export class Client {
     return this._get('/tags/')
   }
 
+  getDrillDownTags({ tags, site }) {
+    return this._post('/tags/', { tags, site })
+  }
+
   createBookmark({ bookmark }) {
     return this._post('/bookmarks/add', bookmark)
   }

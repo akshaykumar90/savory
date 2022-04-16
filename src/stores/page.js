@@ -106,5 +106,16 @@ export const usePageStore = defineStore('page', {
         },
       })
     },
+    updateTags(newTag, router) {
+      let path = router.currentRoute.value.path
+      router.push({
+        path,
+        query: {
+          ...(this.site && { site: this.site }),
+          ...(this.search && { q: this.search }),
+          ...(newTag && { name: [...this.tags, newTag] }),
+        },
+      })
+    },
   },
 })
