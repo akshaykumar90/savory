@@ -2,7 +2,13 @@
   <div class="divide-y divide-gray-200">
     <div class="flex flex-wrap gap-2 px-4 py-4 sm:px-6">
       <span v-if="tags.length === 0">No tags</span>
-      <tag-button v-else v-for="tag in tags" :name="tag" :onRemove="onRemove">
+      <tag-button
+        v-else
+        v-for="tag in tags"
+        :name="tag"
+        :showRemove="true"
+        :onClick="onRemove"
+      >
       </tag-button>
     </div>
     <div class="px-4 py-5 sm:p-6">
