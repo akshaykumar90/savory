@@ -1,9 +1,6 @@
 <template>
   <div>
-    <nav
-      class="mx-3 flex items-center gap-4 overflow-x-auto bg-white py-4"
-      aria-label="Pagination"
-    >
+    <nav class="mx-3 flex items-center gap-4 overflow-x-auto bg-white py-4">
       <p class="flex-none">Add to filter</p>
       <tag-button
         class="flex-none"
