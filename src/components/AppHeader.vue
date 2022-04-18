@@ -89,6 +89,7 @@
                   <MenuItem v-slot="{ active }">
                     <a
                       href="#"
+                      @click.prevent="logout"
                       :class="[
                         active ? 'bg-gray-100' : '',
                         'block px-4 py-2 text-sm text-gray-700',
@@ -127,6 +128,7 @@
         <DisclosureButton
           as="a"
           href="#"
+          @click.prevent="logout"
           class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
         >
           Sign out
@@ -136,7 +138,7 @@
   </Disclosure>
 </template>
 
-<script setup>
+<script>
 import {
   Disclosure,
   DisclosureButton,
@@ -154,29 +156,54 @@ import _ from 'lodash'
 import { useRoute, useRouter } from 'vue-router'
 import { usePageStore } from '../stores/page'
 
-const router = useRouter()
-const route = useRoute()
-const store = usePageStore()
-
-let query = ref('')
-
-watch(
-  query,
-  _.debounce(function () {
-    let q = query.value.trim()
-    if (q) {
-      store.updateSearch(q, router)
-    } else if (route.path === '/search') {
-      router.push('/')
-    }
-  }, 300)
-)
-
-watch(
-  () => store.search,
-  (searchQuery) => {
-    query.value = searchQuery
+export default {
+  components: {
+    Disclosure,
+    DisclosureButton,
+    DisclosurePanel,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuItems,
+    SearchIcon,
+    MenuIcon,
+    XIcon,
   },
-  { immediate: true }
-)
+  setup() {
+    const router = useRouter()
+    const route = useRoute()
+    const store = usePageStore()
+
+    let query = ref('')
+
+    watch(
+      query,
+      _.debounce(function () {
+        let q = query.value.trim()
+        if (q) {
+          store.updateSearch(q, router)
+        } else if (route.path === '/search') {
+          router.push('/')
+        }
+      }, 300)
+    )
+
+    watch(
+      () => store.search,
+      (searchQuery) => {
+        query.value = searchQuery
+      },
+      { immediate: true }
+    )
+
+    return {
+      query,
+    }
+  },
+  methods: {
+    logout() {
+      this.$auth.logout()
+    },
+  },
+}
 </script>

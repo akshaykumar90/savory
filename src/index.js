@@ -20,18 +20,24 @@ const auth = new AuthClient({
   backendClientConfig: clientConfig,
   isBackground: false,
   onLoginCallback: (userId) => {
+    eventLogger.setUserId(userId)
+    if (!process.env.EXTENSION_ID) {
+      return
+    }
     const message = { type: 'login', userId }
     if (browser && browser.runtime) {
       browser.runtime.sendMessage(process.env.EXTENSION_ID, message)
     }
-    eventLogger.setUserId(userId)
   },
   onLogoutCallback: () => {
+    eventLogger.setUserId(null)
+    if (!process.env.EXTENSION_ID) {
+      return
+    }
     const message = { type: 'logout' }
     if (browser && browser.runtime) {
       browser.runtime.sendMessage(process.env.EXTENSION_ID, message)
     }
-    eventLogger.setUserId(null)
   },
 })
 
