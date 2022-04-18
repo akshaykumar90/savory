@@ -1,6 +1,14 @@
-// This store is the source of truth for app navigation.
+// This store serves as a thin wrapper over the router and helps with managing
+// navigation state for the most important page in the app: the "bookmarks"
+// page.
 //
-// There are two listeners defined under `actions`.
+// TL;DR data flow is something like this:
+//
+// user clicks something -> start fetching data for route -> route updates ->
+// page state changes -> queries fetch (but sharing the cache, so no duplicate
+// requests) -> new data is rendered -> scroll to top
+//
+// There are three listeners defined under `actions`.
 //
 // - onBeforeRouteUpdate
 //
@@ -23,11 +31,21 @@
 //   are listening to changes to this state and therefore any component using
 //   those queries will now refresh to show new data as soon as it's available.
 //
-// Therefore, data flow is something like this:
+// - onRouteEnter
 //
-// user clicks something -> start fetching data for route -> route updates ->
-// page state changes -> queries fetch (but sharing the cache, so no duplicate
-// requests) -> new data is rendered -> scroll to top
+//   This handler exists for in-app navigation when coming in from some other
+//   component like the /tags page. The previous two handlers only fire when the
+//   user is navigating within the bookmarks page (which is like 90% of the
+//   time).
+//
+//   This handler is needed for rest of the cases because the "bookmarks page"
+//   component does not exist yet -- an existing component is NOT getting
+//   updated. Other than that, it is very similar and does a very simple thing.
+//   It patches the store state reading values from the new route, which should
+//   make the queries fetch data.
+//
+// See the BookmarksPage.vue component for how these handlers are registered to
+// router events and callbacks.
 
 import { defineStore } from 'pinia'
 import { fetchBookmarks } from '../lib/bookmarks'
@@ -68,6 +86,10 @@ export const usePageStore = defineStore('page', {
         store.clear()
       }
 
+      this.$patch(newPage)
+    },
+    onRouteEnter(routeQuery) {
+      const newPage = getNormalizedPage(routeQuery)
       this.$patch(newPage)
     },
     onBeforeRouteUpdate(newRoute, queryClient) {

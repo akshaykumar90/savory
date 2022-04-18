@@ -13,7 +13,7 @@
   </ul>
 </template>
 
-<script setup>
+<script>
 import BookmarkRow from '../components/BookmarkRow.vue'
 import PaginationCard from '../components/PaginationCard.vue'
 import DrillDownCard from '../components/DrillDownCard.vue'
@@ -24,37 +24,55 @@ import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { usePageStore } from '../stores/page'
 import { useQueryClient, useIsMutating } from 'vue-query'
 
-const { isLoading, isError, data } = useBookmarksPage()
+export default {
+  components: {
+    BookmarkRow,
+    PaginationCard,
+    DrillDownCard,
+  },
+  setup() {
+    const { isLoading, isError, data } = useBookmarksPage()
 
-const route = useRoute()
+    const route = useRoute()
 
-const store = usePageStore()
-const queryClient = useQueryClient()
-const isMutating = useIsMutating()
+    const store = usePageStore()
+    const queryClient = useQueryClient()
+    const isMutating = useIsMutating()
 
-const showDrillDownCard = computed(() => {
-  if (isLoading.value || isError.value) {
-    return false
-  }
-  return Object.keys(data.value.drillTags).length > 0
-})
+    const showDrillDownCard = computed(() => {
+      if (isLoading.value || isError.value) {
+        return false
+      }
+      return Object.keys(data.value.drillTags).length > 0
+    })
 
-watch(
-  () => route.query,
-  (routeQuery) => store.onRouteUpdate(routeQuery)
-)
+    watch(
+      () => route.query,
+      (routeQuery) => store.onRouteUpdate(routeQuery)
+    )
 
-onBeforeRouteUpdate((to) => store.onBeforeRouteUpdate(to, queryClient))
+    onBeforeRouteUpdate((to) => store.onBeforeRouteUpdate(to, queryClient))
 
-onMounted(() => {
-  window.addEventListener('beforeunload', (event) => {
-    if (isMutating.value > 0) {
-      // Cancel the event as stated by the standard.
-      event.preventDefault()
-      // Older browsers supported custom message
-      return (event.returnValue =
-        'There is pending work. Sure you want to leave?')
+    onMounted(() => {
+      window.addEventListener('beforeunload', (event) => {
+        if (isMutating.value > 0) {
+          // Cancel the event as stated by the standard.
+          event.preventDefault()
+          // Older browsers supported custom message
+          return (event.returnValue =
+            'There is pending work. Sure you want to leave?')
+        }
+      })
+    })
+
+    return {
+      data,
+      showDrillDownCard,
     }
-  })
-})
+  },
+  beforeRouteEnter: function (to) {
+    const store = usePageStore()
+    store.onRouteEnter(to.query)
+  },
+}
 </script>
