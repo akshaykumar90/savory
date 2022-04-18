@@ -42,13 +42,11 @@
 </template>
 
 <script>
-import { CalendarIcon, FolderIcon, InboxIcon } from '@heroicons/vue/outline'
+import { FolderIcon, InboxIcon } from '@heroicons/vue/outline'
 
 const navigation = [
-  { name: 'Inbox', icon: InboxIcon, href: '#', current: true },
-  { name: 'Reading', icon: FolderIcon, href: '#', count: 3, current: false },
-  { name: 'Playlist', icon: FolderIcon, href: '#', count: 4, current: false },
-  { name: 'Recent', icon: CalendarIcon, href: '/tags', current: false },
+  { name: 'Bookmarks', icon: InboxIcon, href: '/', current: false },
+  { name: 'Tags', icon: FolderIcon, href: '/tags', current: false },
 ]
 
 export default {
