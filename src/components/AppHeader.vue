@@ -93,16 +93,6 @@
                         active ? 'bg-gray-100' : '',
                         'block px-4 py-2 text-sm text-gray-700',
                       ]"
-                      >View Profile</a
-                    >
-                  </MenuItem>
-                  <MenuItem v-slot="{ active }">
-                    <a
-                      href="#"
-                      :class="[
-                        active ? 'bg-gray-100' : '',
-                        'block px-4 py-2 text-sm text-gray-700',
-                      ]"
                       >Logout</a
                     >
                   </MenuItem>
@@ -116,36 +106,24 @@
 
     <DisclosurePanel class="lg:hidden">
       <div class="space-y-1 pt-2 pb-3">
-        <DisclosureButton
-          as="a"
-          href="#"
-          class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-        >
-          Inbox
-        </DisclosureButton>
-        <DisclosureButton
-          as="a"
-          href="#"
-          class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-        >
-          Reading
-        </DisclosureButton>
-        <DisclosureButton
-          as="a"
-          href="#"
-          class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-        >
-          Watching
-        </DisclosureButton>
+        <router-link to="/">
+          <DisclosureButton
+            as="div"
+            class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+          >
+            Bookmarks
+          </DisclosureButton>
+        </router-link>
+        <router-link to="/tags">
+          <DisclosureButton
+            as="div"
+            class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+          >
+            Tags
+          </DisclosureButton>
+        </router-link>
       </div>
       <div class="space-y-1 border-t border-gray-200 pt-2 pb-3">
-        <DisclosureButton
-          as="a"
-          href="#"
-          class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-        >
-          Your Profile
-        </DisclosureButton>
         <DisclosureButton
           as="a"
           href="#"
