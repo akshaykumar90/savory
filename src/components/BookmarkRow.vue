@@ -32,7 +32,7 @@
         </router-link>
       </div>
       <div class="mt-2 flex flex-row gap-1.5">
-        <span class="inline-block">4 days ago</span>
+        <span class="inline-block">{{ timeString }}</span>
         {{ '·' }}
         <span class="hidden sm:inline-flex">
           <tags-popover :bookmark-id="bookmarkId">
@@ -88,8 +88,14 @@ export default {
     const openTagsDialog = () => {
       tagsDialog.value.openModal()
     }
+    const timeString = computed(() => {
+      const bookmarkDate = new Date(data.value.date_added)
+      const options = { year: 'numeric', month: 'long', day: 'numeric' }
+      return bookmarkDate.toLocaleDateString(undefined, options)
+    })
     return {
       bookmark: data,
+      timeString,
       onDelete,
       tagsDialog,
       openTagsDialog,
