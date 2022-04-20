@@ -155,6 +155,7 @@ import { ref, watch } from 'vue'
 import _ from 'lodash'
 import { useRoute, useRouter } from 'vue-router'
 import { usePageStore } from '../stores/page'
+import { useAuth } from '../auth'
 
 export default {
   components: {
@@ -196,14 +197,14 @@ export default {
       { immediate: true }
     )
 
+    const authStore = useAuth()
+
+    const { logout } = authStore
+
     return {
       query,
+      logout,
     }
-  },
-  methods: {
-    logout() {
-      this.$auth.logout()
-    },
   },
 }
 </script>

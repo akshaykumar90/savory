@@ -1,10 +1,9 @@
 import { createApp, watch } from 'vue'
-import { createPinia } from 'pinia'
+import { createPinia, storeToRefs } from 'pinia'
 
 import App from './App.vue'
 import { getRouter } from './router'
-import { AuthClient } from './auth'
-import { browser } from './api/browser'
+import { useAuth } from './auth'
 import { eventLogger } from './api/events'
 import { clientConfig } from './api/backend'
 import { Client } from './api/backend/client'
@@ -13,56 +12,32 @@ eventLogger.init(process.env.AMPLITUDE_API_KEY)
 
 const app = createApp(App)
 
-const auth = new AuthClient({
-  domain: process.env.AUTH0_DOMAIN,
-  clientId: process.env.AUTH0_CLIENTID,
-  audience: process.env.AUTH0_AUDIENCE,
-  backendClientConfig: clientConfig,
-  isBackground: false,
-  onLoginCallback: (userId) => {
-    eventLogger.setUserId(userId)
-    if (!process.env.EXTENSION_ID) {
-      return
-    }
-    const message = { type: 'login', userId }
-    if (browser && browser.runtime) {
-      browser.runtime.sendMessage(process.env.EXTENSION_ID, message)
-    }
-  },
-  onLogoutCallback: () => {
-    eventLogger.setUserId(null)
-    if (!process.env.EXTENSION_ID) {
-      return
-    }
-    const message = { type: 'logout' }
-    if (browser && browser.runtime) {
-      browser.runtime.sendMessage(process.env.EXTENSION_ID, message)
-    }
-  },
-})
+app.use(createPinia())
 
-app.config.globalProperties.$auth = auth
+const authStore = useAuth()
 
-const router = getRouter(auth)
+const router = getRouter()
 
 window.router = router
 
 app.use(router)
 
-app.use(createPinia())
+const { tokenExpiredBeacon } = storeToRefs(authStore)
 
 // This cannot happen from within authClient since it is shared by the user-facing
 // app and the background extension. This is a no-op in the background
 // extension since it cannot prompt the user to log back in (yet). It will
 // just become useless and print error messages in the console.
-watch(auth.tokenExpiredBeacon, (beacon) => {
-  if (beacon) {
-    auth.logout()
+watch(
+  () => tokenExpiredBeacon.value,
+  (beacon) => {
+    if (beacon) {
+      const { logout } = authStore
+      logout()
+    }
   }
-})
+)
 
-window.ApiClient = new Client(auth, clientConfig)
+window.ApiClient = new Client(authStore, clientConfig)
 
 app.mount('#app')
-
-auth.initialize()

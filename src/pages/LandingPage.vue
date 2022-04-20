@@ -38,27 +38,22 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   EVENT_SIGNUP_CTA,
   EVENT_LANDING_LOAD,
   eventLogger,
 } from '../api/events'
+import { useAuth } from '../auth'
 
-export default {
-  name: 'landing-page',
+eventLogger.logEvent(EVENT_LANDING_LOAD, { page: 'webapp landing' })
 
-  created() {
-    eventLogger.logEvent(EVENT_LANDING_LOAD, { page: 'webapp landing' })
-  },
+const { loginWithRedirect } = useAuth()
 
-  methods: {
-    login(initialScreen) {
-      if (initialScreen === 'signUp') {
-        eventLogger.logEvent(EVENT_SIGNUP_CTA, { page: 'webapp landing' })
-      }
-      this.$auth.loginWithRedirect(initialScreen)
-    },
-  },
+const login = (initialScreen) => {
+  if (initialScreen === 'signUp') {
+    eventLogger.logEvent(EVENT_SIGNUP_CTA, { page: 'webapp landing' })
+  }
+  loginWithRedirect(initialScreen)
 }
 </script>

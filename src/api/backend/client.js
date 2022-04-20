@@ -1,8 +1,8 @@
 import axios from 'axios'
 
 export class Client {
-  constructor(authWrapper, clientConfig, reqInterceptor) {
-    this.auth = authWrapper
+  constructor(authStore, clientConfig, reqInterceptor) {
+    this.auth = authStore
     const { maxRetryCount, errorRetryInterval, urlsToRetry, ...axiosConfig } =
       clientConfig
     this.maxRetryCount = maxRetryCount || 3

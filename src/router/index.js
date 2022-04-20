@@ -4,9 +4,9 @@ import BookmarksPage from '../pages/BookmarksPage.vue'
 import TagsPage from '../pages/TagsPage.vue'
 import SignupPage from '../pages/SignupPage.js'
 import NotFound from '../pages/NotFound.vue'
-import { getAuthGuard } from '../auth'
+import { useAuth } from '../auth'
 import { getOnboardingRoutes } from '../lib/onboarding'
-import LoginCallback from '../pages/LoginCallback'
+import LoginCallback from '../pages/LoginCallback.vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import { usePageStore } from '../stores/page'
 
@@ -21,8 +21,8 @@ const bookmarksPageScrollBehavior = (savedPosition) => {
   })
 }
 
-export const getRouter = (auth) => {
-  const authGuard = getAuthGuard(auth)
+export const getRouter = () => {
+  const { authGuard } = useAuth()
   const onboardingRoutes = getOnboardingRoutes()
   onboardingRoutes.forEach((r) => {
     r.beforeEnter = authGuard
