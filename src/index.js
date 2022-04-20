@@ -22,7 +22,7 @@ window.router = router
 
 app.use(router)
 
-const { tokenExpiredBeacon } = storeToRefs(authStore)
+const { isAuthenticated, tokenExpiredBeacon } = storeToRefs(authStore)
 
 // This cannot happen from within authClient since it is shared by the user-facing
 // app and the background extension. This is a no-op in the background
@@ -36,6 +36,19 @@ watch(
       logout()
     }
   }
+)
+
+watch(
+  () => isAuthenticated.value,
+  (isAuthenticated) => {
+    if (isAuthenticated) {
+      const { getUserId } = authStore
+      eventLogger.setUserId(getUserId())
+    } else {
+      eventLogger.setUserId(null)
+    }
+  },
+  { immediate: true }
 )
 
 window.ApiClient = new Client(authStore, clientConfig)

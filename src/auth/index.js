@@ -22,6 +22,8 @@ export const useAuth = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!userId.value)
 
+  const getUserId = () => userId.value
+
   const loading = ref(isAuthenticated.value)
 
   //////////////////////////////////////////////////////////////////////////////
@@ -47,15 +49,18 @@ export const useAuth = defineStore('auth', () => {
       return fn()
     }
 
-    watch(loading, (loading) => {
-      if (loading === false) {
-        return fn()
+    watch(
+      () => loading.value,
+      (loading) => {
+        if (loading === false) {
+          return fn()
+        }
       }
-    })
+    )
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // Login with redirect
+  // Login
 
   function _login(token) {
     return backendClient.post('/login/access-token', { token })
@@ -84,6 +89,13 @@ export const useAuth = defineStore('auth', () => {
     }
   }
 
+  /**
+   * Authenticates the user using the redirect method
+   *
+   * Preferred method for login on website.
+   *
+   * @param initialScreen: Redirect initial state: 'signUp' or 'login'
+   */
   const loginWithRedirect = (initialScreen) => {
     const loginOptions = {
       redirect_uri: CALLBACK_URL,
@@ -159,6 +171,7 @@ export const useAuth = defineStore('auth', () => {
 
   return {
     isAuthenticated,
+    getUserId,
     loginWithRedirect,
     redirectCallback,
     logout,
