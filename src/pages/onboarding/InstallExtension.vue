@@ -18,21 +18,14 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { chromeWebStoreUrl } from '../../lib/onboarding'
 import { EVENT_ONBOARDING_INSTALL_EXT, eventLogger } from '../../api/events'
+import { onMounted } from 'vue'
 
-export default {
-  name: 'onboarding-install-extension',
+const installUrl = chromeWebStoreUrl
 
-  data: function () {
-    return {
-      installUrl: chromeWebStoreUrl,
-    }
-  },
-
-  mounted() {
-    eventLogger.logEvent(EVENT_ONBOARDING_INSTALL_EXT)
-  },
-}
+onMounted(() => {
+  eventLogger.logEvent(EVENT_ONBOARDING_INSTALL_EXT)
+})
 </script>

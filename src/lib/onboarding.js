@@ -23,23 +23,14 @@ export function getOnboardingRoutes() {
     let path = index === 0 ? '/welcome' : `/welcome/${index + 1}`
     routes.push({
       path: path,
-      name: item.name,
+      name: `onboarding ${index + 1}`,
       component: item,
       meta: {
+        position: index,
         layout: OnboardingLayout,
         requiredAuthState: 'login',
       },
     })
   })
   return routes
-}
-
-export function getPosition(screenName) {
-  let found = -1
-  screens.forEach((item, index) => {
-    if (item.name === screenName) {
-      found = index
-    }
-  })
-  return found + 1
 }

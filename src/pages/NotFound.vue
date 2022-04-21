@@ -26,9 +26,3 @@
     </section>
   </div>
 </template>
-
-<script>
-export default {
-  name: 'not-found',
-}
-</script>

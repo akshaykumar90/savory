@@ -41,19 +41,11 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { FolderIcon, InboxIcon } from '@heroicons/vue/outline'
 
 const navigation = [
   { name: 'Bookmarks', icon: InboxIcon, href: '/', current: false },
   { name: 'Tags', icon: FolderIcon, href: '/tags', current: false },
 ]
-
-export default {
-  setup() {
-    return {
-      navigation,
-    }
-  },
-}
 </script>

@@ -27,14 +27,11 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { EVENT_ONBOARDING_ADD_TAGS, eventLogger } from '../../api/events'
+import { onMounted } from 'vue'
 
-export default {
-  name: 'onboarding-add-tags',
-
-  mounted() {
-    eventLogger.logEvent(EVENT_ONBOARDING_ADD_TAGS)
-  },
-}
+onMounted(() => {
+  eventLogger.logEvent(EVENT_ONBOARDING_ADD_TAGS)
+})
 </script>

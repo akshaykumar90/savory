@@ -20,41 +20,30 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import ProgressBar from '../components/ProgressBar.vue'
-import { getPosition, totalScreensNum } from '../lib/onboarding'
+import { totalScreensNum } from '../lib/onboarding'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-export default {
-  name: 'onboarding-layout',
+const route = useRoute()
 
-  components: {
-    ProgressBar,
-  },
+const current = computed(() => route.meta.position + 1)
+const total = totalScreensNum
 
-  computed: {
-    current() {
-      return getPosition(this.$route.name)
-    },
-    total() {
-      return totalScreensNum
-    },
-  },
+const bar = ref(null)
 
-  methods: {
-    setProgressBarPosition() {
-      const percent = 100 * (this.current / this.total)
-      this.$refs.bar.set(percent)
-    },
-  },
-
-  mounted() {
-    this.setProgressBarPosition()
-  },
-
-  watch: {
-    $route(to) {
-      this.setProgressBarPosition()
-    },
-  },
+const setProgressBarPosition = () => {
+  const percent = 100 * (current.value / total)
+  bar.value.set(percent)
 }
+
+onMounted(() => {
+  setProgressBarPosition()
+})
+
+watch(
+  () => route.name,
+  () => setProgressBarPosition()
+)
 </script>

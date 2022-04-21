@@ -15,14 +15,11 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { EVENT_ONBOARDING_NEED_HELP, eventLogger } from '../../api/events'
+import { onMounted } from 'vue'
 
-export default {
-  name: 'onboarding-need-help',
-
-  mounted() {
-    eventLogger.logEvent(EVENT_ONBOARDING_NEED_HELP)
-  },
-}
+onMounted(() => {
+  eventLogger.logEvent(EVENT_ONBOARDING_NEED_HELP)
+})
 </script>

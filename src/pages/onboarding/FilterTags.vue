@@ -23,14 +23,11 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { EVENT_ONBOARDING_FILTER_TAGS, eventLogger } from '../../api/events'
+import { onMounted } from 'vue'
 
-export default {
-  name: 'onboarding-filter-tags',
-
-  mounted() {
-    eventLogger.logEvent(EVENT_ONBOARDING_FILTER_TAGS)
-  },
-}
+onMounted(() => {
+  eventLogger.logEvent(EVENT_ONBOARDING_FILTER_TAGS)
+})
 </script>

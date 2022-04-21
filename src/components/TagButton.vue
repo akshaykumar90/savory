@@ -18,7 +18,6 @@
 
 <script>
 export default {
-  name: 'tag-button',
   props: {
     name: String,
     showRemove: Boolean,

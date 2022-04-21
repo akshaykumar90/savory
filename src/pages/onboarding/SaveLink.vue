@@ -25,14 +25,11 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { EVENT_ONBOARDING_SAVE_LINK, eventLogger } from '../../api/events'
+import { onMounted } from 'vue'
 
-export default {
-  name: 'onboarding-save-link',
-
-  mounted() {
-    eventLogger.logEvent(EVENT_ONBOARDING_SAVE_LINK)
-  },
-}
+onMounted(() => {
+  eventLogger.logEvent(EVENT_ONBOARDING_SAVE_LINK)
+})
 </script>
