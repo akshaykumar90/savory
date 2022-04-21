@@ -4,6 +4,7 @@ import { computed, ref, watch } from 'vue'
 import { Auth0Client } from '@auth0/auth0-spa-js'
 import axios from 'axios'
 import { clientConfig } from '../api/backend'
+import { addXsrfHeader } from '../api/browser'
 
 const CALLBACK_URL = `${window.location.origin}/provider_cb`
 const LOGOUT_URL = window.location.origin
@@ -19,6 +20,11 @@ export const useAuth = defineStore('auth', () => {
   })
 
   const backendClient = axios.create(clientConfig)
+
+  if (window.chrome && chrome.runtime && chrome.runtime.id) {
+    // We are in the Chrome extension
+    backendClient.interceptors.request.use(addXsrfHeader)
+  }
 
   const isAuthenticated = computed(() => !!userId.value)
 

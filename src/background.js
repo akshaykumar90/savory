@@ -1,8 +1,9 @@
 import moment from 'moment'
-import { AuthClient } from './auth'
-import { addXsrfHeader, browser, importBrowserBookmarks } from './api/browser'
+import { useAuth } from './auth'
+import { addXsrfHeader, browser } from './api/browser'
 import { clientConfig } from './api/backend'
 import { Client } from './api/backend/client'
+import { createPinia } from 'pinia'
 
 // Redirect user to the webapp homepage instead of `/welcome` on extension
 // install. Otherwise, we "risk" walking the user through the onboarding
@@ -19,13 +20,9 @@ import { Client } from './api/backend/client'
 // onboarding to users.
 const welcome_page_url = 'https://app.getsavory.co/'
 
-const auth = new AuthClient({
-  domain: process.env.AUTH0_DOMAIN,
-  clientId: process.env.AUTH0_CLIENTID,
-  audience: process.env.AUTH0_AUDIENCE,
-  backendClientConfig: clientConfig,
-  isBackground: true,
-})
+const pinia = createPinia()
+
+const auth = useAuth(pinia)
 
 window.ApiClient = new Client(auth, clientConfig, addXsrfHeader)
 
@@ -67,54 +64,13 @@ browser.bookmarks.onCreated.addListener(async (__, bookmark) => {
 })
 
 function onMessage(request, sender, sendResponse) {
-  const { type, ...args } = request
-  if (type === 'login') {
-    const { userId } = args
-    auth.silentLogin(userId)
-  } else if (type === 'logout') {
-    auth.silentLogout()
-  } else if (type === 'test') {
+  const { type } = request
+  if (type === 'test') {
     sendResponse(true)
   }
 }
 
-function onImportBookmarksMessage(port, attempt) {
-  if (!auth.isAuthenticated) {
-    if (attempt === 15) {
-      return Promise.reject('Not logged in.')
-    }
-    console.log('Not logged in yet... sleeping for 1s.')
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log('Woke!')
-        resolve(onImportBookmarksMessage(port, attempt + 1))
-      }, 1000)
-    })
-  }
-  return importBrowserBookmarks(({ percent }) => {
-    port.postMessage({ percent })
-  })
-}
-
 browser.runtime.onMessageExternal.addListener(onMessage)
-
-browser.runtime.onConnectExternal.addListener(function (port) {
-  console.assert(port.name === 'import_bookmarks')
-  port.onMessage.addListener(async function ({ userId }) {
-    if (!auth.isAuthenticated) {
-      auth.silentLogin(userId)
-    }
-    await onImportBookmarksMessage(port, 1)
-  })
-})
-
-browser.browserAction.onClicked.addListener(() => {
-  if (!auth.isAuthenticated) {
-    auth.loginWithPopup()
-  } else {
-    console.log('Already logged in...')
-  }
-})
 
 browser.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
