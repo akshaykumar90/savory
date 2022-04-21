@@ -39,7 +39,6 @@
     "axios": "^0.21.1",
     "bowser": "^2.10.0",
     "lodash": "^4.17.13",
-    "moment": "^2.24.0",
     "pinia": "^2.0.9",
     "spinkit": "^2.0.1",
     "tailwindcss": "^3.0.7",

@@ -1,4 +1,3 @@
-import moment from 'moment'
 import { useAuth } from './auth'
 import { addXsrfHeader, browser } from './api/browser'
 import { clientConfig } from './api/backend'
@@ -47,16 +46,19 @@ window.ApiClient = new Client(auth, clientConfig, addXsrfHeader)
  * make this event handler and its associated hacks unnecessary.
  */
 browser.bookmarks.onCreated.addListener(async (__, bookmark) => {
-  const { title, url, dateAdded } = bookmark
+  const { title, url, dateAdded: dateAddedMs } = bookmark
   if (!url) {
     return
   }
-  if (moment(dateAdded).isAfter(moment().subtract(10, 'seconds'))) {
+  const now = new Date()
+  const bookmarkCreated = new Date(dateAddedMs)
+  const TEN_SECONDS_IN_MS = 10 * 1000
+  if (now - bookmarkCreated < TEN_SECONDS_IN_MS) {
     await ApiClient.createBookmark({
       bookmark: {
         title,
         url,
-        date_added: dateAdded,
+        date_added: dateAddedMs,
         tags: [],
       },
     })
