@@ -1,6 +1,3 @@
-/* FIXME: Spinner is broken for now */
-/*@import '~spinkit/spinkit.min.css';*/
-
 @tailwind base;
 
 @tailwind components;
