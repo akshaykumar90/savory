@@ -1,11 +1,14 @@
 <template>
-  <component :is="this.$route.meta.layout || 'div'">
+  <component :is="route.meta.layout || 'div'">
     <router-view />
   </component>
 </template>
 
 <script setup>
 import { useQueryProvider } from 'vue-query'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 useQueryProvider()
 </script>
