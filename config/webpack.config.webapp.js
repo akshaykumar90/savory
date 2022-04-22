@@ -17,6 +17,10 @@ const commonConfig = merge(base, {
     publicPath: '/',
   },
   plugins: [
+    new DefinePlugin({
+      __VUE_OPTIONS_API__: true,
+      __VUE_PROD_DEVTOOLS__: true,
+    }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, '../src', 'index.html'),
       chunks: ['webapp'],
@@ -56,11 +60,6 @@ function getDevelopmentConfig() {
         cert: fs.readFileSync(`${homedir}/Projects/certs/${certFilename}`),
       },
     },
-    plugins: [
-      new DefinePlugin({
-        __VUE_PROD_DEVTOOLS__: true,
-      }),
-    ],
   }
 }
 
