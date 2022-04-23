@@ -15,13 +15,11 @@
       />
     </button>
     <div class="pr-2">
-      <a
-        :href="bookmark.url"
-        target="_blank"
-        rel="noopener"
-        class="line-clamp-2"
-        >{{ bookmark.title }}</a
-      >
+      <p class="line-clamp-2">
+        <a :href="bookmark.url" target="_blank" rel="noopener">{{
+          bookmark.title
+        }}</a>
+      </p>
       <div class="mt-2 flex flex-row flex-wrap gap-1.5">
         <router-link
           v-if="bookmark.site"
