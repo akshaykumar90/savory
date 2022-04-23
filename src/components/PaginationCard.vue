@@ -80,7 +80,7 @@ const placemarkMessage = computed(() => {
 })
 
 const showClearFiltersButton = computed(
-  () => store.tags.length > 0 || store.site
+  () => store.tags.length > 0 || store.site || store.search
 )
 
 function nextPage() {
