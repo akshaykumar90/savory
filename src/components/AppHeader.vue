@@ -28,7 +28,7 @@
                 <SearchIcon class="h-5 w-5" aria-hidden="true" />
               </div>
               <input
-                type="search"
+                type="text"
                 placeholder="Search bookmarks"
                 autocomplete="off"
                 spellcheck="false"
@@ -36,6 +36,7 @@
                 name="search"
                 class="text-black-100 placeholder-black-200 block h-full w-full rounded-md border border-transparent bg-gray-400 bg-opacity-25 py-2 pl-10 pr-3 leading-5 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 focus:outline-none focus:ring-1 sm:text-sm"
                 v-model="query"
+                @keyup="doSearch"
               />
             </div>
           </div>
@@ -177,24 +178,18 @@ export default {
 
     let query = ref('')
 
-    watch(
-      query,
-      _.debounce(function () {
-        let q = query.value.trim()
-        if (q) {
-          store.updateSearch(q, router)
-        } else if (route.path === '/search') {
-          router.push('/')
-        }
-      }, 300)
-    )
+    const doSearch = _.debounce(function () {
+      let q = query.value.trim()
+      store.updateSearch(q, router)
+    }, 300)
 
     watch(
-      () => store.search,
-      (searchQuery) => {
-        query.value = searchQuery
-      },
-      { immediate: true }
+      () => route.path,
+      (newPath) => {
+        if (newPath !== '/search') {
+          query.value = ''
+        }
+      }
     )
 
     const authStore = useAuth()
@@ -203,6 +198,7 @@ export default {
 
     return {
       query,
+      doSearch,
       logout,
     }
   },
