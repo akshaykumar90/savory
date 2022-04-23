@@ -22,10 +22,9 @@ export async function fetchBookmarks({
     bookmarksResponsePromise = ApiClient.searchBookmarks(args)
   } else {
     bookmarksResponsePromise = ApiClient.getBookmarks(commonArgs)
-  }
-
-  if (tags.length > 0 || site) {
-    drillDownTagsResponsePromise = ApiClient.getDrillDownTags({ tags, site })
+    if (tags.length > 0 || site) {
+      drillDownTagsResponsePromise = ApiClient.getDrillDownTags({ tags, site })
+    }
   }
 
   let bookmarks = await bookmarksResponsePromise
