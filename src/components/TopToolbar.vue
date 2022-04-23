@@ -1,16 +1,18 @@
 <template>
-  <div class="flex h-16 items-center justify-between bg-white sm:justify-start">
-    <div class="flex items-center px-4">
+  <div
+    class="mx-4 flex h-16 items-center justify-between bg-white sm:justify-start"
+  >
+    <div class="flex items-center">
       <button
         type="button"
-        class="inline-flex items-center rounded-full border border-transparent bg-transparent p-2 text-gray-600 shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        class="inline-flex items-center rounded-full border border-transparent bg-transparent text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:p-2"
         @click="clearSelected"
       >
         <XIcon class="h-5 w-5" aria-hidden="true" />
       </button>
       <div class="mx-4">{{ numSelected }} selected</div>
     </div>
-    <div class="px-4 sm:px-6 lg:px-8">
+    <div class="sm:px-6 lg:px-8">
       <div class="flex justify-between py-3">
         <div>
           <span class="relative z-0 inline-flex space-x-3 rounded-md">
