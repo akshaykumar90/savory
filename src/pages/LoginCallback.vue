@@ -24,19 +24,14 @@ onMounted(async () => {
   }
 
   let resp = await ApiClient.loadUserData()
-  const { login_count, show_onboarding } = resp.data
+  const { login_count } = resp.data
   if (login_count === 1) {
     // We provide `/provider_cb` as the success callback to Auth0 which
     // is handled by this component. If this is the first login for this
     // user, this must be a successful signup event.
     eventLogger.logEvent(EVENT_SIGNUP_SUCCESS)
   }
-  if (show_onboarding) {
-    router.replace('/welcome')
-    ApiClient.markOnboardingSeen()
-  } else {
-    router.replace('/')
-  }
+  router.replace('/')
 })
 </script>
 

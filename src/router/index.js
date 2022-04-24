@@ -5,7 +5,6 @@ import TagsPage from '../pages/TagsPage.vue'
 import SignupPage from '../pages/SignupPage.vue'
 import NotFound from '../pages/NotFound.vue'
 import { useAuth } from '../auth'
-import { getOnboardingRoutes } from '../lib/onboarding'
 import LoginCallback from '../pages/LoginCallback.vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import { usePageStore } from '../stores/page'
@@ -23,10 +22,6 @@ const bookmarksPageScrollBehavior = (savedPosition) => {
 
 export const getRouter = () => {
   const { authGuard } = useAuth()
-  const onboardingRoutes = getOnboardingRoutes()
-  onboardingRoutes.forEach((r) => {
-    r.beforeEnter = authGuard
-  })
 
   return createRouter({
     history: createWebHistory(),
@@ -53,7 +48,6 @@ export const getRouter = () => {
           next({ name: 'landing' })
         },
       },
-      ...onboardingRoutes,
       {
         path: '/landing',
         name: 'landing',
