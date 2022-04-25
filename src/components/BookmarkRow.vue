@@ -15,7 +15,7 @@
       />
     </button>
     <div class="pr-2">
-      <p class="text-base font-bold line-clamp-2">
+      <p class="text-base font-bold line-clamp-3 sm:line-clamp-2">
         <a :href="bookmark.url" target="_blank" rel="noopener">{{
           bookmark.title
         }}</a>
