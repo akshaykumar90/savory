@@ -1,7 +1,9 @@
 <template>
   <div>
     <nav class="mx-3 flex items-center gap-4 overflow-x-auto bg-white py-4">
-      <p class="flex-none">Add to filter</p>
+      <p class="flex-none text-xs uppercase tracking-widest text-slate-600">
+        Add to filter
+      </p>
       <tag-button
         class="flex-none"
         v-for="(value, key) in data.drillTags"

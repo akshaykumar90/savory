@@ -15,19 +15,21 @@
       />
     </button>
     <div class="pr-2">
-      <p class="line-clamp-2">
+      <p class="text-base font-bold line-clamp-2">
         <a :href="bookmark.url" target="_blank" rel="noopener">{{
           bookmark.title
         }}</a>
       </p>
-      <div class="mt-2 flex flex-row flex-wrap gap-1.5">
+      <div class="mt-2 flex flex-row flex-wrap gap-2 text-sm text-zinc-500">
         <router-link
+          class="decoration-primary underline-offset-1 hover:text-primary hover:underline"
           v-if="bookmark.site"
           :to="{ path: '/tag', query: { site: bookmark.site } }"
         >
           {{ bookmark.site }}
         </router-link>
         <router-link
+          class="decoration-primary underline-offset-1 hover:text-primary hover:underline"
           v-for="(tag, index) in bookmark.tags"
           :key="index"
           :to="{ path: '/tag', query: { name: tag } }"
@@ -35,7 +37,7 @@
           {{ tag }}
         </router-link>
       </div>
-      <div class="mt-2 flex flex-row gap-1.5">
+      <div class="mt-2 flex flex-row gap-1.5 text-sm text-zinc-500">
         <span class="inline-block">{{ timeString }}</span>
         {{ '·' }}
         <span class="hidden sm:inline-flex">

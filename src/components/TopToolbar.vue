@@ -10,7 +10,7 @@
       >
         <XIcon class="h-5 w-5" aria-hidden="true" />
       </button>
-      <div class="mx-4">{{ numSelected }} selected</div>
+      <div class="mx-4 tabular-nums">{{ numSelected }} selected</div>
     </div>
     <div class="sm:px-6 lg:px-8">
       <div class="flex justify-between py-3">

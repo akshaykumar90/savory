@@ -26,7 +26,7 @@
           autocomplete="nope"
           name="add-tag"
           id="add-tag"
-          class="absolute top-0 left-0 block w-full rounded-md border-gray-300 bg-transparent shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          class="absolute top-0 left-0 block w-full rounded-md border-gray-300 bg-transparent text-default shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           @keyup.enter="onEnter"
           @keydown.tab.stop.prevent="onTab"
           ref="addTagInput"

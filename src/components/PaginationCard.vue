@@ -5,8 +5,8 @@
       aria-label="Pagination"
     >
       <div>
-        <p class="text-sm text-gray-700" v-if="data">
-          <span class="font-medium">{{ placemarkMessage }}</span>
+        <p class="text-sm font-medium text-slate-600" v-if="data">
+          {{ placemarkMessage }}
         </p>
       </div>
       <div class="flex space-x-4">
