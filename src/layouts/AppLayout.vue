@@ -5,7 +5,7 @@
       class="fixed top-0 z-10 h-16 w-full transition-shadow"
       :class="{ 'shadow-lg': scrollTop > 0 }"
     >
-      <AppHeader></AppHeader>
+      <AppHeader ref="appHeader"></AppHeader>
     </div>
     <transition
       enter-active-class="transition ease-out duration-200"
@@ -40,7 +40,7 @@ import NavSidebar from '../components/NavSidebar.vue'
 import AppHeader from '../components/AppHeader.vue'
 import TopToolbar from '../components/TopToolbar.vue'
 import { useScroll } from '@vueuse/core'
-import { computed, provide, ref } from 'vue'
+import { computed, onMounted, onUnmounted, provide, ref } from 'vue'
 import { useSelectionStore } from '../stores/selection'
 import DeleteConfirmation from '../components/DeleteConfirmation.vue'
 
@@ -53,4 +53,20 @@ const showToolbar = computed(() => store.selectedIds.size > 0)
 const deleteConfirmation = ref(null)
 
 provide('deleteConfirmation', deleteConfirmation)
+
+const appHeader = ref(null)
+
+const onKeydown = function (e) {
+  if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
+    appHeader.value.focusSearch()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
 </script>
