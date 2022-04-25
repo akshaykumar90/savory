@@ -23,10 +23,6 @@ module.exports = {
         'grey-500': 'var(--color-grey)',
       },
 
-      placeholderColor: {
-        default: 'var(--color-grey)',
-      },
-
       backgroundColor: {
         default: 'var(--color-bg-default)',
         primary: 'var(--color-primary)',
@@ -34,11 +30,6 @@ module.exports = {
         'grey-100': 'var(--color-grey-100)',
         'grey-200': 'var(--color-grey-200)',
         'grey-300': 'var(--color-grey-300)',
-      },
-
-      borderColor: {
-        default: 'var(--color-grey-800)',
-        primary: 'var(--color-primary)',
       },
     },
   },
