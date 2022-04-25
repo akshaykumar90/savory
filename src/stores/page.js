@@ -119,9 +119,7 @@ export const usePageStore = defineStore('page', {
       })
     },
     updateSearch(query, router) {
-      if (!query) {
-        router.push('/')
-      } else {
+      if (query) {
         router.push({
           path: '/search',
           query: {
@@ -130,6 +128,16 @@ export const usePageStore = defineStore('page', {
             ...(query && { q: query }),
           },
         })
+      } else if (this.site || this.tags.length) {
+        router.push({
+          path: '/tag',
+          query: {
+            ...(this.site && { site: this.site }),
+            ...(this.tags.length && { name: this.tags }),
+          },
+        })
+      } else {
+        router.push('/')
       }
     },
     updateTags(newTag, router) {
