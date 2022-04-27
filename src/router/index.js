@@ -1,40 +1,38 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import BookmarkList from '../components/BookmarkList.vue'
-import AppLayout from '../layouts/AppLayout.vue'
+import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../pages/LandingPage.vue'
-import SignupPage from '../pages/SignupPage.js'
+import BookmarksPage from '../pages/BookmarksPage.vue'
+import TagsPage from '../pages/TagsPage.vue'
+import SignupPage from '../pages/SignupPage.vue'
 import NotFound from '../pages/NotFound.vue'
-import { authGuard } from '../auth'
-import { store } from '../store'
-import { getOnboardingRoutes } from '../lib/onboarding'
-import LoginCallback from '../pages/LoginCallback'
+import { useAuth } from '../auth'
+import LoginCallback from '../pages/LoginCallback.vue'
+import AppLayout from '../layouts/AppLayout.vue'
+import { usePageStore } from '../stores/page'
 
-Vue.use(Router)
+const bookmarksPageScrollBehavior = (savedPosition) => {
+  const store = usePageStore()
+  return store.fetchPromise.then(() => {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  })
+}
 
-const onboardingRoutes = getOnboardingRoutes()
+export const getRouter = () => {
+  const { authGuard } = useAuth()
 
-function createRouter() {
-  return new Router({
-    mode: 'history',
-    // Vue Router ensures that the Vue.$route variable is updated before
-    // scrollBehavior is called to scroll into position. This lets us use
-    // Async Scrolling here by waiting on the fetch promise that is set on a
-    // watch on the $route variable.
+  return createRouter({
+    history: createWebHistory(),
     scrollBehavior(to, from, savedPosition) {
-      if (store.state.list.fetchPromise) {
-        return store.state.list.fetchPromise.then(() => {
-          if (savedPosition) {
-            return savedPosition
-          } else {
-            return { y: 0 }
-          }
-        })
+      if (to.meta.customScrollBehavior) {
+        return to.meta.customScrollBehavior(savedPosition)
       }
       if (savedPosition) {
         return savedPosition
       } else {
-        return { y: 0 }
+        return { top: 0 }
       }
     },
     routes: [
@@ -44,33 +42,12 @@ function createRouter() {
         component: LoginCallback,
       },
       {
-        path: '/tags/:tag*',
-        name: 'tags',
-        component: BookmarkList,
-        beforeEnter: authGuard,
-        meta: {
-          layout: AppLayout,
-          requiredAuthState: 'login',
-        },
-      },
-      {
         path: '/logout',
         name: 'logout',
         beforeEnter: (to, from, next) => {
           next({ name: 'landing' })
         },
       },
-      {
-        path: '/',
-        name: 'app',
-        component: BookmarkList,
-        beforeEnter: authGuard,
-        meta: {
-          layout: AppLayout,
-          requiredAuthState: 'login',
-        },
-      },
-      ...onboardingRoutes,
       {
         path: '/landing',
         name: 'landing',
@@ -90,12 +67,32 @@ function createRouter() {
         },
       },
       {
-        path: '*',
+        path: '/',
+        alias: ['/tag', '/search'],
+        name: 'home',
+        component: BookmarksPage,
+        beforeEnter: authGuard,
+        meta: {
+          layout: AppLayout,
+          requiredAuthState: 'login',
+          customScrollBehavior: bookmarksPageScrollBehavior,
+        },
+      },
+      {
+        path: '/tags',
+        name: 'tags',
+        component: TagsPage,
+        beforeEnter: authGuard,
+        meta: {
+          layout: AppLayout,
+          requiredAuthState: 'login',
+        },
+      },
+      {
+        path: '/:pathMatch(.*)*',
         name: '404',
         component: NotFound,
       },
     ],
   })
 }
-
-export const router = createRouter()

@@ -1,115 +1,72 @@
 <template>
   <div>
-    <TopNav
-      :test-mode="testMode"
-      :is-saving="isSaving"
-      v-on:onLogout="logout"
-      ref="topNav"
-    />
-    <div class="w-full md:max-w-7xl mx-auto">
-      <div class="md:grid md:grid-cols-10 md:gap-x-4">
-        <div class="pt-6 pl-8 hidden md:col-span-2 md:block">
-          <SideBar class="sticky top-24" />
-        </div>
-        <main class="md:col-span-5 md:mt-3">
-          <slot></slot>
-        </main>
-        <div class="pt-6 hidden md:col-start-9 md:col-span-2 md:block">
-          <RightBar />
-        </div>
+    <div class="h-16"></div>
+    <div
+      class="fixed top-0 z-10 h-16 w-full transition-shadow"
+      :class="{ 'shadow-lg': scrollTop > 0 }"
+    >
+      <AppHeader ref="appHeader"></AppHeader>
+    </div>
+    <transition
+      enter-active-class="transition ease-out duration-200"
+      enter-from-class="opacity-0 -translate-y-6"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition ease-in duration-150"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-6"
+    >
+      <TopToolbar
+        v-if="showToolbar"
+        class="fixed left-0 top-0 right-0 z-20"
+      ></TopToolbar>
+    </transition>
+  </div>
+  <div class="flex flex-row gap-4 sm:mx-2">
+    <div class="hidden w-[275px] flex-none sm:block">
+      <div class="fixed top-16 w-[275px]">
+        <NavSidebar></NavSidebar>
       </div>
     </div>
-    <div class="fixed right-8 bottom-8">
-      <SendFeedback />
-    </div>
+    <main class="w-full max-w-[600px] border-l border-r border-b">
+      <router-view></router-view>
+    </main>
   </div>
+  <footer class="hidden h-16 sm:block"></footer>
+  <delete-confirmation ref="deleteConfirmation"></delete-confirmation>
 </template>
 
-<script>
-import SideBar from '../components/SideBar.vue'
-import RightBar from '../components/RightBar.vue'
-import TopNav from '../components/TopNav.vue'
-import SendFeedback from '../components/SendFeedback.vue'
-import _ from 'lodash'
+<script setup>
+import NavSidebar from '../components/NavSidebar.vue'
+import AppHeader from '../components/AppHeader.vue'
+import TopToolbar from '../components/TopToolbar.vue'
+import { useScroll } from '@vueuse/core'
+import { computed, onMounted, onUnmounted, provide, ref } from 'vue'
+import { useSelectionStore } from '../stores/selection'
+import DeleteConfirmation from '../components/DeleteConfirmation.vue'
 
-export default {
-  name: 'app-layout',
+const { y: scrollTop } = useScroll(window)
 
-  components: {
-    SideBar,
-    RightBar,
-    TopNav,
-    SendFeedback,
-  },
+const store = useSelectionStore()
 
-  computed: {
-    hasMore() {
-      return this.$store.state.list.page < this.$store.getters.maxPage
-    },
-    testMode() {
-      return process.env.TEST_MODE === 'true'
-    },
-    isSaving() {
-      return this.$store.state.list.save.pending
-    },
-  },
+const showToolbar = computed(() => store.selectedIds.size > 0)
 
-  methods: {
-    bottomVisible() {
-      const scrollY = window.scrollY
-      const visible = document.documentElement.clientHeight
-      const pageHeight = document.documentElement.scrollHeight
-      // Some wiggle room (.9) to allow time to load content before user
-      // reaches bottom
-      const bottomOfPage = visible + scrollY >= 0.9 * pageHeight
-      return bottomOfPage || pageHeight < visible
-    },
-    onScroll() {
-      if (this.bottomVisible() && this.hasMore) {
-        this.$store.dispatch('LOAD_MORE_BOOKMARKS')
-      }
-    },
-    onKeydown(e) {
-      if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
-        this.$refs.topNav.focusSearchBar()
-      }
-    },
-    onClickOutside() {
-      // Clicking outside tags row input should exit edit mode
-      // Inspired from: https://stackoverflow.com/a/36180348/7003143
-      // Also see `collapseSiblings` in TagsRow.vue
-      Event.$emit('exitEditMode', {})
-    },
-    beforeUnload(event) {
-      if (this.$store.state.list.save.pending) {
-        // Cancel the event as stated by the standard.
-        event.preventDefault()
-        // Older browsers supported custom message
-        return (event.returnValue =
-          'There is pending work. Sure you want to leave?')
-      }
-    },
-    logout() {
-      this.$auth.logout()
-    },
-  },
+const deleteConfirmation = ref(null)
 
-  destroyed() {
-    window.removeEventListener('scroll', this.scrollHandler)
-    window.removeEventListener('keydown', this.onKeydown)
-    document.body.removeEventListener('click', this.onClickOutside)
-  },
+provide('deleteConfirmation', deleteConfirmation)
 
-  mounted() {
-    this.scrollHandler = _.throttle(this.onScroll, 200)
-    window.addEventListener('scroll', this.scrollHandler)
-    window.addEventListener('keydown', this.onKeydown)
-    document.body.addEventListener('click', this.onClickOutside)
-    window.addEventListener('beforeunload', this.beforeUnload)
-  },
+const appHeader = ref(null)
 
-  created() {
-    this.$store.dispatch('FETCH_TAGS_COUNT')
-  },
+const onKeydown = function (e) {
+  if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
+    appHeader.value.focusSearch()
+  }
 }
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
 </script>

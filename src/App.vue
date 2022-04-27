@@ -1,24 +1,16 @@
 <template>
-  <div id="app">
-    <div v-if="this.$auth.loading" class="h-screen grid">
-      <LoadingSpinner class="place-self-center" />
-    </div>
-    <component v-else :is="this.$route.meta.layout || 'div'">
-      <router-view />
-    </component>
-  </div>
+  <component :is="route.meta.layout || 'div'">
+    <router-view />
+  </component>
 </template>
 
-<script>
-import LoadingSpinner from './components/LoadingSpinner.vue'
+<script setup>
+import { useQueryProvider } from 'vue-query'
+import { useRoute } from 'vue-router'
 
-export default {
-  name: 'app',
+const route = useRoute()
 
-  components: {
-    LoadingSpinner,
-  },
-}
+useQueryProvider()
 </script>
 
 <style src="./assets/app.css"></style>

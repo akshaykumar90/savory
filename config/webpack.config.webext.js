@@ -1,8 +1,8 @@
 const path = require('path')
-const GitRevisionPlugin = require('git-revision-webpack-plugin')
+const { GitRevisionPlugin } = require('git-revision-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
-const merge = require('webpack-merge')
+const { merge } = require('webpack-merge')
 const base = require('./webpack.config.base.js')
 
 const gitRevisionPlugin = new GitRevisionPlugin()
@@ -17,16 +17,18 @@ const commonConfig = merge(base, {
   },
   plugins: [
     gitRevisionPlugin,
-    new CopyWebpackPlugin([
-      {
-        from: 'src/manifest.json',
-        to: 'manifest.json',
-      },
-      {
-        from: 'src/assets/icons/*.png',
-        flatten: true,
-      },
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/manifest.json',
+          to: 'manifest.json',
+        },
+        {
+          from: 'src/assets/icons/*.png',
+          to: '[name][ext]',
+        },
+      ],
+    }),
   ],
 })
 
@@ -40,12 +42,11 @@ const productionConfig = {
 }
 
 module.exports = (env) => {
-  switch (env) {
-    case 'development':
-      return merge(commonConfig, developmentConfig)
-    case 'production':
-      return merge(commonConfig, productionConfig)
-    default:
-      throw new Error('No matching configuration was found!')
+  if (env.development) {
+    return merge(commonConfig, developmentConfig)
   }
+  if (env.production) {
+    return merge(commonConfig, productionConfig)
+  }
+  throw new Error('No matching configuration was found!')
 }

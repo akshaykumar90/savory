@@ -1,8 +1,8 @@
 import axios from 'axios'
 
 export class Client {
-  constructor(authWrapper, clientConfig, reqInterceptor) {
-    this.auth = authWrapper
+  constructor(authStore, clientConfig, reqInterceptor) {
+    this.auth = authStore
     const { maxRetryCount, errorRetryInterval, urlsToRetry, ...axiosConfig } =
       clientConfig
     this.maxRetryCount = maxRetryCount || 3
@@ -95,20 +95,24 @@ export class Client {
 
   ////////////////////////////////////////////////////////////////////////////
 
-  fetchRecent({ num, before }) {
-    return this._post('/bookmarks/', { num, before })
+  getBookmark({ bookmark_id }) {
+    return this._get(`/bookmarks/${bookmark_id}`)
   }
 
-  getBookmarksWithTag({ tags, site, num, before }) {
-    return this._post('/bookmarks/', { tags, site, num, before })
+  getBookmarks({ tags, site, num, cursor }) {
+    return this._post('/bookmarks/', { tags, site, num, cursor })
   }
 
-  searchBookmarks({ query, num, skip, site, tags }) {
-    return this._post('/bookmarks/search', { query, num, skip, site, tags })
+  searchBookmarks({ query, tags, site, num, cursor }) {
+    return this._post('/bookmarks/search', { query, tags, site, num, cursor })
   }
 
   getTagsCount() {
     return this._get('/tags/')
+  }
+
+  getDrillDownTags({ tags, site }) {
+    return this._post('/tags/recs', { tags, site })
   }
 
   createBookmark({ bookmark }) {
