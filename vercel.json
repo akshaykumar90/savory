@@ -1,7 +1,7 @@
 {
   "version": 2,
   "github": {
-    "enabled": true
+    "enabled": false
   },
   "routes": [
     { "handle": "filesystem" },
