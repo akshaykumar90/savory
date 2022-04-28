@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Savory",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Save your tabs and links in Savory from your Chrome browser quickly",
   "icons": {
     "16": "icon16.png",
