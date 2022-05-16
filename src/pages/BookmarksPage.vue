@@ -1,16 +1,18 @@
 <template>
-  <pagination-card class="border-b"></pagination-card>
-  <drill-down-card v-if="showDrillDownCard" class="border-b"></drill-down-card>
-  <ul role="list" v-if="data" class="flex flex-col divide-y divide-gray-200">
-    <bookmark-row
-      v-for="item in data['bookmarks']"
-      :key="item['id']"
-      :bookmarkId="item['id']"
-      :title="item['title']"
-      :tags="item['tags']"
-      :site="item['site']"
-    />
-  </ul>
+  <div class="flex flex-col divide-y divide-gray-200">
+    <pagination-card></pagination-card>
+    <drill-down-card v-if="showDrillDownCard"></drill-down-card>
+    <ul role="list" v-if="data" class="flex flex-col divide-y divide-gray-200">
+      <bookmark-row
+        v-for="item in data['bookmarks']"
+        :key="item['id']"
+        :bookmarkId="item['id']"
+        :title="item['title']"
+        :tags="item['tags']"
+        :site="item['site']"
+      />
+    </ul>
+  </div>
 </template>
 
 <script>
