@@ -43,9 +43,23 @@
 
 <script setup>
 import { FolderIcon, InboxIcon } from '@heroicons/vue/outline'
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 
-const navigation = [
-  { name: 'Bookmarks', icon: InboxIcon, href: '/', current: false },
-  { name: 'Tags', icon: FolderIcon, href: '/tags', current: false },
-]
+const route = useRoute()
+
+const navigation = computed(() => [
+  {
+    name: 'Bookmarks',
+    icon: InboxIcon,
+    href: '/',
+    current: route.name === 'home',
+  },
+  {
+    name: 'Tags',
+    icon: FolderIcon,
+    href: '/tags',
+    current: route.name === 'tags',
+  },
+])
 </script>
