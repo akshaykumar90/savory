@@ -46,9 +46,14 @@ import {
 } from '../api/events'
 import { useAuth } from '../auth'
 import { onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 onMounted(() => {
-  eventLogger.logEvent(EVENT_LANDING_LOAD, { page: 'webapp landing' })
+  if (!route.query.logout) {
+    eventLogger.logEvent(EVENT_LANDING_LOAD, { page: 'webapp landing' })
+  }
 })
 
 const { loginWithRedirect } = useAuth()

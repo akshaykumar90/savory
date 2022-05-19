@@ -45,7 +45,7 @@ export const getRouter = () => {
         path: '/logout',
         name: 'logout',
         beforeEnter: (to, from, next) => {
-          next({ name: 'landing' })
+          next({ name: 'landing', query: { logout: true } })
         },
       },
       {

@@ -7,7 +7,7 @@ import { clientConfig } from '../api/backend'
 import { addXsrfHeader } from '../api/browser'
 
 const CALLBACK_URL = `${window.location.origin}/provider_cb`
-const LOGOUT_URL = window.location.origin
+const LOGOUT_URL = `${window.location.origin}/logout`
 
 export const useAuth = defineStore('auth', () => {
   const { userId, cleanState, updateState } = useAuthState()
