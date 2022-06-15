@@ -25,9 +25,6 @@ function useAddTag() {
         rollback()
       }
     },
-    onSettled: (data, error, { bookmarkId }) => {
-      queryClient.invalidateQueries(['bookmarks', bookmarkId])
-    },
   })
 }
 
@@ -53,9 +50,6 @@ function useRemoveTag() {
       if (rollback) {
         rollback()
       }
-    },
-    onSettled: (data, error, { bookmarkId }) => {
-      queryClient.invalidateQueries(['bookmarks', bookmarkId])
     },
   })
 }
