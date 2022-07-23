@@ -27,7 +27,7 @@
         <NavSidebar></NavSidebar>
       </div>
     </div>
-    <main class="max-w-[600px] border-l border-r border-b">
+    <main class="w-full max-w-[600px] border-l border-r border-b">
       <router-view></router-view>
     </main>
   </div>
