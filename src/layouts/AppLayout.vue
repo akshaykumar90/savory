@@ -21,15 +21,17 @@
       ></TopToolbar>
     </transition>
   </div>
-  <div class="flex flex-row gap-4 sm:mx-2">
-    <div class="hidden w-[275px] flex-none sm:block">
-      <div class="fixed top-16 w-[275px]">
+  <div class="mx-2 flex gap-4">
+    <div class="hidden sm:block sm:flex-shrink-0">
+      <div class="top-16 w-64">
         <NavSidebar></NavSidebar>
       </div>
     </div>
-    <main class="w-full max-w-[600px] border-l border-r border-b">
-      <router-view></router-view>
-    </main>
+    <div class="min-w-0 max-w-[36rem] flex-1">
+      <main>
+        <router-view></router-view>
+      </main>
+    </div>
   </div>
   <footer class="hidden h-16 sm:block"></footer>
   <delete-confirmation ref="deleteConfirmation"></delete-confirmation>
