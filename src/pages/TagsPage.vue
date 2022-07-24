@@ -1,5 +1,5 @@
 <template>
-  <ul role="list" class="divide-y divide-gray-200">
+  <ul role="list">
     <li v-for="(value, key) in data" :key="key" class="flex py-4">
       <router-link
         :to="{ path: '/tag', query: { name: key } }"

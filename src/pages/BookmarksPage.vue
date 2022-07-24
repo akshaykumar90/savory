@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-col divide-y divide-gray-200">
+  <div class="flex flex-col">
     <pagination-card></pagination-card>
     <drill-down-card v-if="showDrillDownCard"></drill-down-card>
-    <ul role="list" v-if="data" class="flex flex-col divide-y divide-gray-200">
+    <ul role="list" v-if="data" class="flex flex-col">
       <bookmark-row
         v-for="item in data['bookmarks']"
         :key="item['id']"

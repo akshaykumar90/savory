@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="min-w-0 max-w-[36rem] flex-1">
-      <main class="border">
+      <main>
         <router-view></router-view>
       </main>
     </div>
