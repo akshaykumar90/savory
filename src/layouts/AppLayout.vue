@@ -21,7 +21,7 @@
       ></TopToolbar>
     </transition>
   </div>
-  <div class="mx-2 flex gap-4">
+  <div class="flex gap-4 sm:mx-2">
     <div class="hidden sm:block sm:flex-shrink-0">
       <div class="top-16 w-64">
         <NavSidebar></NavSidebar>
