@@ -3,6 +3,10 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 module.exports = {
   content: ['./src/**/*.{html,vue}'],
 
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
+
   theme: {
     fontWeight: {
       normal: 400,
