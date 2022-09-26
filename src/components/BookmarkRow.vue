@@ -1,5 +1,5 @@
 <template>
-  <li class="flex items-start gap-2 py-4" @click="">
+  <li class="flex items-start gap-2 py-4" v-if="isSuccess">
     <button>
       <MenuAlt2Icon
         v-if="!selected"
@@ -84,7 +84,7 @@ export default {
   props: ['bookmarkId', 'site', 'tags', 'title'],
   setup(props) {
     const store = useSelectionStore()
-    const { data } = useBookmark(props.bookmarkId)
+    const { isSuccess, data } = useBookmark(props.bookmarkId)
     const selected = computed(() => store.selectedIds.has(props.bookmarkId))
     const tagsDialog = ref(null)
     let deleteConfirmation = inject('deleteConfirmation')
@@ -101,6 +101,7 @@ export default {
     })
     return {
       bookmark: data,
+      isSuccess,
       timeString,
       onDelete,
       tagsDialog,

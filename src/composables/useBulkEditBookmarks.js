@@ -37,11 +37,6 @@ function useBulkAddTag() {
         rollback()
       }
     },
-    onSettled: (data, error, { bookmarkIds }) => {
-      bookmarkIds.forEach((bookmarkId) =>
-        queryClient.invalidateQueries(['bookmarks', bookmarkId])
-      )
-    },
   })
 }
 
@@ -78,11 +73,6 @@ function useBulkRemoveTag() {
       if (rollback) {
         rollback()
       }
-    },
-    onSettled: (data, error, { bookmarkIds }) => {
-      bookmarkIds.forEach((bookmarkId) =>
-        queryClient.invalidateQueries(['bookmarks', bookmarkId])
-      )
     },
   })
 }
