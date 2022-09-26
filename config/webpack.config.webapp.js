@@ -37,17 +37,12 @@ const commonConfig = merge(base, {
   ],
 })
 
-// Wrap the object inside a function because otherwise the Vercel build fails
-// with ENOENT error because it tries to read the cert and key filepaths which
-// do not exist on the build server.
-function getDevelopmentConfig() {
+function getDevServerConfig() {
   const homedir = os.homedir()
   const keyFilename = 'savory.test+4-key.pem'
   const certFilename = 'savory.test+4.pem'
 
   return {
-    mode: 'development',
-    devtool: 'inline-source-map',
     devServer: {
       static: {
         directory: path.join(__dirname, 'dist'),
@@ -63,6 +58,11 @@ function getDevelopmentConfig() {
   }
 }
 
+const developmentConfig = {
+  mode: 'development',
+  devtool: 'inline-source-map',
+}
+
 const productionConfig = {
   mode: 'production',
   devtool: 'source-map',
@@ -70,7 +70,7 @@ const productionConfig = {
 
 module.exports = (env) => {
   if (env.development) {
-    return merge(commonConfig, getDevelopmentConfig())
+    return merge(commonConfig, developmentConfig, getDevServerConfig())
   }
   if (env.production) {
     return merge(commonConfig, productionConfig)

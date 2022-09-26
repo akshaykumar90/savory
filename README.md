@@ -8,7 +8,7 @@ Check out the [homepage][0] for more information!
 
 ## Development
 
-### pre-commit
+### Linting
 
 Install [pre-commit](https://pre-commit.com/).
 
@@ -18,7 +18,7 @@ brew install pre-commit
 
 Run `pre-commit install` to set up the git hook scripts so that `pre-commit` can run automatically on `git commit`.
 
-### webpack watch
+### Dev server
 
 For local development, use the `start:dev` command to watch the project and
 recompile on changes.
