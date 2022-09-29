@@ -25,6 +25,7 @@ import { computed, onMounted, watch } from 'vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { usePageStore } from '../stores/page'
 import { useQueryClient, useIsMutating } from 'vue-query'
+import { prefetchTags } from '../composables/useTags'
 
 export default {
   components: {
@@ -40,6 +41,12 @@ export default {
     const store = usePageStore()
     const queryClient = useQueryClient()
     const isMutating = useIsMutating()
+
+    // We prefetch tags here to avoid the first-time delay while interacting
+    // with the edit tags dialog. In contrast with `useQuery`, this call does
+    // not create a subscription. This is desired because otherwise we will be
+    // needlessly firing the get tags request on window refocus, etc.
+    prefetchTags()
 
     const showDrillDownCard = computed(() => {
       if (isLoading.value || isError.value) {
