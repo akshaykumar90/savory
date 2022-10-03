@@ -16,4 +16,6 @@
 import { useTags } from '../composables/useTags'
 
 const { data } = useTags()
+
+document.title = 'Tags – Savory'
 </script>
