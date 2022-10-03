@@ -26,6 +26,7 @@ import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { usePageStore } from '../stores/page'
 import { useQueryClient, useIsMutating } from 'vue-query'
 import { prefetchTags } from '../composables/useTags'
+import { windowTitle } from '../lib/title'
 
 export default {
   components: {
@@ -72,6 +73,12 @@ export default {
             'There is pending work. Sure you want to leave?')
         }
       })
+    })
+
+    document.title = windowTitle(store)
+
+    store.$subscribe((_, state) => {
+      document.title = windowTitle(state)
     })
 
     return {
