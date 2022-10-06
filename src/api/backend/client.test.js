@@ -57,7 +57,7 @@ describe('backend server retry handling', () => {
   it('fails after trying to refresh token on auth error', async () => {
     server = http
       .createServer(function (req, res) {
-        res.writeHead(403)
+        res.writeHead(401)
         res.end('Logged out!')
       })
       .listen(8182)
@@ -68,7 +68,7 @@ describe('backend server retry handling', () => {
     }
     const testClient = new Client(fakeAuth, config)
     await expect(testClient.loadUserData()).rejects.toThrow(
-      /failed with status code 403/
+      /failed with status code 401/
     )
     expect(mockExpireToken.mock.calls.length).toBe(1)
     expect(mockRefreshToken.mock.calls.length).toBe(1)
@@ -81,7 +81,7 @@ describe('backend server retry handling', () => {
       .createServer(function (req, res) {
         if (requestCount === 0) {
           requestCount += 1
-          res.writeHead(403)
+          res.writeHead(401)
           res.end('Logged out!')
         } else {
           res.writeHead(200)
