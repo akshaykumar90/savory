@@ -56,7 +56,7 @@ export class Client {
   _request(config) {
     this.requestTimes.push(Date.now())
     return this.instance.request(config).catch((error) => {
-      if (error.response && error.response.status === 403) {
+      if (error.response && error.response.status === 401) {
         return this.onAuthErrorRetry(config, error)
       }
       if (
