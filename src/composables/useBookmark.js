@@ -21,9 +21,6 @@ export function useDeleteBookmarks() {
           }
         )
       },
-      onSettled: () => {
-        queryClient.invalidateQueries(['pages'])
-      },
     }
   )
 }
