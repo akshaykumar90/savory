@@ -1,7 +1,7 @@
 import { useSelectionStore } from '../stores/selection'
 import { useBookmark } from './useBookmark'
 import { computed } from 'vue'
-import { useMutation, useQueryClient } from 'vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 
 function useBulkAddTag() {
   const queryClient = useQueryClient()
