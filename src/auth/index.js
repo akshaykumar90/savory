@@ -30,39 +30,29 @@ export const useAuth = defineStore('auth', () => {
 
   const getUserId = () => userId.value
 
-  const loading = ref(isAuthenticated.value)
+  // This ref is not exported currently, so this is effectively unused.
+  const loading = ref(false)
 
   //////////////////////////////////////////////////////////////////////////////
   // Router navigation guard
 
   const authGuard = (to, from, next) => {
-    const fn = () => {
-      let requiredAuthState = to.meta.requiredAuthState
-      let currentAuthState = isAuthenticated.value ? 'login' : 'logout'
+    let requiredAuthState = to.meta.requiredAuthState
+    let currentAuthState = isAuthenticated.value ? 'login' : 'logout'
 
-      if (currentAuthState === requiredAuthState) {
-        return next()
-      }
-
-      if (requiredAuthState === 'login') {
-        return next({ name: 'landing', replace: true })
-      }
-
-      return next({ name: 'app', replace: true })
+    if (currentAuthState === requiredAuthState) {
+      return next()
     }
 
-    if (!loading.value) {
-      return fn()
+    // Login is required for the destination page (like `/tags`), but are
+    // currently logged out. Redirect to landing page instead.
+    if (requiredAuthState === 'login') {
+      return next({ name: 'landing', replace: true })
     }
 
-    watch(
-      () => loading.value,
-      (loading) => {
-        if (loading === false) {
-          return fn()
-        }
-      }
-    )
+    // An attempt to navigate to a logged out page (like `/landing`) when user
+    // is logged in. We don't allow that...
+    return next({ name: 'home', replace: true })
   }
 
   //////////////////////////////////////////////////////////////////////////////
