@@ -24,7 +24,7 @@ import useBookmarksPage from '../composables/useBookmarksPage'
 import { computed, onMounted, watch } from 'vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { usePageStore } from '../stores/page'
-import { useQueryClient, useIsMutating } from 'vue-query'
+import { useQueryClient, useIsMutating } from '@tanstack/vue-query'
 import { prefetchTags } from '../composables/useTags'
 import { windowTitle } from '../lib/title'
 

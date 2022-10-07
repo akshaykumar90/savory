@@ -7,6 +7,7 @@ import { useAuth } from './auth'
 import { eventLogger } from './api/events'
 import { clientConfig } from './api/backend'
 import { Client } from './api/backend/client'
+import { VueQueryPlugin } from '@tanstack/vue-query'
 
 eventLogger.init(process.env.AMPLITUDE_API_KEY)
 
@@ -21,6 +22,8 @@ const router = getRouter()
 window.router = router
 
 app.use(router)
+
+app.use(VueQueryPlugin)
 
 const { isAuthenticated, tokenExpiredBeacon } = storeToRefs(authStore)
 

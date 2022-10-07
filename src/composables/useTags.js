@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from 'vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
 
 const TAGS_QUERY_KEY = ['tags']
 

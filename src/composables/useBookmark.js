@@ -1,5 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from 'vue-query'
-import { reactive } from 'vue'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 
 export function useDeleteBookmarks() {
   const queryClient = useQueryClient()
@@ -10,7 +9,7 @@ export function useDeleteBookmarks() {
       onMutate: ({ bookmarkIds }) => {
         // Optimistic update
         queryClient.setQueriesData(
-          { queryKey: 'pages', active: true },
+          { queryKey: ['pages'], type: 'active' },
           (old) => {
             return {
               ...old,
@@ -43,7 +42,7 @@ export function useDeleteBookmarks() {
 // refetch in the background. Instead, data for this query is set manually in
 // the `useBookmarksPage` composable.
 export function useBookmark(bookmarkId) {
-  const key = reactive(['bookmarks', bookmarkId])
+  const key = ['bookmarks', bookmarkId]
   return useQuery(
     key,
     async () => {
