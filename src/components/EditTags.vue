@@ -5,6 +5,7 @@
       <tag-button
         v-else
         v-for="tag in tags"
+        :key="tag.name"
         :name="tag.name"
         :accented="tag.accented"
         :showRemove="true"
