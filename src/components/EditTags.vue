@@ -5,8 +5,8 @@
       <tag-button
         v-else
         v-for="tag in tags"
-        :name="tag"
-        :accented="true"
+        :name="tag.name"
+        :accented="tag.accented"
         :showRemove="true"
         :onClick="onRemove"
       >
@@ -45,6 +45,8 @@ import useBulkEditBookmarks from '../composables/useBulkEditBookmarks'
 import useEditBookmark from '../composables/useEditBookmark'
 import { lookup } from '../lib/typeahead'
 import { useTags } from '../composables/useTags'
+import { tagsWithAccentBit } from '../lib/tagsRow'
+import { usePageStore } from '../stores/page'
 
 export default {
   components: {
@@ -58,6 +60,8 @@ export default {
     this.$refs.addTagInput.focus()
   },
   setup(props) {
+    const pageStore = usePageStore()
+
     const newTag = ref('')
 
     const tagSuggestion = ref('')
@@ -72,6 +76,9 @@ export default {
       ? useEditBookmark(props.bookmarkId)
       : { tags: ref(null), addTag: () => {}, removeTag: () => {} }
     const typeaheadActivationThreshold = 3
+    const displayTags = computed(() =>
+      tagsWithAccentBit(tags.value, pageStore.tags)
+    )
     const placeholder = computed(() => {
       if (
         !newTag.value.length ||
@@ -117,7 +124,7 @@ export default {
       newTag,
       addTagInput,
       placeholder,
-      tags,
+      tags: displayTags,
       onEnter,
       onTab,
       onRemove: removeTag,
