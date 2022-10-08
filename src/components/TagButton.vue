@@ -6,8 +6,8 @@
   >
     {{ name }}
     <span
-      class="ml-1 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-md focus:outline-none"
-      :class="crossIconColors"
+      class="ml-1 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-md focus:text-white focus:outline-none"
+      :class="removeIconColors"
       v-if="showRemove"
     >
       <span class="sr-only">Remove tag</span>
@@ -29,18 +29,25 @@ export default {
     onClick: Function,
   },
   setup(props) {
-    const baseColor = props.accented ? 'yellow' : 'indigo'
-    const buttonColors = ref([`bg-${baseColor}-100`, `text-${baseColor}-800`])
-    const crossIconColors = ref([
-      `text-${baseColor}-400`,
-      `hover:bg-${baseColor}-200`,
-      `hover:text-${baseColor}-500`,
-      `focus:bg-${baseColor}-500`,
-      'focus:text-white',
+    const baseColors = ref(['bg-indigo-100', 'text-indigo-800'])
+    const accentColors = ref(['bg-pink-100', 'text-pink-800'])
+    const baseRemoveIconColors = ref([
+      'text-indigo-400',
+      'hover:bg-indigo-200',
+      'hover:text-indigo-500',
+      'focus:bg-indigo-500',
+    ])
+    const accentRemoveIconColors = ref([
+      'text-pink-400',
+      'hover:bg-pink-200',
+      'hover:text-pink-500',
+      'focus:bg-pink-500',
     ])
     return {
-      buttonColors,
-      crossIconColors,
+      buttonColors: props.accented ? accentColors : baseColors,
+      removeIconColors: props.accented
+        ? accentRemoveIconColors
+        : baseRemoveIconColors,
     }
   },
 }
