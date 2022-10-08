@@ -6,6 +6,7 @@
         v-else
         v-for="tag in tags"
         :name="tag"
+        :accented="true"
         :showRemove="true"
         :onClick="onRemove"
       >
