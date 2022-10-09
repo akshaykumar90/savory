@@ -1,12 +1,12 @@
 <template>
   <ul role="list">
-    <li v-for="(value, key) in data" :key="key" class="flex py-4">
+    <li v-for="(value, key) in data" :key="key">
       <router-link
         :to="{ path: '/tag', query: { name: key } }"
-        class="mx-4 flex w-full flex-row justify-between"
+        class="flex w-full flex-row justify-between rounded-lg p-4 text-gray-900 hover:bg-gray-50 hover:text-primary"
       >
-        <span class="text-gray-900 line-clamp-1">{{ key }}</span>
-        <span class="text-gray-900">{{ value }}</span>
+        <span class="line-clamp-1">{{ key }}</span>
+        <span>{{ value }}</span>
       </router-link>
     </li>
   </ul>
