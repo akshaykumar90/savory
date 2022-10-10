@@ -3,24 +3,13 @@
   "description": "Webapp for Savory",
   "author": "Akshay Kumar <akshaykumar90@gmail.com>",
   "scripts": {
-    "test": "jest",
+    "test": "vitest run",
     "pg": "vite",
     "start:dev": "webpack serve --progress --env development --config config/webpack.config.webapp.js",
     "build": "cross-env NODE_ENV=production webpack --progress --env production --config config/webpack.config.webapp.js",
     "build:vercel": "webpack --progress --env production --config config/webpack.config.webapp.js",
     "start:ext": "webpack --progress --watch --env development --config config/webpack.config.webext.js",
     "build:ext": "cross-env NODE_ENV=production webpack --progress --env production --config config/webpack.config.webext.js"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "vue"
-    ],
-    "transform": {
-      "^.+\\.js$": "babel-jest",
-      "^.+\\.vue$": "@vue/vue3-jest"
-    }
   },
   "engines": {
     "node": "16.x",
@@ -51,9 +40,7 @@
     "@babel/preset-env": "^7.14.7",
     "@testing-library/vue": "^6.6.1",
     "@vitejs/plugin-vue": "^2.0.1",
-    "@vue/vue3-jest": "^27.0.0-alpha.4",
     "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^27.0.6",
     "babel-loader": "^8.2.3",
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^10.2.0",
@@ -62,13 +49,12 @@
     "dotenv-webpack": "^7.0.3",
     "git-revision-webpack-plugin": "^5.0.0",
     "html-webpack-plugin": "^5.5.0",
-    "jest": "^27.0.6",
     "postcss": "^8.4.5",
     "postcss-loader": "^6.2.1",
     "style-loader": "^3.3.1",
     "vite": "^2.7.6",
+    "vitest": "^0.24.0",
     "vue-loader": "^16.8.1",
-    "vue3-jest": "27.0.0-alpha.2",
     "webpack": "^5.65.0",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.7.2",

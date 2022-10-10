@@ -2,8 +2,8 @@ const http = require('http')
 import { Client } from './client'
 
 function getFakeAuth() {
-  const mockExpireToken = jest.fn()
-  const mockRefreshToken = jest.fn(() => Promise.resolve())
+  const mockExpireToken = vi.fn()
+  const mockRefreshToken = vi.fn(() => Promise.resolve())
   let fakeAuth = {
     expireToken: mockExpireToken,
     tryRefreshToken: mockRefreshToken,
@@ -32,6 +32,7 @@ describe('backend server retry handling', () => {
 
   afterEach(() => {
     server.close()
+    vi.restoreAllMocks()
   })
 
   test('happy case', async () => {

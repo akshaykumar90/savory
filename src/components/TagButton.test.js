@@ -1,8 +1,8 @@
 /**
- * @jest-environment jsdom
+ * @vitest-environment jsdom
  */
 import { render } from '@testing-library/vue'
-import TagButton from './TagButton'
+import TagButton from './TagButton.vue'
 
 describe('tag button is rendered', () => {
   test('base button', () => {
