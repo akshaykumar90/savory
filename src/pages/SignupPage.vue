@@ -4,9 +4,13 @@ import { onMounted } from 'vue'
 
 const authStore = useAuth()
 
+const props = defineProps({
+  login: Boolean,
+})
+
 const { loginWithRedirect } = authStore
 
 onMounted(() => {
-  loginWithRedirect('signup')
+  loginWithRedirect(props.login ? 'login' : 'signup')
 })
 </script>

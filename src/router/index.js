@@ -61,6 +61,17 @@ export const getRouter = () => {
         path: '/signup',
         name: 'signup',
         component: SignupPage,
+        props: { login: false },
+        beforeEnter: authGuard,
+        meta: {
+          requiredAuthState: 'logout',
+        },
+      },
+      {
+        path: '/login',
+        name: 'login',
+        component: SignupPage,
+        props: { login: true },
         beforeEnter: authGuard,
         meta: {
           requiredAuthState: 'logout',
