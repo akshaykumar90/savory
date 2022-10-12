@@ -9,7 +9,7 @@ const gitRevisionPlugin = new GitRevisionPlugin()
 
 const commonConfig = merge(base, {
   entry: {
-    background: ['@babel/polyfill', './src/background.js'],
+    background: ['@babel/polyfill', './src/popup.js'],
   },
   output: {
     path: path.join(__dirname, '../build'),
@@ -26,6 +26,10 @@ const commonConfig = merge(base, {
         {
           from: 'src/assets/icons/*.png',
           to: '[name][ext]',
+        },
+        {
+          from: 'src/popup.html',
+          to: 'popup.html',
         },
       ],
     }),
