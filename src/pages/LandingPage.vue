@@ -25,7 +25,7 @@
         </p>
         <button
           class="mt-4 select-none rounded bg-primary py-2 px-4 text-lg tracking-wide text-white hover:bg-blue-700 focus:outline-none"
-          @click="login('signUp')"
+          @click="login('signup')"
         >
           Create an Account
         </button>
@@ -59,7 +59,7 @@ onMounted(() => {
 const { loginWithRedirect } = useAuth()
 
 const login = (initialScreen) => {
-  if (initialScreen === 'signUp') {
+  if (initialScreen === 'signup') {
     eventLogger.logEvent(EVENT_SIGNUP_CTA, { page: 'webapp landing' })
   }
   loginWithRedirect(initialScreen)
