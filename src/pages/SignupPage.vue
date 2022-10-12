@@ -7,6 +7,6 @@ const authStore = useAuth()
 const { loginWithRedirect } = authStore
 
 onMounted(() => {
-  loginWithRedirect('signUp')
+  loginWithRedirect('signup')
 })
 </script>

@@ -90,12 +90,12 @@ export const useAuth = defineStore('auth', () => {
    *
    * Preferred method for login on website.
    *
-   * @param initialScreen: Redirect initial state: 'signUp' or 'login'
+   * @param initialScreen: Redirect initial state: 'signup' or 'login'
    */
   const loginWithRedirect = (initialScreen) => {
     const loginOptions = {
       redirect_uri: CALLBACK_URL,
-      ...(initialScreen === 'signUp' && { screen_hint: 'signup' }),
+      ...(initialScreen === 'signup' && { screen_hint: 'signup' }),
     }
     return auth0Client.loginWithRedirect(loginOptions)
   }
