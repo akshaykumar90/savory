@@ -115,8 +115,8 @@ export class Client {
     return this._post('/tags/recs', { tags, site })
   }
 
-  createBookmark({ bookmark }) {
-    return this._post('/bookmarks/add', bookmark)
+  saveTab({ title, url, dateAddedMs }) {
+    return this._post('/bookmarks/add', { title, url, date_added: dateAddedMs })
   }
 
   importBookmarks({ chunk }) {
