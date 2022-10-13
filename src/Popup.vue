@@ -12,8 +12,8 @@
 import { useMutation } from '@tanstack/vue-query'
 import { onMounted } from 'vue'
 
-const { isLoading, isError, data, error, mutate } = useMutation((args) =>
-  ApiClient.saveTab(args)
+const { isLoading, isError, data, error, mutate } = useMutation((tab) =>
+  ApiClient.saveTab(tab)
 )
 
 onMounted(async () => {
