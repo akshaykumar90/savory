@@ -16,7 +16,8 @@
       "48": "icon48.png",
       "128": "icon128.png"
     },
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_title": "Save to Savory"
   },
   "host_permissions": ["https://*.savory.test/", "https://*.getsavory.co/"],
   "permissions": ["activeTab", "cookies"]
