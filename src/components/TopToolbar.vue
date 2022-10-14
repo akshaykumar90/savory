@@ -67,8 +67,8 @@
 </template>
 
 <script setup>
-import { TrashIcon } from '@heroicons/vue/24/solid'
-import { TagIcon } from '@heroicons/vue/24/solid'
+import { TrashIcon } from '@heroicons/vue/20/solid'
+import { TagIcon } from '@heroicons/vue/20/solid'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
 import { PopoverButton } from '@headlessui/vue'
 
