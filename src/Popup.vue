@@ -25,7 +25,7 @@
         ></path>
       </svg>
     </div>
-    <div v-else-if="isError" class="m-2 rounded-md bg-red-50 p-4">
+    <div v-else-if="isError" class="rounded-md bg-red-50 p-4">
       <div class="flex">
         <div class="flex-shrink-0">
           <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true" />
