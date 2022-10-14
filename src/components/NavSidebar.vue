@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-import { FolderIcon, InboxIcon } from '@heroicons/vue/outline'
+import { FolderIcon, InboxIcon } from '@heroicons/vue/24/outline'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 

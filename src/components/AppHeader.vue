@@ -25,7 +25,7 @@
               <div
                 class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
               >
-                <SearchIcon class="h-5 w-5" aria-hidden="true" />
+                <MagnifyingGlassIcon class="h-5 w-5" aria-hidden="true" />
               </div>
               <input
                 type="text"
@@ -48,8 +48,8 @@
             class="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             <span class="sr-only">Open main menu</span>
-            <MenuIcon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
-            <XIcon v-else class="block h-6 w-6" aria-hidden="true" />
+            <Bars3Icon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
+            <XMarkIcon v-else class="block h-6 w-6" aria-hidden="true" />
           </DisclosureButton>
         </div>
         <!-- Links section -->
@@ -150,8 +150,8 @@ import {
   MenuItem,
   MenuItems,
 } from '@headlessui/vue'
-import { SearchIcon } from '@heroicons/vue/solid'
-import { MenuIcon, XIcon } from '@heroicons/vue/outline'
+import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
+import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { ref, watch } from 'vue'
 
 import _ from 'lodash'
@@ -168,9 +168,9 @@ export default {
     MenuButton,
     MenuItem,
     MenuItems,
-    SearchIcon,
-    MenuIcon,
-    XIcon,
+    MagnifyingGlassIcon,
+    Bars3Icon,
+    XMarkIcon,
   },
   setup() {
     const router = useRouter()

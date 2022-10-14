@@ -19,7 +19,7 @@
     "@auth0/auth0-spa-js": "^1.6.5",
     "@babel/polyfill": "^7.0.0",
     "@headlessui/vue": "^1.4.2",
-    "@heroicons/vue": "^1.0.5",
+    "@heroicons/vue": "^2.0.12",
     "@tailwindcss/forms": "^0.4.0-alpha.2",
     "@tailwindcss/line-clamp": "^0.3.0",
     "@tanstack/vue-query": "^4.10.1",
