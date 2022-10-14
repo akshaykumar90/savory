@@ -15,6 +15,7 @@ window.ApiClient = new Client(
   {},
   {
     baseURL: 'https://api.savory.test:8081/api/v1',
+    withCredentials: true,
   }
 )
 

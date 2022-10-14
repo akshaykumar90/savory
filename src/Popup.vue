@@ -48,14 +48,11 @@
         <div class="ml-3">
           <h3 class="text-sm font-medium text-green-800">Added to Savory</h3>
           <div class="mt-2 text-sm text-green-700">
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid
-              pariatur, ipsum similique veniam.
-            </p>
+            <p>Saved bookmark id is: {{ bookmarkId }}</p>
           </div>
           <div class="mt-4">
             <div class="-mx-2 -my-1.5 flex">
-              <tags-popover :bookmark-id="1" :popup="true">
+              <tags-popover :bookmark-id="bookmarkId" :popup="true">
                 <popover-button
                   type="button"
                   class="rounded-md bg-green-50 px-2 py-1.5 text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
@@ -73,7 +70,7 @@
 
 <script setup>
 import { useMutation } from '@tanstack/vue-query'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { CheckCircleIcon } from '@heroicons/vue/20/solid'
 import { XCircleIcon } from '@heroicons/vue/20/solid'
 import { PopoverButton } from '@headlessui/vue'
@@ -82,6 +79,8 @@ import TagsPopover from './components/TagsPopover.vue'
 const { isLoading, isIdle, isError, data, error, mutate } = useMutation((tab) =>
   ApiClient.saveTab(tab)
 )
+
+const bookmarkId = computed(() => data.value && data.value.data.id)
 
 // async function saveCurrentTab() {
 //   let queryOptions = { active: true, lastFocusedWindow: true }

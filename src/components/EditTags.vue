@@ -77,6 +77,9 @@ export default {
       : { tags: ref(null), addTag: () => {}, removeTag: () => {} }
     const typeaheadActivationThreshold = 3
     const displayTags = computed(() => {
+      if (!tags.value) {
+        return []
+      }
       let pageTags = []
       if (!props.popup) {
         const pageStore = usePageStore()
