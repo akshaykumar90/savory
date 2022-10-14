@@ -1,6 +1,7 @@
 const path = require('path')
 const { GitRevisionPlugin } = require('git-revision-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const { DefinePlugin } = require('webpack')
 
 const { merge } = require('webpack-merge')
 const base = require('./webpack.config.base.js')
@@ -17,6 +18,10 @@ const commonConfig = merge(base, {
   },
   plugins: [
     gitRevisionPlugin,
+    new DefinePlugin({
+      __VUE_OPTIONS_API__: true,
+      __VUE_PROD_DEVTOOLS__: true,
+    }),
     new CopyWebpackPlugin({
       patterns: [
         {
