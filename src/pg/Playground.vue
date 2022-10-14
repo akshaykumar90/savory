@@ -1,7 +1,9 @@
 <script setup>
-import AppLayout from '../layouts/AppLayout.vue'
+import Popup from '../Popup.vue'
 </script>
 
 <template>
-  <app-layout></app-layout>
+  <div class="flex min-h-screen w-full items-center justify-center">
+    <popup></popup>
+  </div>
 </template>
