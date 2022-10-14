@@ -17,7 +17,15 @@
       "128": "icon128.png"
     },
     "default_popup": "popup.html",
-    "default_title": "Save to Savory"
+    "default_title": "Add to Savory"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      }
+    }
   },
   "host_permissions": ["https://*.savory.test/", "https://*.getsavory.co/"],
   "permissions": ["activeTab", "cookies"]
