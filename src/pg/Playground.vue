@@ -3,7 +3,7 @@ import Popup from '../Popup.vue'
 </script>
 
 <template>
-  <div class="flex min-h-screen w-full items-center justify-center">
+  <div class="mt-8 flex w-full justify-center">
     <popup></popup>
   </div>
 </template>
