@@ -20,7 +20,7 @@
             @click="clearFilters"
           >
             <span class="sr-only">Clear filters</span>
-            <XIcon class="h-5 w-5" aria-hidden="true" />
+            <XMarkIcon class="h-5 w-5" aria-hidden="true" />
           </button>
         </span>
         <span class="relative z-0 inline-flex rounded-md shadow-sm">
@@ -49,9 +49,9 @@
 </template>
 
 <script setup>
-import { watch, ref, computed } from 'vue'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/solid'
-import { XIcon } from '@heroicons/vue/outline'
+import { computed } from 'vue'
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/20/solid'
+import { XMarkIcon } from '@heroicons/vue/24/outline'
 
 import { useRouter } from 'vue-router'
 import useBookmarksPage from '../composables/useBookmarksPage'

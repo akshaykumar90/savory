@@ -44,7 +44,7 @@
               <div
                 class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
               >
-                <ExclamationIcon
+                <ExclamationTriangleIcon
                   class="h-6 w-6 text-red-600"
                   aria-hidden="true"
                 />
@@ -95,7 +95,7 @@ import {
   TransitionChild,
   TransitionRoot,
 } from '@headlessui/vue'
-import { ExclamationIcon } from '@heroicons/vue/outline'
+import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
 import { useDeleteBookmarks } from '../composables/useBookmark'
 import { useSelectionStore } from '../stores/selection'
 
@@ -106,7 +106,7 @@ export default {
     DialogTitle,
     TransitionChild,
     TransitionRoot,
-    ExclamationIcon,
+    ExclamationTriangleIcon,
   },
   setup() {
     const isOpen = ref(false)

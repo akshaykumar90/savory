@@ -8,7 +8,7 @@
         class="inline-flex items-center rounded-full border border-transparent bg-transparent text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:p-2"
         @click="clearSelected"
       >
-        <XIcon class="h-5 w-5" aria-hidden="true" />
+        <XMarkIcon class="h-5 w-5" aria-hidden="true" />
       </button>
       <div class="mx-4 tabular-nums">{{ numSelected }} selected</div>
     </div>
@@ -22,7 +22,7 @@
                   type="button"
                   class="relative -ml-px inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
                 >
-                  <ReplyIcon
+                  <TagIcon
                     class="mr-2.5 h-5 w-5 text-gray-400"
                     aria-hidden="true"
                   />
@@ -37,7 +37,7 @@
                 class="relative -ml-px inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
                 @click="openTagsDialog"
               >
-                <ReplyIcon
+                <TagIcon
                   class="mr-2.5 h-5 w-5 text-gray-400"
                   aria-hidden="true"
                 />
@@ -52,7 +52,7 @@
                 class="relative -ml-px inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
                 @click="onDelete"
               >
-                <ArchiveIconSolid
+                <TrashIcon
                   class="mr-2.5 h-5 w-5 text-gray-400"
                   aria-hidden="true"
                 />
@@ -67,9 +67,9 @@
 </template>
 
 <script setup>
-import { ArchiveIcon as ArchiveIconSolid } from '@heroicons/vue/solid'
-import { XIcon } from '@heroicons/vue/solid'
-import { ReplyIcon } from '@heroicons/vue/solid'
+import { TrashIcon } from '@heroicons/vue/24/solid'
+import { TagIcon } from '@heroicons/vue/24/solid'
+import { XMarkIcon } from '@heroicons/vue/20/solid'
 import { PopoverButton } from '@headlessui/vue'
 
 import TagsPopover from './TagsPopover.vue'

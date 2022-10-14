@@ -1,7 +1,7 @@
 <template>
   <li class="flex items-start gap-2 py-4" v-if="isSuccess">
     <button>
-      <MenuAlt2Icon
+      <SelectIcon
         v-if="!selected"
         class="mx-4 mt-0.5 h-5 w-5 flex-none text-gray-400"
         aria-hidden="true"
@@ -65,8 +65,8 @@
 <script>
 import TagsPopover from './TagsPopover.vue'
 import { PopoverButton } from '@headlessui/vue'
-import { MenuAlt2Icon } from '@heroicons/vue/solid'
-import { CheckCircleIcon as CheckIcon } from '@heroicons/vue/solid'
+import { Bars3BottomLeftIcon as SelectIcon } from '@heroicons/vue/20/solid'
+import { CheckCircleIcon as CheckIcon } from '@heroicons/vue/20/solid'
 import { computed, inject } from 'vue'
 import { useSelectionStore } from '../stores/selection'
 import TagsDialog from './TagsDialog.vue'
@@ -75,7 +75,7 @@ import { ref } from 'vue'
 
 export default {
   components: {
-    MenuAlt2Icon,
+    SelectIcon,
     CheckIcon,
     PopoverButton,
     TagsPopover,
