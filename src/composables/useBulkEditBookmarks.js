@@ -80,7 +80,7 @@ function useBulkRemoveTag() {
 export default function useBulkEditBookmarks() {
   const store = useSelectionStore()
   let arr = Array.from(store.selectedIds).map((bookmarkId) => {
-    const { data } = useBookmark(bookmarkId)
+    const { data } = useBookmark({ bookmarkId, enabled: false })
     return data
   })
   const allTags = computed(() => {

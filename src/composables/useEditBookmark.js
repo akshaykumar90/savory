@@ -55,7 +55,7 @@ function useRemoveTag() {
 }
 
 export default function useEditBookmark(bookmarkId) {
-  const { data } = useBookmark(bookmarkId)
+  const { data } = useBookmark({ bookmarkId, enabled: true })
   const tags = computed(() => data.value.tags)
   const addTagMutation = useAddTag()
   const addTag = (newTag) =>
