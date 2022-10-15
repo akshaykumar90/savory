@@ -84,7 +84,10 @@ export default {
   props: ['bookmarkId', 'site', 'tags', 'title'],
   setup(props) {
     const store = useSelectionStore()
-    const { isSuccess, data } = useBookmark(props.bookmarkId)
+    const { isSuccess, data } = useBookmark({
+      bookmarkId: props.bookmarkId,
+      enabled: false,
+    })
     const selected = computed(() => store.selectedIds.has(props.bookmarkId))
     const tagsDialog = ref(null)
     let deleteConfirmation = inject('deleteConfirmation')

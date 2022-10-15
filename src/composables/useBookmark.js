@@ -29,16 +29,22 @@ export function useDeleteBookmarks() {
 // composable acts as an abstraction to lookup a bookmark id in the bookmarks
 // cache maintained by vue-query.
 //
-// We never want to individually retrieve a bookmark row from the backend
-// because we already have the data client-side in the form of an entire page of
-// bookmarks. Individual rows fetching their own data also has the potential of
-// causing a thundering herd at the backend which is never a good thing.
+// This composable takes `enabled` as an argument which allows call-sites to
+// control if they want this query to fetch. This is needed because this
+// composable can be used in a variety of places, including the bookmark rows
+// themselves.
 //
-// To avoid ever fetching data, we have set `enabled` to false. This ensures
-// that this query will never automatically fetch on mount or automatically
-// refetch in the background. Instead, data for this query is set manually in
-// the `useBookmarksPage` composable.
-export function useBookmark(bookmarkId) {
+// We do not want every bookmark row retrieve the data themselves from the
+// backend because we already have the data client-side in the form of an entire
+// page of bookmarks. This is done in the `useBookmarksPage` composable.
+// Individual rows fetching their own data also has the potential of causing a
+// thundering herd at the backend which is never a good thing.
+//
+// In other places, in the edit tags component for example, it is desirable to
+// fetch the latest data just for that bookmark. It is a necessity for this
+// component if used outside the web app (e.g. in the extension) since there is
+// no other composable fetching data on its behalf.
+export function useBookmark({ bookmarkId, enabled }) {
   const key = ['bookmarks', bookmarkId]
   return useQuery(
     key,
@@ -47,7 +53,7 @@ export function useBookmark(bookmarkId) {
       return resp.data
     },
     {
-      enabled: false,
+      enabled,
     }
   )
 }
