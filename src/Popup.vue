@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { useMutation } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { computed, onMounted } from 'vue'
 import { CheckCircleIcon } from '@heroicons/vue/20/solid'
 import { XCircleIcon } from '@heroicons/vue/20/solid'
@@ -95,11 +95,21 @@ import EditTags from './components/EditTags.vue'
 
 const savory_app_url = 'https://app.savory.test:8080'
 
-const { isLoading, isIdle, isError, data, error, mutate } = useMutation((tab) =>
-  ApiClient.saveTab(tab)
+const queryClient = useQueryClient()
+
+const { isLoading, isIdle, isError, data, error, mutate } = useMutation(
+  async (tab) => {
+    const resp = await ApiClient.saveTab(tab)
+    return resp.data
+  },
+  {
+    onSuccess: (bookmark) => {
+      queryClient.setQueryData(['bookmarks', bookmark.id], bookmark)
+    },
+  }
 )
 
-const bookmarkId = computed(() => data.value && data.value.data.id)
+const bookmarkId = computed(() => data.value && data.value.id)
 
 async function saveCurrentTab() {
   let queryOptions = { active: true, lastFocusedWindow: true }
