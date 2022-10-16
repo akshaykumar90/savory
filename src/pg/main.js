@@ -12,7 +12,10 @@ app.use(createPinia())
 app.use(VueQueryPlugin)
 
 window.ApiClient = new Client(
-  {},
+  {
+    tryRefreshToken: () => Promise.resolve(),
+    expireToken: () => {},
+  },
   {
     baseURL: 'https://api.savory.test:8081/api/v1',
     withCredentials: true,
