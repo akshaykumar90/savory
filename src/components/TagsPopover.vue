@@ -15,11 +15,7 @@
         <div
           class="overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5"
         >
-          <edit-tags
-            :bookmark-id="bookmarkId"
-            :bulk="bulk"
-            :popup="popup"
-          ></edit-tags>
+          <edit-tags :bookmark-id="bookmarkId" :bulk="bulk"></edit-tags>
         </div>
       </PopoverPanel>
     </transition>
@@ -39,7 +35,6 @@ export default {
   props: {
     bookmarkId: String,
     bulk: Boolean,
-    popup: Boolean,
   },
 }
 </script>
