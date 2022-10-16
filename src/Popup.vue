@@ -6,17 +6,43 @@
     >
       <Spinner></Spinner>
     </div>
-    <div v-else-if="isError" class="rounded-md bg-red-50 p-4">
-      <div class="flex">
+    <div
+      v-else-if="isError"
+      class="rounded-md p-4"
+      :class="{ 'bg-red-50': !unauthorizedError }"
+    >
+      <div v-if="unauthorizedError">
+        <div>
+          <h3 class="text-lg font-medium leading-6 text-gray-900">
+            Login to Savory
+          </h3>
+          <div class="mt-2 max-w-xl text-sm text-gray-500">
+            <p>
+              To add this tab to Savory, you need to log in or create a new
+              account.
+            </p>
+          </div>
+          <div class="mt-5">
+            <button
+              @click="openSavory"
+              type="button"
+              class="inline-flex items-center rounded-md border border-transparent bg-sky-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 sm:text-sm"
+            >
+              Login
+            </button>
+          </div>
+        </div>
+      </div>
+      <div v-else class="flex">
         <div class="flex-shrink-0">
           <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true" />
         </div>
         <div class="ml-3">
           <h3 class="text-sm font-medium text-red-800">
-            There was an error saving to Savory
+            There was an error adding to Savory
           </h3>
           <div class="mt-2 text-sm text-red-700">
-            <p>All our servers are busy. Please give us a moment.</p>
+            <p>{{ error }}</p>
           </div>
         </div>
       </div>
@@ -79,6 +105,11 @@ const savory_app_url = 'https://app.savory.test:8080'
 
 const queryClient = useQueryClient()
 
+const unauthorizedError = computed(
+  () =>
+    error.value && error.value.response && error.value.response.status === 401
+)
+
 const { isLoading, isIdle, isError, data, error, mutate } = useMutation(
   async (tab) => {
     const resp = await ApiClient.saveTab(tab)
@@ -111,7 +142,7 @@ function openSavory() {
 }
 
 onMounted(() => {
-  // saveCurrentTab()
+  saveCurrentTab()
 })
 </script>
 
