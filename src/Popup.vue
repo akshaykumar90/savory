@@ -57,10 +57,20 @@
             />
           </div>
           <div class="ml-3">
-            <h3 class="text-sm font-medium text-green-800">Added to Savory</h3>
-            <div class="mt-2 text-sm text-green-700">
-              <p>Saved bookmark id is: {{ bookmarkId }}</p>
-            </div>
+            <template v-if="isOldBookmark">
+              <h3 class="text-sm font-medium text-green-800">Already saved!</h3>
+              <div class="mt-2 text-sm text-green-700">
+                <p>Last added on {{ bookmarkCreatedTime }}</p>
+              </div>
+            </template>
+            <template v-else>
+              <h3 class="text-sm font-medium text-green-800">
+                Added to Savory
+              </h3>
+              <div class="mt-2 text-sm text-green-700">
+                <p>{{ data.title }}</p>
+              </div>
+            </template>
             <div class="mt-4">
               <div class="-mx-2 -my-1.5 flex">
                 <popover-button
@@ -140,6 +150,34 @@ async function saveCurrentTab() {
 function openSavory() {
   chrome.tabs.create({ url: savory_app_url })
 }
+
+// Old bookmark means that the bookmark was already saved when the user clicked
+// the extension to save.
+//
+// The extension only gets to know this after it attempts to save the bookmark
+// into Savory. Even then, the backend response does not distinguish between a
+// brand-new bookmark or if the bookmark was already present. In both cases, it
+// returns a bookmark object which is present in the database.
+//
+// So, we determine that here by comparing the bookmark created time returned in
+// response with the current time and use 10 seconds as an arbitrary cutoff
+// value.
+const isOldBookmark = computed(() => {
+  if (data.value) {
+    const now = new Date()
+    const bookmarkCreated = new Date(data.value.date_added)
+    const tenSecondMillis = 10 * 1000
+    return bookmarkCreated < now - tenSecondMillis
+  }
+})
+
+const bookmarkCreatedTime = computed(() => {
+  if (data.value) {
+    const bookmarkDate = new Date(data.value.date_added)
+    const options = { year: 'numeric', month: 'short', day: 'numeric' }
+    return bookmarkDate.toLocaleDateString(undefined, options)
+  }
+})
 
 onMounted(() => {
   saveCurrentTab()
