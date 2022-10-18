@@ -10,6 +10,11 @@ const certFilename = 'savory.test+4.pem'
 export default defineConfig({
   root: './src/pg',
   plugins: [vue()],
+  define: {
+    'process.env.SAVORY_APP_URL': JSON.stringify(
+      'https://app.savory.test:8080'
+    ),
+  },
   server: {
     host: 'app.savory.test',
     port: 8008,
