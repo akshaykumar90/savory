@@ -111,7 +111,7 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import EditTags from './components/EditTags.vue'
 import Spinner from './components/Spinner.vue'
 
-const savory_app_url = 'https://app.savory.test:8080'
+const savory_app_url = process.env.SAVORY_APP_URL
 
 const queryClient = useQueryClient()
 
