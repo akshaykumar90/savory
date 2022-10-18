@@ -56,13 +56,12 @@ export default {
   props: {
     bookmarkId: String,
     bulk: Boolean,
+    popup: Boolean,
   },
   mounted() {
     this.$refs.addTagInput.focus()
   },
   setup(props) {
-    const pageStore = usePageStore()
-
     const newTag = ref('')
 
     const tagSuggestion = ref('')
@@ -77,9 +76,17 @@ export default {
       ? useEditBookmark(props.bookmarkId)
       : { tags: ref(null), addTag: () => {}, removeTag: () => {} }
     const typeaheadActivationThreshold = 3
-    const displayTags = computed(() =>
-      tagsWithAccentBit(tags.value, pageStore.tags)
-    )
+    const displayTags = computed(() => {
+      if (!tags.value) {
+        return []
+      }
+      let pageTags = []
+      if (!props.popup) {
+        const pageStore = usePageStore()
+        pageTags = pageStore.tags
+      }
+      return tagsWithAccentBit(tags.value, pageTags)
+    })
     const placeholder = computed(() => {
       if (
         !newTag.value.length ||
