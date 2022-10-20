@@ -25,7 +25,7 @@
         <input
           type="text"
           v-model="newTag"
-          autocomplete="nope"
+          autocomplete="off"
           name="add-tag"
           id="add-tag"
           class="absolute top-0 left-0 block w-full rounded-md border-gray-300 bg-transparent text-default shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
