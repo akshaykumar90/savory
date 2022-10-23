@@ -93,7 +93,7 @@
       </div>
       <PopoverPanel class="mt-2">
         <div
-          class="overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+          class="overflow-hidden rounded-md bg-white ring-1 ring-black ring-opacity-5"
         >
           <edit-tags :bookmark-id="bookmarkId" :popup="true"></edit-tags>
         </div>
