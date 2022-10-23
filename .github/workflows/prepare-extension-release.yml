@@ -1,0 +1,47 @@
+name: Prepare Extension Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  API_BASE_URL: 'https://api.getsavory.co/api/v1'
+  API_COOKIES_URL: 'https://api.getsavory.co'
+  SAVORY_APP_URL: 'https://app.getsavory.co'
+
+jobs:
+  build:
+    permissions:
+      contents: write # for softprops/action-gh-release to create GitHub release
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'yarn'
+
+      - run: yarn install
+
+      - run: yarn test
+
+      - run: npm run build:ext
+        env:
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          AUTH0_CLIENTID: ${{ secrets.AUTH0_CLIENTID }}
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+
+      - name: Create zip file
+        run: zip -rj "$GITHUB_REF_NAME.zip" build
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: '*.zip'
