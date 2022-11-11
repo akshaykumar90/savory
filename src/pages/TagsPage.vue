@@ -6,14 +6,13 @@
           type="text"
           v-model="inputFilter"
           autocomplete="off"
-          name="add-tag"
-          id="add-tag"
+          name="filter-tags"
+          id="filter-tags"
           class="block w-full rounded-md border-gray-300 bg-transparent text-default shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          ref="addTagInput"
           placeholder="Filter tags&hellip;"
         />
       </div>
-      <div class="ml-4 mt-2" v-if="data">
+      <div class="ml-4 mt-2">
         <h3 class="text-lg font-medium leading-6 text-gray-900">
           {{ Object.keys(filteredTags).length }}
         </h3>
