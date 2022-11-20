@@ -7,7 +7,7 @@
           :key="item.name"
           :to="item.href"
           :class="[
-            item.current
+            currentTab === item.name.toLowerCase()
               ? 'bg-gray-100 text-gray-900'
               : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
             'group flex items-center rounded-md px-2 py-2 text-sm font-medium',
@@ -42,24 +42,60 @@
 </template>
 
 <script setup>
-import { FolderIcon, InboxIcon } from '@heroicons/vue/24/outline'
+import {
+  FolderIcon,
+  InboxIcon,
+  NewspaperIcon,
+  FilmIcon,
+} from '@heroicons/vue/24/outline'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 
 const route = useRoute()
+
+const currentTab = computed(() => {
+  if (route.name === 'tags') {
+    return 'tags'
+  }
+  if (route.name !== 'home') {
+    return null
+  }
+  if (route.query) {
+    if (route.query.name) {
+      const tags = Array.isArray(route.query.name)
+        ? route.query.name
+        : [route.query.name]
+      let lowercaseTags = tags.map((x) => x.toLowerCase())
+      if (lowercaseTags.includes('reading')) {
+        return 'reading'
+      } else if (lowercaseTags.includes('playlist')) {
+        return 'playlist'
+      }
+    }
+  }
+  return 'bookmarks'
+})
 
 const navigation = computed(() => [
   {
     name: 'Bookmarks',
     icon: InboxIcon,
     href: '/',
-    current: route.name === 'home',
   },
   {
     name: 'Tags',
     icon: FolderIcon,
     href: '/tags',
-    current: route.name === 'tags',
+  },
+  {
+    name: 'Reading',
+    icon: NewspaperIcon,
+    href: { path: '/tag', query: { name: 'reading' } },
+  },
+  {
+    name: 'Playlist',
+    icon: FilmIcon,
+    href: { path: '/tag', query: { name: 'playlist' } },
   },
 ])
 </script>
