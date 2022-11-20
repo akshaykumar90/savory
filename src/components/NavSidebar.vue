@@ -42,14 +42,9 @@
 </template>
 
 <script setup>
-import {
-  FolderIcon,
-  InboxIcon,
-  NewspaperIcon,
-  FilmIcon,
-} from '@heroicons/vue/24/outline'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
+import { navigation as navItems } from '../lib/navigation'
 
 const route = useRoute()
 
@@ -76,26 +71,5 @@ const currentTab = computed(() => {
   return 'bookmarks'
 })
 
-const navigation = computed(() => [
-  {
-    name: 'Bookmarks',
-    icon: InboxIcon,
-    href: '/',
-  },
-  {
-    name: 'Tags',
-    icon: FolderIcon,
-    href: '/tags',
-  },
-  {
-    name: 'Reading',
-    icon: NewspaperIcon,
-    href: { path: '/tag', query: { name: 'reading' } },
-  },
-  {
-    name: 'Playlist',
-    icon: FilmIcon,
-    href: { path: '/tag', query: { name: 'playlist' } },
-  },
-])
+const navigation = navItems
 </script>
