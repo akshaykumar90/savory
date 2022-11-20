@@ -109,20 +109,16 @@
 
     <DisclosurePanel class="lg:hidden">
       <div class="space-y-1 pt-2 pb-3">
-        <router-link to="/">
+        <router-link
+          v-for="item in navigation"
+          :key="item.name"
+          :to="item.href"
+        >
           <DisclosureButton
             as="div"
             class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
           >
-            Bookmarks
-          </DisclosureButton>
-        </router-link>
-        <router-link to="/tags">
-          <DisclosureButton
-            as="div"
-            class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-          >
-            Tags
+            {{ item.name }}
           </DisclosureButton>
         </router-link>
       </div>
@@ -153,6 +149,7 @@ import {
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { ref, watch } from 'vue'
+import { navigation as navItems } from '../lib/navigation'
 
 import _ from 'lodash'
 import { useRoute, useRouter } from 'vue-router'
@@ -207,6 +204,7 @@ export default {
       logout,
       searchBar,
       focusSearch,
+      navigation: navItems,
     }
   },
 }
