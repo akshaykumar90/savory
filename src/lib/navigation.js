@@ -27,3 +27,16 @@ export const navigation = [
     href: { path: '/tag', query: { name: 'playlist' } },
   },
 ]
+
+const mkt_site_url = process.env.MKT_SITE_URL
+
+export const outboundLinks = [
+  {
+    name: 'Help',
+    href: `${mkt_site_url}/getting-started`,
+  },
+  {
+    name: 'Questions?',
+    href: `${mkt_site_url}/feedback`,
+  },
+]
