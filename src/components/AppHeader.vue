@@ -124,6 +124,16 @@
       </div>
       <div class="space-y-1 border-t border-gray-200 pt-2 pb-3">
         <DisclosureButton
+          v-for="link in outboundLinks"
+          :key="link.name"
+          as="a"
+          :href="link.href"
+          target="_blank"
+          class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+        >
+          {{ link.name }}
+        </DisclosureButton>
+        <DisclosureButton
           as="a"
           href="#"
           @click.prevent="logout"
@@ -150,6 +160,7 @@ import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { ref, watch } from 'vue'
 import { navigation as navItems } from '../lib/navigation'
+import { outboundLinks } from '../lib/navigation'
 
 import _ from 'lodash'
 import { useRoute, useRouter } from 'vue-router'
@@ -205,6 +216,7 @@ export default {
       searchBar,
       focusSearch,
       navigation: navItems,
+      outboundLinks,
     }
   },
 }
