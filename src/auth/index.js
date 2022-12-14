@@ -30,7 +30,6 @@ export const useAuth = defineStore('auth', () => {
 
   const getUserId = () => userId.value
 
-  // This ref is not exported currently, so this is effectively unused.
   const loading = ref(false)
 
   //////////////////////////////////////////////////////////////////////////////
@@ -166,6 +165,7 @@ export const useAuth = defineStore('auth', () => {
   //////////////////////////////////////////////////////////////////////////////
 
   return {
+    loading,
     isAuthenticated,
     getUserId,
     loginWithRedirect,

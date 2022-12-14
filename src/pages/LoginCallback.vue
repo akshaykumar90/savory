@@ -11,7 +11,7 @@ const authStore = useAuth()
 
 const { redirectCallback } = authStore
 
-const { isAuthenticated } = storeToRefs(authStore)
+const { loading, isAuthenticated } = storeToRefs(authStore)
 
 const router = useRouter()
 
@@ -36,10 +36,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="p-4" v-if="error">
-    <h2 class="mb-2">{{ error }}</h2>
-    <router-link to="/" class="text-blue-500 underline"
-      >Go back home</router-link
-    >
+  <div class="p-4">
+    <h2 class="mb-2" v-if="loading">Loading...</h2>
+    <template v-else-if="error">
+      <h2 class="mb-2">{{ error }}</h2>
+      <router-link to="/" class="text-blue-500 underline"
+        >Go back home</router-link
+      >
+    </template>
   </div>
 </template>
