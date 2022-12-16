@@ -39,29 +39,11 @@
 </template>
 
 <script setup>
-import {
-  EVENT_SIGNUP_CTA,
-  EVENT_LANDING_LOAD,
-  eventLogger,
-} from '../api/events'
 import { useAuth } from '../auth'
-import { onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-
-onMounted(() => {
-  if (!route.query.logout) {
-    eventLogger.logEvent(EVENT_LANDING_LOAD, { page: 'webapp landing' })
-  }
-})
 
 const { loginWithRedirect } = useAuth()
 
 const login = (initialScreen) => {
-  if (initialScreen === 'signup') {
-    eventLogger.logEvent(EVENT_SIGNUP_CTA, { page: 'webapp landing' })
-  }
   loginWithRedirect(initialScreen)
 }
 </script>
