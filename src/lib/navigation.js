@@ -28,15 +28,25 @@ export const navigation = [
   },
 ]
 
-const mkt_site_url = process.env.MKT_SITE_URL
+const mktSiteUrl = process.env.MKT_SITE_URL
+
+export const gettingStartedUrl = `${mktSiteUrl}/getting-started`
+export const feedbackUrl = `${mktSiteUrl}/feedback`
+
+export const appLinks = [
+  {
+    name: 'Settings',
+    href: '/settings',
+  },
+]
 
 export const outboundLinks = [
   {
     name: 'Help',
-    href: `${mkt_site_url}/getting-started`,
+    href: gettingStartedUrl,
   },
   {
     name: 'Questions?',
-    href: `${mkt_site_url}/feedback`,
+    href: feedbackUrl,
   },
 ]

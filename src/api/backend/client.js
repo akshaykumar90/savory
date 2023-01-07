@@ -119,12 +119,6 @@ export class Client {
     return this._post('/bookmarks/add', { title, url, date_added: dateAddedMs })
   }
 
-  importBookmarks({ chunk }) {
-    return this._post('/bookmarks/import', {
-      bookmarks: chunk,
-    })
-  }
-
   deleteBookmarks({ bookmarkIds }) {
     return this._delete('/bookmarks/', {
       bookmark_ids: bookmarkIds,
@@ -163,15 +157,9 @@ export class Client {
     return this._get('/users/me')
   }
 
-  markBookmarksImported() {
+  updateUser({ fullName }) {
     return this._put('/users/me', {
-      is_chrome_imported: true,
-    })
-  }
-
-  markOnboardingSeen() {
-    return this._put('/users/me', {
-      show_onboarding: false,
+      full_name: fullName,
     })
   }
 }

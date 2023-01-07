@@ -8,6 +8,7 @@ import { useAuth } from '../auth'
 import LoginCallback from '../pages/LoginCallback.vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import { usePageStore } from '../stores/page'
+import SettingsPage from '../pages/SettingsPage.vue'
 
 const bookmarksPageScrollBehavior = (savedPosition) => {
   const store = usePageStore()
@@ -96,6 +97,15 @@ export const getRouter = () => {
         beforeEnter: authGuard,
         meta: {
           layout: AppLayout,
+          requiredAuthState: 'login',
+        },
+      },
+      {
+        path: '/settings',
+        name: 'settings',
+        component: SettingsPage,
+        beforeEnter: authGuard,
+        meta: {
           requiredAuthState: 'login',
         },
       },
