@@ -41,7 +41,7 @@
             <a
               class="underline underline-offset-2"
               target="_blank"
-              href="/feedback"
+              :href="feedbackUrl"
               >Contact us</a
             >
             to update your email.
@@ -66,6 +66,7 @@
 <script>
 import { ref } from 'vue'
 import { useUpdateUser } from '../composables/useUser'
+import { feedbackUrl } from '../lib/navigation'
 
 export default {
   props: {
@@ -95,6 +96,7 @@ export default {
       memberSince,
       onSubmit,
       isUpdating: isLoading,
+      feedbackUrl,
     }
   },
 }
