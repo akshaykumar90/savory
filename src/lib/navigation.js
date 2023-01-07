@@ -30,6 +30,13 @@ export const navigation = [
 
 const mkt_site_url = process.env.MKT_SITE_URL
 
+export const appLinks = [
+  {
+    name: 'Settings',
+    href: '/settings',
+  },
+]
+
 export const outboundLinks = [
   {
     name: 'Help',

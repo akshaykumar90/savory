@@ -15,33 +15,9 @@
           </div>
         </div>
 
-        <!-- Search section -->
-        <div class="flex flex-1 justify-center lg:justify-end">
-          <div class="w-full px-2 lg:px-6">
-            <label for="search" class="sr-only">Search bookmarks</label>
-            <div
-              class="text-black-200 relative h-[46px] focus-within:text-gray-400"
-            >
-              <div
-                class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
-              >
-                <MagnifyingGlassIcon class="h-5 w-5" aria-hidden="true" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search bookmarks"
-                autocomplete="off"
-                spellcheck="false"
-                id="search"
-                name="search"
-                class="text-black-100 placeholder-black-200 block h-full w-full rounded-md border border-transparent bg-gray-400 bg-opacity-25 py-2 pl-10 pr-3 leading-5 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 focus:outline-none focus:ring-1 sm:text-sm"
-                v-model="query"
-                @keyup="doSearch"
-                ref="searchBar"
-              />
-            </div>
-          </div>
-        </div>
+        <!-- Optional search section -->
+        <slot />
+
         <div class="flex lg:hidden">
           <!-- Mobile menu button -->
           <DisclosureButton
@@ -88,6 +64,20 @@
                 <MenuItems
                   class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                 >
+                  <MenuItem
+                    v-for="link in appLinks"
+                    :key="link.name"
+                    v-slot="{ active }"
+                  >
+                    <router-link
+                      :to="link.href"
+                      :class="[
+                        active ? 'bg-gray-100' : '',
+                        'block px-4 py-2 text-sm text-gray-700',
+                      ]"
+                      >{{ link.name }}</router-link
+                    >
+                  </MenuItem>
                   <MenuItem
                     v-for="link in outboundLinks"
                     :key="link.name"
@@ -138,6 +128,14 @@
         </router-link>
       </div>
       <div class="space-y-1 border-t border-gray-200 pt-2 pb-3">
+        <router-link v-for="link in appLinks" :key="link.name" :to="link.href">
+          <DisclosureButton
+            as="div"
+            class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+          >
+            {{ link.name }}
+          </DisclosureButton>
+        </router-link>
         <DisclosureButton
           v-for="link in outboundLinks"
           :key="link.name"
@@ -173,13 +171,9 @@ import {
 } from '@headlessui/vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
-import { ref, watch } from 'vue'
-import { navigation as navItems } from '../lib/navigation'
+import { appLinks, navigation as navItems } from '../lib/navigation'
 import { outboundLinks } from '../lib/navigation'
 
-import _ from 'lodash'
-import { useRoute, useRouter } from 'vue-router'
-import { usePageStore } from '../stores/page'
 import { useAuth } from '../auth'
 
 export default {
@@ -196,41 +190,14 @@ export default {
     XMarkIcon,
   },
   setup() {
-    const router = useRouter()
-    const route = useRoute()
-    const store = usePageStore()
-
-    let query = ref('')
-
-    const doSearch = _.debounce(function () {
-      let q = query.value.trim()
-      store.updateSearch(q, router)
-    }, 300)
-
-    watch(
-      () => route.path,
-      (newPath) => {
-        if (newPath !== '/search') {
-          query.value = ''
-        }
-      }
-    )
-
     const authStore = useAuth()
 
     const { logout } = authStore
 
-    const searchBar = ref(null)
-
-    const focusSearch = () => searchBar.value.focus()
-
     return {
-      query,
-      doSearch,
       logout,
-      searchBar,
-      focusSearch,
       navigation: navItems,
+      appLinks,
       outboundLinks,
     }
   },

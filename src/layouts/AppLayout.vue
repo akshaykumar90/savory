@@ -5,7 +5,9 @@
       class="fixed top-0 z-10 h-16 w-full transition-shadow"
       :class="{ 'shadow-lg': scrollTop > 0 }"
     >
-      <AppHeader ref="appHeader"></AppHeader>
+      <AppHeader>
+        <SearchBar ref="searchBar" />
+      </AppHeader>
     </div>
     <transition
       enter-active-class="transition ease-out duration-200"
@@ -45,6 +47,7 @@ import { useScroll } from '@vueuse/core'
 import { computed, onMounted, onUnmounted, provide, ref } from 'vue'
 import { useSelectionStore } from '../stores/selection'
 import DeleteConfirmation from '../components/DeleteConfirmation.vue'
+import SearchBar from '../components/SearchBar.vue'
 
 const { y: scrollTop } = useScroll(window)
 
@@ -56,11 +59,11 @@ const deleteConfirmation = ref(null)
 
 provide('deleteConfirmation', deleteConfirmation)
 
-const appHeader = ref(null)
+const searchBar = ref(null)
 
 const onKeydown = function (e) {
   if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
-    appHeader.value.focusSearch()
+    searchBar.value.focusSearch()
   }
 }
 
