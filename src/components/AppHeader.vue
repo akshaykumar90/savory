@@ -171,8 +171,11 @@ import {
 } from '@headlessui/vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
-import { appLinks, navigation as navItems } from '../lib/navigation'
-import { outboundLinks } from '../lib/navigation'
+import {
+  appLinks,
+  outboundLinks,
+  navigation as navItems,
+} from '../lib/navigation'
 
 import { useAuth } from '../auth'
 
