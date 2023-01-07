@@ -86,7 +86,7 @@ export default {
 
     const onSubmit = () => {
       if (name.value !== props.name) {
-        mutate({ fullName: name.value })
+        mutate({ fullName: name.value.trim() })
       }
     }
 
