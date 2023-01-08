@@ -162,4 +162,8 @@ export class Client {
       full_name: fullName,
     })
   }
+
+  connectPocket() {
+    return this._post('/users/pocket/begin_import')
+  }
 }
