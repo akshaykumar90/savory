@@ -34,7 +34,7 @@
           </div>
         </div>
         <p class="text-sm text-red-600" v-if="app.error.value">
-          There was an error. Try again in some time.
+          {{ app.error.value }}
         </p>
       </div>
     </li>
@@ -71,8 +71,12 @@ export default {
     const { isLoading: isPocketDisconnectLoading, mutate: disconnectPocket } =
       useDisconnectPocket()
 
+    const pocketStatus = computed(() => {
+      return data.value && data.value.pocket_status
+    })
+
     const pocketSyncedAt = computed(
-      () => data.value && data.value.pocket_synced_at
+      () => pocketStatus.value === 'connected' && data.value.pocket_synced_at
     )
 
     const pocketSuccessDate = computed(() => {
@@ -82,16 +86,8 @@ export default {
       )
     })
 
-    const pocketStatus = computed(() => {
-      return data.value.pocket_status
-    })
-
     const pocketButtonDisabled = computed(() => {
-      return (
-        pocketStatus.value === 'syncing' ||
-        isPocketConnectLoading.value ||
-        isPocketDisconnectLoading.value
-      )
+      return isPocketConnectLoading.value || isPocketDisconnectLoading.value
     })
 
     const pocketButtonText = computed(() => {
@@ -99,16 +95,20 @@ export default {
         return 'Connect'
       }
 
-      if (pocketStatus.value === 'syncing') {
-        return 'In Progress'
-      }
-
       // Status is either "error" or "connected"
       return 'Disconnect'
     })
 
-    const isPocketError = computed(() => {
-      return isPocketConnectError.value || pocketStatus.value === 'error'
+    const pocketErrorString = computed(() => {
+      if (isPocketConnectError.value) {
+        return 'There was an error. Try again in some time.'
+      }
+
+      if (pocketStatus.value === 'error') {
+        return 'There was an error during syncing. Disconnect and connect again.'
+      }
+
+      return ''
     })
 
     function onPocketImportClicked() {
@@ -133,7 +133,7 @@ export default {
         buttonText: pocketButtonText,
         buttonAction: onPocketImportClicked,
         buttonDisabled: pocketButtonDisabled,
-        error: isPocketError,
+        error: pocketErrorString,
         successDate: pocketSuccessDate,
       },
     ]
