@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 
-const userQueryKey = ['user']
+export const USER_QUERY_KEY = ['user']
 
 export function useUser() {
   return useQuery({
-    queryKey: userQueryKey,
+    queryKey: USER_QUERY_KEY,
     queryFn: async () => {
       let resp = await ApiClient.loadUserData()
       return resp.data
@@ -18,7 +18,7 @@ export function useUpdateUser() {
   return useMutation({
     mutationFn: ({ fullName }) => ApiClient.updateUser({ fullName }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userQueryKey })
+      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY })
     },
   })
 }

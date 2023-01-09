@@ -43,7 +43,10 @@
 
 <script>
 import pocketLogo from '../assets/images/pocket_logo.png'
-import { usePocketImport } from '../composables/useIntegrations'
+import {
+  useConnectPocket,
+  useDisconnectPocket,
+} from '../composables/useIntegrations'
 import { useUser } from '../composables/useUser'
 import { computed } from 'vue'
 
@@ -60,28 +63,22 @@ export default {
     const { data } = useUser()
 
     const {
-      isLoading: isPocketLoading,
-      isError: isPocketError,
+      isLoading: isPocketConnectLoading,
+      isError: isPocketConnectError,
       mutate: connectPocket,
-    } = usePocketImport()
+    } = useConnectPocket()
 
-    function onPocketImportClicked() {
-      connectPocket(undefined, {
-        onSuccess: (resp) => {
-          const { token } = resp.data
-          const windowUrl = getPocketAuthUrl(token)
-          window.open(windowUrl, 'pocket', 'popup=yes,width=1200,height=1000')
-        },
-      })
-    }
+    const { isLoading: isPocketDisconnectLoading, mutate: disconnectPocket } =
+      useDisconnectPocket()
+
+    const pocketSyncedAt = computed(
+      () => data.value && data.value.pocket_synced_at
+    )
 
     const pocketSuccessDate = computed(() => {
       return (
-        data.value.pocketImportedAt &&
-        data.value.pocketImportedAt.toLocaleDateString(
-          undefined,
-          dateFormatOpts
-        )
+        pocketSyncedAt.value &&
+        pocketSyncedAt.value.toLocaleDateString(undefined, dateFormatOpts)
       )
     })
 
@@ -90,20 +87,43 @@ export default {
     })
 
     const pocketButtonDisabled = computed(() => {
-      return pocketStatus.value === 'started' || isPocketLoading.value
+      return (
+        pocketStatus.value === 'syncing' ||
+        isPocketConnectLoading.value ||
+        isPocketDisconnectLoading.value
+      )
     })
 
     const pocketButtonText = computed(() => {
       if (!pocketStatus.value) {
-        return 'Import'
+        return 'Connect'
       }
 
-      if (pocketStatus.value === 'started') {
+      if (pocketStatus.value === 'syncing') {
         return 'In Progress'
       }
 
-      return 'Import Again'
+      // Status is either "error" or "connected"
+      return 'Disconnect'
     })
+
+    const isPocketError = computed(() => {
+      return isPocketConnectError.value || pocketStatus.value === 'error'
+    })
+
+    function onPocketImportClicked() {
+      if (!pocketStatus.value) {
+        connectPocket(undefined, {
+          onSuccess: (resp) => {
+            const { token } = resp.data
+            const windowUrl = getPocketAuthUrl(token)
+            window.open(windowUrl, 'pocket', 'popup=yes,width=1200,height=1000')
+          },
+        })
+      } else {
+        disconnectPocket()
+      }
+    }
 
     const allApps = [
       {
@@ -113,10 +133,8 @@ export default {
         buttonText: pocketButtonText,
         buttonAction: onPocketImportClicked,
         buttonDisabled: pocketButtonDisabled,
-        loading: isPocketLoading,
         error: isPocketError,
         successDate: pocketSuccessDate,
-        status: pocketStatus,
       },
     ]
 
