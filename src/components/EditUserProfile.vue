@@ -72,7 +72,7 @@ export default {
   props: {
     name: String,
     email: String,
-    createdAt: String,
+    createdAt: Number,
   },
   setup(props) {
     const name = ref(props.name)
