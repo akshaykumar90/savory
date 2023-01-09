@@ -82,7 +82,10 @@ export default {
     const pocketSuccessDate = computed(() => {
       return (
         pocketSyncedAt.value &&
-        pocketSyncedAt.value.toLocaleDateString(undefined, dateFormatOpts)
+        new Date(pocketSyncedAt.value).toLocaleDateString(
+          undefined,
+          dateFormatOpts
+        )
       )
     })
 
