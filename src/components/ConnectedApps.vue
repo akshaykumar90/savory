@@ -86,7 +86,7 @@ export default {
     })
 
     const pocketStatus = computed(() => {
-      return data.value.pocketStatus
+      return data.value.pocket_status
     })
 
     const pocketButtonDisabled = computed(() => {
@@ -99,7 +99,7 @@ export default {
       }
 
       if (pocketStatus.value === 'started') {
-        return 'Syncing...'
+        return 'In Progress'
       }
 
       return 'Import Again'
@@ -119,8 +119,6 @@ export default {
         status: pocketStatus,
       },
     ]
-
-    console.log(pocketSuccessDate.value)
 
     return {
       allApps,

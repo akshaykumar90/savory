@@ -166,4 +166,8 @@ export class Client {
   connectPocket() {
     return this._post('/users/pocket/begin_import')
   }
+
+  pocketCallback() {
+    return this._post('/users/pocket/callback')
+  }
 }
