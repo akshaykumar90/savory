@@ -56,7 +56,7 @@ const redirectUri = `${process.env.SAVORY_APP_URL}/pocket_callback`
 const pocketAuthBaseUrl = `${process.env.POCKET_API_URL}/auth/authorize`
 
 const getPocketAuthUrl = (requestToken) =>
-  `${pocketAuthBaseUrl}?request_token=${requestToken}&redirectUri=${redirectUri}`
+  `${pocketAuthBaseUrl}?request_token=${requestToken}&redirect_uri=${redirectUri}`
 
 export default {
   setup() {
