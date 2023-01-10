@@ -9,6 +9,7 @@ import LoginCallback from '../pages/LoginCallback.vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import { usePageStore } from '../stores/page'
 import SettingsPage from '../pages/SettingsPage.vue'
+import PocketCallback from '../pages/PocketCallback.vue'
 
 const bookmarksPageScrollBehavior = (savedPosition) => {
   const store = usePageStore()
@@ -41,6 +42,14 @@ export const getRouter = () => {
         path: '/provider_cb',
         name: 'provider_cb',
         component: LoginCallback,
+      },
+      {
+        path: '/pocket_callback',
+        name: 'pocket_callback',
+        component: PocketCallback,
+        meta: {
+          requiredAuthState: 'login',
+        },
       },
       {
         path: '/logout',

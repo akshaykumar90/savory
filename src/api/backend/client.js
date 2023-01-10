@@ -162,4 +162,16 @@ export class Client {
       full_name: fullName,
     })
   }
+
+  connectPocket() {
+    return this._post('/users/pocket/connect')
+  }
+
+  disconnectPocket() {
+    return this._post('/users/pocket/disconnect')
+  }
+
+  pocketCallback() {
+    return this._post('/users/pocket/callback')
+  }
 }
