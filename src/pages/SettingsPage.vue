@@ -4,14 +4,14 @@
     <div class="fixed top-0 z-10 h-16 w-full">
       <AppHeader />
     </div>
-    <div class="mx-auto my-10 max-w-xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto mt-4 max-w-xl px-4 sm:mt-10 sm:px-6 lg:px-8">
       <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
         Settings
       </h1>
     </div>
   </header>
-  <main v-if="isSuccess">
-    <div class="mx-auto max-w-xl space-y-10 px-4 sm:px-6 lg:px-8">
+  <main class="my-4 sm:my-10" v-if="isSuccess">
+    <div class="mx-auto max-w-xl space-y-4 px-4 sm:space-y-10 sm:px-6 lg:px-8">
       <div class="rounded-lg border px-4 py-8 sm:px-6 lg:px-8">
         <EditUserProfile
           :name="data.full_name"
