@@ -4,7 +4,7 @@
       <ArrowPathIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
     </PrimaryButton>
   </ErrorScreen>
-  <div v-if="data">
+  <div v-else-if="data">
     <div class="border-b border-gray-200 bg-white p-4">
       <div class="-ml-4 -mt-2 flex flex-nowrap items-center justify-between">
         <div class="ml-4 mt-2 flex-shrink-0">
