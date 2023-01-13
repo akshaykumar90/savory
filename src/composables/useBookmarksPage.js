@@ -23,6 +23,7 @@ export default function useBookmarksPage() {
         itemsPerPage: itemsPerPage.value,
       }),
     {
+      retry: 1,
       keepPreviousData: true,
       // Search results are ordered by search ranking which may change
       // unpredictably between refetches, e.g. if new tags were added to some
