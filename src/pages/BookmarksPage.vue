@@ -1,10 +1,11 @@
 <template>
-  <ErrorScreen v-if="isError" :detail="errorDetail">
+  <div v-if="isLoading">&nbsp;</div>
+  <ErrorScreen v-else-if="isError" :detail="errorDetail">
     <PrimaryButton button-text="Retry" @click="onRetry">
       <ArrowPathIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
     </PrimaryButton>
   </ErrorScreen>
-  <div v-else-if="data" class="flex flex-col">
+  <div v-else class="flex flex-col">
     <pagination-card></pagination-card>
     <drill-down-card v-if="showDrillDownCard"></drill-down-card>
     <ul role="list" class="flex flex-col">
@@ -100,6 +101,7 @@ export default {
 
     return {
       data,
+      isLoading,
       isError,
       errorDetail,
       onRetry: refetch,
