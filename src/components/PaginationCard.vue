@@ -59,7 +59,7 @@ const router = useRouter()
 
 const store = usePageStore()
 
-const { isLoading, isSuccess, isPreviousData, data } = useBookmarksPage()
+const { isLoading, isPreviousData, data } = useBookmarksPage()
 
 const placemarkMessage = computed(() => {
   if (!data.value) {
@@ -103,7 +103,7 @@ const enableNextButton = computed(() => {
   if (isDataLoading.value) {
     return false
   }
-  return isSuccess.value && data.value.cursor_info.has_next_page
+  return data.value.cursor_info.has_next_page
 })
 
 function nextPage() {
@@ -115,7 +115,7 @@ const enablePreviousButton = computed(() => {
   if (isDataLoading.value) {
     return false
   }
-  return isSuccess.value && data.value.cursor_info.has_previous_page
+  return data.value.cursor_info.has_previous_page
 })
 
 function previousPage() {
