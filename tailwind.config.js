@@ -26,6 +26,9 @@ module.exports = {
       backgroundColor: {
         default: 'var(--color-bg-default)',
         primary: 'var(--color-primary)',
+        grey: 'var(--color-grey)',
+        'grey-600': 'var(--color-grey-600)',
+        'grey-700': 'var(--color-grey-700)',
       },
     },
   },

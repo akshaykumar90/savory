@@ -37,7 +37,7 @@ function onClick(tagName) {
   store.updateTags(tagName, router)
 }
 
-// XXX: This code makes me ugh. Essentially, we want the drill down card to
+// TODO: This code makes me ugh. Essentially, we want the drill down card to
 // scroll to the beginning (i.e. scroll to the left edge) anytime the user
 // navigates. But, we want to wait until data fetch completes so that we do not
 // scroll prematurely.

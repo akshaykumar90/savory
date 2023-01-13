@@ -1,11 +1,11 @@
 <script setup>
-import ConnectedApps from '../components/ConnectedApps.vue'
+import ErrorScreen from '../components/ErrorScreen.vue'
 </script>
 
 <template>
-  <div class="mx-auto max-w-xl space-y-10 px-4 pt-16 sm:px-6 lg:px-8">
-    <div class="rounded-lg border px-4 py-8 sm:px-6 lg:px-8">
-      <ConnectedApps />
-    </div>
+  <div
+    class="mx-auto my-10 max-w-xl space-y-10 border px-4 pt-16 sm:px-6 lg:px-8"
+  >
+    <ErrorScreen />
   </div>
 </template>
