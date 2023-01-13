@@ -1,7 +1,7 @@
 <template>
   <div class="py-16 text-center">
     <svg
-      class="mx-auto w-1/2 px-4"
+      class="mx-auto w-1/2 px-4 opacity-75"
       aria-hidden="true"
       viewBox="0 0 888 677.20705"
     >
