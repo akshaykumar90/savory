@@ -1,9 +1,9 @@
 <template>
-  <LoadError v-if="isError" :detail="errorDetail">
+  <ErrorScreen v-if="isError" :detail="errorDetail">
     <PrimaryButton button-text="Retry" @click="onRetry">
       <ArrowPathIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
     </PrimaryButton>
-  </LoadError>
+  </ErrorScreen>
   <div v-if="data" class="flex flex-col">
     <pagination-card></pagination-card>
     <drill-down-card v-if="showDrillDownCard"></drill-down-card>
@@ -24,7 +24,7 @@
 import BookmarkRow from '../components/BookmarkRow.vue'
 import PaginationCard from '../components/PaginationCard.vue'
 import DrillDownCard from '../components/DrillDownCard.vue'
-import LoadError from '../components/LoadError.vue'
+import ErrorScreen from '../components/ErrorScreen.vue'
 import PrimaryButton from '../components/PrimaryButton.vue'
 
 import useBookmarksPage from '../composables/useBookmarksPage'
@@ -38,7 +38,7 @@ import { ArrowPathIcon } from '@heroicons/vue/20/solid'
 
 export default {
   components: {
-    LoadError,
+    ErrorScreen,
     BookmarkRow,
     PrimaryButton,
     ArrowPathIcon,
