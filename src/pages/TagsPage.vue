@@ -1,11 +1,10 @@
 <template>
-  <div v-if="isLoading">&nbsp;</div>
-  <ErrorScreen v-else-if="isError" :detail="errorDetail">
+  <ErrorScreen v-if="isError" :detail="errorDetail">
     <PrimaryButton button-text="Retry" @click="onRetry">
       <ArrowPathIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
     </PrimaryButton>
   </ErrorScreen>
-  <div v-else>
+  <div v-else-if="data">
     <div class="border-b border-gray-200 bg-white p-4">
       <div class="-ml-4 -mt-2 flex flex-nowrap items-center justify-between">
         <div class="ml-4 mt-2 flex-shrink-0">
@@ -47,7 +46,7 @@ import ErrorScreen from '../components/ErrorScreen.vue'
 import PrimaryButton from '../components/PrimaryButton.vue'
 import { ArrowPathIcon } from '@heroicons/vue/20/solid'
 
-const { isLoading, isError, error, data, refetch: onRetry } = useTags()
+const { isError, error, data, refetch: onRetry } = useTags()
 
 const errorDetail = computed(() => {
   if (error.value) {
