@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/vue-query'
 const TAGS_QUERY_KEY = ['tags']
 
 const TAGS_QUERY_OPTIONS = {
+  retry: 1,
   // Prevent `useTags` query from being garbage collected. This query powers
   // tags autocomplete.
   //

@@ -1,6 +1,10 @@
 <template>
   <ErrorScreen v-if="isError" :detail="errorDetail">
-    <PrimaryButton button-text="Retry" @click="onRetry">
+    <PrimaryButton
+      :button-text="isFetching ? 'Retrying' : 'Retry'"
+      :is-disabled="isFetching"
+      @click="onRetry"
+    >
       <ArrowPathIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
     </PrimaryButton>
   </ErrorScreen>
@@ -46,7 +50,7 @@ import ErrorScreen from '../components/ErrorScreen.vue'
 import PrimaryButton from '../components/PrimaryButton.vue'
 import { ArrowPathIcon } from '@heroicons/vue/20/solid'
 
-const { isError, error, data, refetch: onRetry } = useTags()
+const { isFetching, isError, error, data, refetch: onRetry } = useTags()
 
 const errorDetail = computed(() => {
   if (error.value) {

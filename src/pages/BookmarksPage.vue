@@ -1,6 +1,10 @@
 <template>
   <ErrorScreen v-if="isError" :detail="errorDetail">
-    <PrimaryButton button-text="Retry" @click="onRetry">
+    <PrimaryButton
+      :button-text="isFetching ? 'Retrying' : 'Retry'"
+      :is-disabled="isFetching"
+      @click="onRetry"
+    >
       <ArrowPathIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
     </PrimaryButton>
   </ErrorScreen>
@@ -46,7 +50,8 @@ export default {
     DrillDownCard,
   },
   setup() {
-    const { isLoading, isError, error, refetch, data } = useBookmarksPage()
+    const { isLoading, isFetching, isError, error, refetch, data } =
+      useBookmarksPage()
 
     const route = useRoute()
 
@@ -100,6 +105,7 @@ export default {
 
     return {
       data,
+      isFetching,
       isError,
       errorDetail,
       onRetry: refetch,
