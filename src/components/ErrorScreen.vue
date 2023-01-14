@@ -2,10 +2,10 @@
   <div class="py-16 text-center">
     <img
       class="mx-auto w-3/4 px-4 opacity-75 sm:w-1/2"
-      src="../assets/images/walking_outside.svg"
+      src="../assets/images/meditating.png"
       alt=""
-      width="888"
-      height="677"
+      width="400"
+      height="314"
     />
     <h3 class="mt-10 text-sm font-medium text-gray-900">{{ errorTitle }}</h3>
     <p class="mt-1 text-sm text-gray-500">{{ errorDetail }}</p>
