@@ -9,10 +9,12 @@
     </PrimaryButton>
   </ErrorScreen>
   <div v-else-if="data" class="flex flex-col">
-    <pagination-card></pagination-card>
-    <drill-down-card v-if="showDrillDownCard"></drill-down-card>
+    <EmptyReading v-if="isEmpty && onReadingTab" />
+    <EmptyPlaylist v-else-if="isEmpty && onPlaylistTab" />
+    <PaginationCard v-else></PaginationCard>
+    <DrillDownCard v-if="showDrillDownCard"></DrillDownCard>
     <ul role="list" class="flex flex-col">
-      <bookmark-row
+      <BookmarkRow
         v-for="item in data['bookmarks']"
         :key="item['id']"
         :bookmarkId="item['id']"
@@ -32,16 +34,20 @@ import ErrorScreen from '../components/ErrorScreen.vue'
 import PrimaryButton from '../components/PrimaryButton.vue'
 
 import useBookmarksPage from '../composables/useBookmarksPage'
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { usePageStore } from '../stores/page'
 import { useQueryClient, useIsMutating } from '@tanstack/vue-query'
 import { prefetchTags } from '../composables/useTags'
 import { windowTitle } from '../lib/title'
 import { ArrowPathIcon } from '@heroicons/vue/20/solid'
+import EmptyReading from '../components/EmptyReading.vue'
+import EmptyPlaylist from '../components/EmptyPlaylist.vue'
 
 export default {
   components: {
+    EmptyPlaylist,
+    EmptyReading,
     ErrorScreen,
     BookmarkRow,
     PrimaryButton,
@@ -99,13 +105,33 @@ export default {
       }
     })
 
+    function routeHasOneTag(name) {
+      if (store.site || store.search || store.cursor) {
+        return false
+      }
+      if (store.tags.length === 0 || store.tags.length > 1) {
+        return false
+      }
+      return store.tags[0].toLowerCase() === name
+    }
+
+    const onReadingTab = computed(() => routeHasOneTag('reading'))
+    const onPlaylistTab = computed(() => routeHasOneTag('playlist'))
+
+    const zeroItems = computed(() => {
+      return data.value && data.value.total === 0
+    })
+
     return {
       data,
       isFetching,
       isError,
+      isEmpty: zeroItems,
       errorDetail,
       onRetry: refetch,
       showDrillDownCard,
+      onReadingTab,
+      onPlaylistTab,
     }
   },
   beforeRouteEnter: function (to) {

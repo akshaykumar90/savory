@@ -1,7 +1,7 @@
 <template>
-  <div class="py-16 text-center">
+  <div class="py-16 px-4 text-center sm:px-6 lg:px-8">
     <img
-      class="mx-auto w-3/4 px-4 opacity-75 sm:w-1/2"
+      class="mx-auto w-3/4 opacity-75 sm:w-1/2"
       src="../assets/images/meditating.png"
       alt=""
       width="400"
