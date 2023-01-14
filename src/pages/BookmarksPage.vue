@@ -50,8 +50,7 @@ export default {
     DrillDownCard,
   },
   setup() {
-    const { isLoading, isFetching, isError, error, refetch, data } =
-      useBookmarksPage()
+    const { isFetching, isError, error, refetch, data } = useBookmarksPage()
 
     const route = useRoute()
 
@@ -66,9 +65,6 @@ export default {
     prefetchTags()
 
     const showDrillDownCard = computed(() => {
-      if (isLoading.value || isError.value) {
-        return false
-      }
       return Object.keys(data.value.drillTags).length > 0
     })
 
