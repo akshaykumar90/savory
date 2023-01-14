@@ -1,5 +1,6 @@
 <template>
-  <ErrorScreen v-if="isError" :detail="errorDetail">
+  <LoadingSkeleton v-if="isLoading" />
+  <ErrorScreen v-else-if="isError" :detail="errorDetail">
     <PrimaryButton
       :button-text="isFetching ? 'Retrying' : 'Retry'"
       :is-disabled="isFetching"
@@ -8,7 +9,7 @@
       <ArrowPathIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
     </PrimaryButton>
   </ErrorScreen>
-  <div v-else-if="data" class="flex flex-col">
+  <div v-else class="flex flex-col">
     <EmptyReading v-if="isEmpty && onReadingTab" />
     <EmptyPlaylist v-else-if="isEmpty && onPlaylistTab" />
     <PaginationCard v-else></PaginationCard>
@@ -34,7 +35,7 @@ import ErrorScreen from '../components/ErrorScreen.vue'
 import PrimaryButton from '../components/PrimaryButton.vue'
 
 import useBookmarksPage from '../composables/useBookmarksPage'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { usePageStore } from '../stores/page'
 import { useQueryClient, useIsMutating } from '@tanstack/vue-query'
@@ -43,9 +44,11 @@ import { windowTitle } from '../lib/title'
 import { ArrowPathIcon } from '@heroicons/vue/20/solid'
 import EmptyReading from '../components/EmptyReading.vue'
 import EmptyPlaylist from '../components/EmptyPlaylist.vue'
+import LoadingSkeleton from '../components/LoadingSkeleton.vue'
 
 export default {
   components: {
+    LoadingSkeleton,
     EmptyPlaylist,
     EmptyReading,
     ErrorScreen,
@@ -56,7 +59,8 @@ export default {
     DrillDownCard,
   },
   setup() {
-    const { isFetching, isError, error, refetch, data } = useBookmarksPage()
+    const { isLoading, isFetching, isError, error, refetch, data } =
+      useBookmarksPage()
 
     const route = useRoute()
 
@@ -124,6 +128,7 @@ export default {
 
     return {
       data,
+      isLoading,
       isFetching,
       isError,
       isEmpty: zeroItems,
