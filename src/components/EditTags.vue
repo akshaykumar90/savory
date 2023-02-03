@@ -49,6 +49,8 @@ import { useTags } from '../composables/useTags'
 import { tagsWithAccentBit } from '../lib/tagsRow'
 import { usePageStore } from '../stores/page'
 
+const TYPEAHEAD_ACTIVATION_THRESHOLD = 1
+
 export default {
   components: {
     TagButton,
@@ -75,7 +77,7 @@ export default {
       : props.bookmarkId
       ? useEditBookmark(props.bookmarkId)
       : { tags: ref(null), addTag: () => {}, removeTag: () => {} }
-    const typeaheadActivationThreshold = 3
+
     const displayTags = computed(() => {
       if (!tags.value) {
         return []
@@ -90,7 +92,7 @@ export default {
     const placeholder = computed(() => {
       if (
         !newTag.value.length ||
-        newTag.value.length < typeaheadActivationThreshold
+        newTag.value.length < TYPEAHEAD_ACTIVATION_THRESHOLD
       ) {
         tagSuggestion.value = ''
         return ''
