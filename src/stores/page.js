@@ -68,7 +68,7 @@ function getNormalizedPage(routeQuery) {
 
 export const usePageStore = defineStore('page', {
   state: () => ({
-    itemsPerPage: 100,
+    itemsPerPage: 25,
     fetchPromise: Promise.resolve({}),
     ...getNormalizedPage(window.router.currentRoute.value.query),
   }),
