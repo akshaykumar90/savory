@@ -123,7 +123,7 @@ export default {
     const onPlaylistTab = computed(() => routeHasOneTag('playlist'))
 
     const zeroItems = computed(() => {
-      return data.value && data.value.total === 0
+      return data.value && data.value.bookmarks.length === 0
     })
 
     return {

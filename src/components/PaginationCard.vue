@@ -65,18 +65,16 @@ const placemarkMessage = computed(() => {
   if (!data.value) {
     return ''
   }
-  const totalItems = data.value.total
+  const totalItems = data.value.bookmarks.length
   if (totalItems === 0) {
     return 'Nothing to see here'
   }
-  const itemsStr = totalItems > 1 ? 'bookmarks' : 'bookmark'
   if (data.value.tags.length > 0) {
-    const tagsStr = data.value.tags.join(', ')
-    return `${totalItems} ${itemsStr} in ${tagsStr}`
+    return data.value.tags.join(', ')
   } else if (data.value.site) {
-    return `${totalItems} ${itemsStr} in ${data.value.site}`
+    return data.value.site
   } else {
-    return `${totalItems} ${itemsStr}`
+    return ''
   }
 })
 
