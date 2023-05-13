@@ -13,6 +13,7 @@ export function useDeleteBookmarks() {
           (old) => {
             return {
               ...old,
+              total: old.total - bookmarkIds.length,
               bookmarks: old.bookmarks.filter(
                 (b) => !bookmarkIds.includes(b.id)
               ),
