@@ -99,12 +99,19 @@ export class Client {
     return this._get(`/bookmarks/${bookmark_id}`)
   }
 
-  getBookmarks({ tags, site, num, cursor }) {
-    return this._post('/bookmarks/', { tags, site, num, cursor })
+  getBookmarks({ tags, site, num, cursor, untagged }) {
+    return this._post('/bookmarks/', { tags, site, num, cursor, untagged })
   }
 
-  searchBookmarks({ query, tags, site, num, cursor }) {
-    return this._post('/bookmarks/search', { query, tags, site, num, cursor })
+  searchBookmarks({ query, tags, site, num, cursor, untagged }) {
+    return this._post('/bookmarks/search', {
+      query,
+      tags,
+      site,
+      num,
+      cursor,
+      untagged,
+    })
   }
 
   getTagsCount() {

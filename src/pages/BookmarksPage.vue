@@ -13,7 +13,7 @@
     <EmptyReading v-if="isEmpty && onReadingTab" />
     <EmptyPlaylist v-else-if="isEmpty && onPlaylistTab" />
     <PaginationCard v-else></PaginationCard>
-    <DrillDownCard v-if="showDrillDownCard"></DrillDownCard>
+    <DrillDownCard></DrillDownCard>
     <ul role="list" class="flex flex-col">
       <BookmarkRow
         v-for="item in data['bookmarks']"
@@ -134,7 +134,6 @@ export default {
       isEmpty: zeroItems,
       errorDetail,
       onRetry: refetch,
-      showDrillDownCard,
       onReadingTab,
       onPlaylistTab,
     }

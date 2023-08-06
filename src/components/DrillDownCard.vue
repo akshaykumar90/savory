@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="showCard">
     <nav
       ref="scroller"
       class="mx-3 flex items-center gap-4 overflow-x-auto bg-white py-4"
@@ -7,6 +7,13 @@
       <p class="flex-none text-xs uppercase tracking-widest text-slate-600">
         Add to filter
       </p>
+      <tag-button
+        v-if="showUntagged"
+        class="flex-none"
+        name="Untagged"
+        :accented="true"
+        :onClick="onClickUntagged"
+      ></tag-button>
       <tag-button
         class="flex-none"
         v-for="(value, key) in data.drillTags"
@@ -23,7 +30,7 @@ import TagButton from './TagButton.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePageStore } from '../stores/page'
 import useBookmarksPage from '../composables/useBookmarksPage'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const { data } = useBookmarksPage()
 
@@ -36,6 +43,30 @@ const scroller = ref(null)
 function onClick(tagName) {
   store.updateTags(tagName, router)
 }
+
+function onClickUntagged() {
+  store.setUntagged(router)
+}
+
+let showCard = computed(() => {
+  let hasDrillTags = Object.keys(data.value.drillTags).length > 0
+  let hasUntaggedFilter = showUntagged.value
+  return hasDrillTags || hasUntaggedFilter
+})
+
+let showUntagged = computed(() => {
+  // Already filtering by untagged
+  if (data.value.untagged) {
+    return false
+  }
+
+  // Have tags
+  if (data.value.tags.length > 0) {
+    return false
+  }
+
+  return true
+})
 
 // TODO: This code makes me ugh. Essentially, we want the drill down card to
 // scroll to the beginning (i.e. scroll to the left edge) anytime the user

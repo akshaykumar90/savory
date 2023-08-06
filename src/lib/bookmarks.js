@@ -3,6 +3,7 @@ export async function fetchBookmarks({
   tags,
   search,
   cursor,
+  untagged,
   itemsPerPage,
 }) {
   let bookmarksResponsePromise
@@ -12,6 +13,7 @@ export async function fetchBookmarks({
     ...(site && { site }),
     ...(tags.length && { tags }),
     ...(cursor && { cursor }),
+    ...(untagged && { untagged }),
     num: itemsPerPage,
   }
   if (search !== '') {
@@ -49,5 +51,6 @@ export async function fetchBookmarks({
     drillTags,
     site,
     tags,
+    untagged,
   }
 }

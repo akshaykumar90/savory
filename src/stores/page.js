@@ -63,6 +63,7 @@ function getNormalizedPage(routeQuery) {
     tags,
     search: routeQuery.q || '',
     cursor: routeQuery.cursor || null,
+    untagged: !!routeQuery.untagged,
   }
 }
 
@@ -81,8 +82,9 @@ export const usePageStore = defineStore('page', {
       // proxy created by the Vue reactivity system
       const sameTags = _.isEqual(newPage.tags, Array.from(this.tags))
       const sameSearchQuery = newPage.search === this.search
+      const sameUntagged = newPage.untagged === this.untagged
 
-      if (!sameSite || !sameTags || !sameSearchQuery) {
+      if (!sameSite || !sameTags || !sameSearchQuery || !sameUntagged) {
         store.clear()
       }
 
@@ -114,6 +116,7 @@ export const usePageStore = defineStore('page', {
           ...(this.site && { site: this.site }),
           ...(this.tags.length && { name: this.tags }),
           ...(this.search && { q: this.search }),
+          ...(this.untagged && { untagged: 1 }),
           ...(cursor && { cursor }),
         },
       })
@@ -125,6 +128,7 @@ export const usePageStore = defineStore('page', {
           query: {
             ...(this.site && { site: this.site }),
             ...(this.tags.length && { name: this.tags }),
+            ...(this.untagged && { untagged: 1 }),
             ...(query && { q: query }),
           },
         })
@@ -134,6 +138,7 @@ export const usePageStore = defineStore('page', {
           query: {
             ...(this.site && { site: this.site }),
             ...(this.tags.length && { name: this.tags }),
+            ...(this.untagged && { untagged: 1 }),
           },
         })
       } else {
@@ -148,6 +153,17 @@ export const usePageStore = defineStore('page', {
           ...(this.site && { site: this.site }),
           ...(this.search && { q: this.search }),
           ...(newTag && { name: [...this.tags, newTag] }),
+        },
+      })
+    },
+    setUntagged(router) {
+      let path = router.currentRoute.value.path
+      router.push({
+        path,
+        query: {
+          untagged: 1,
+          ...(this.site && { site: this.site }),
+          ...(this.search && { q: this.search }),
         },
       })
     },

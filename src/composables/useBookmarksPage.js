@@ -8,9 +8,10 @@ import { computed } from 'vue'
 export default function useBookmarksPage() {
   const queryClient = useQueryClient()
   const store = usePageStore()
-  const { site, tags, search, cursor, itemsPerPage } = storeToRefs(store)
+  const { site, tags, search, cursor, untagged, itemsPerPage } =
+    storeToRefs(store)
 
-  const queryKey = ['pages', { site, tags, search, cursor }]
+  const queryKey = ['pages', { site, tags, search, untagged, cursor }]
 
   return useQuery(
     queryKey,
@@ -20,6 +21,7 @@ export default function useBookmarksPage() {
         tags: tags.value,
         search: search.value,
         cursor: cursor.value,
+        untagged: untagged.value,
         itemsPerPage: itemsPerPage.value,
       }),
     {
