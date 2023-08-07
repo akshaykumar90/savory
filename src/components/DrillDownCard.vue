@@ -55,17 +55,7 @@ let showCard = computed(() => {
 })
 
 let showUntagged = computed(() => {
-  // Already filtering by untagged
-  if (data.value.untagged) {
-    return false
-  }
-
-  // Have tags
-  if (data.value.tags.length > 0) {
-    return false
-  }
-
-  return true
+  return !data.value.untagged && data.value.hasUntagged
 })
 
 // TODO: This code makes me ugh. Essentially, we want the drill down card to

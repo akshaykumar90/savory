@@ -32,9 +32,11 @@ export async function fetchBookmarks({
   let bookmarks = await bookmarksResponsePromise
 
   let drillTags = {}
+  let hasUntagged = false
   if (drillDownTagsResponsePromise) {
     const resp = await drillDownTagsResponsePromise
-    let tagsArray = resp.data
+    let tagsArray = Array.isArray(resp.data) ? resp.data : resp.data.tags_list
+    hasUntagged = !!resp.data.has_untagged
 
     // Sort the search results by decreasing tag frequency
     tagsArray.sort(({ count: freq1 }, { count: freq2 }) => {
@@ -49,6 +51,7 @@ export async function fetchBookmarks({
   return {
     ...bookmarks.data,
     drillTags,
+    hasUntagged,
     site,
     tags,
     untagged,
