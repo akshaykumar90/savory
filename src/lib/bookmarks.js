@@ -8,6 +8,10 @@ export async function fetchBookmarks({
 }) {
   let bookmarksResponsePromise
   let drillDownTagsResponsePromise
+  // This is temporary just to disable the drill down card to appear on the bare
+  // bookmarks page. We will be able to get rid of this when we launch an
+  // improved desktop design for drill down.
+  let hasUntagged = false
 
   const commonArgs = {
     ...(site && { site }),
@@ -22,6 +26,9 @@ export async function fetchBookmarks({
       query: search,
     }
     bookmarksResponsePromise = ApiClient.searchBookmarks(args)
+    // This is temporary until we augment the search backend query to return
+    // this information.
+    hasUntagged = true
   } else {
     bookmarksResponsePromise = ApiClient.getBookmarks(commonArgs)
     if (tags.length > 0 || site) {
@@ -32,7 +39,6 @@ export async function fetchBookmarks({
   let bookmarks = await bookmarksResponsePromise
 
   let drillTags = {}
-  let hasUntagged = false
   if (drillDownTagsResponsePromise) {
     const resp = await drillDownTagsResponsePromise
     let tagsArray = Array.isArray(resp.data) ? resp.data : resp.data.tags_list

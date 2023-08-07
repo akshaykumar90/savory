@@ -49,6 +49,9 @@ function onClickUntagged() {
 }
 
 let showCard = computed(() => {
+  if (data.value.total === 0) {
+    return false
+  }
   let hasDrillTags = Object.keys(data.value.drillTags).length > 0
   let hasUntaggedFilter = showUntagged.value
   return hasDrillTags || hasUntaggedFilter
