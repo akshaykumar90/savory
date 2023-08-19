@@ -123,7 +123,7 @@ export const usePageStore = defineStore('page', {
     },
     updateSearch(query, router) {
       if (query) {
-        router.push({
+        let routeLocation = {
           path: '/search',
           query: {
             ...(this.site && { site: this.site }),
@@ -131,7 +131,14 @@ export const usePageStore = defineStore('page', {
             ...(this.untagged && { untagged: 1 }),
             ...(query && { q: query }),
           },
-        })
+        }
+        if (this.search) {
+          // Don't spam location history with every keystroke when searching
+          router.replace(routeLocation)
+        } else {
+          // But make sure we push a history entry when we initiate a search
+          router.push(routeLocation)
+        }
       } else if (this.site || this.tags.length) {
         router.push({
           path: '/tag',
