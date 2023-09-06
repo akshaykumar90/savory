@@ -4,6 +4,7 @@
   "author": "Akshay Kumar <akshaykumar90@gmail.com>",
   "scripts": {
     "test": "vitest run",
+    "test:watch": "vitest watch",
     "pg": "vite",
     "start:dev": "webpack serve --progress --env development --config config/webpack.config.webapp.js",
     "build": "cross-env NODE_ENV=production webpack --progress --env production --config config/webpack.config.webapp.js",

@@ -1,6 +1,6 @@
 export function tagsWithAccentBit(allTags, pageTags) {
-  let result = allTags
-    .filter((t) => pageTags.includes(t))
+  let result = pageTags
+    .filter((t) => allTags.includes(t))
     .map((t) => ({ name: t, accented: true }))
   result = result.concat(
     allTags
