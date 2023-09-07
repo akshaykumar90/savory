@@ -2,6 +2,7 @@ import { useSelectionStore } from '../stores/selection'
 import { useBookmark } from './useBookmark'
 import { computed } from 'vue'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { flattenTags } from '../lib/tagsRow'
 
 function useBulkAddTag() {
   const queryClient = useQueryClient()
@@ -84,12 +85,8 @@ export default function useBulkEditBookmarks() {
     return data
   })
   const allTags = computed(() => {
-    let tags = []
-    for (let data of arr) {
-      tags = tags.concat(data.value.tags)
-    }
-    let setUnion = Array.from(new Set(tags))
-    return setUnion.sort()
+    let tagsList = arr.map((data) => data.value.tags)
+    return flattenTags(tagsList)
   })
   const addTagMutation = useBulkAddTag()
   const addTag = (newTag) =>

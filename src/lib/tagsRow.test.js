@@ -1,4 +1,4 @@
-import { tagsWithAccentBit } from './tagsRow'
+import { tagsWithAccentBit, flattenTags } from './tagsRow'
 
 describe('tags with accent bit', () => {
   test('empty', () => {
@@ -90,5 +90,48 @@ describe('tags with accent bit', () => {
       { name: 'papers', accented: true },
     ]
     expect(tagsWithAccentBit(tags, page)).toEqual(expected)
+  })
+})
+
+describe('flatten tags', () => {
+  test('empty', () => {
+    expect(flattenTags([])).toEqual([])
+  })
+
+  test('one bookmark with tags', () => {
+    expect(flattenTags([['hi']])).toEqual(['hi'])
+  })
+
+  test('one bookmark with multiple tags', () => {
+    expect(flattenTags([['hi', 'there']])).toEqual(['hi', 'there'])
+  })
+
+  test.skip('one bookmark with multiple tags no alphabetical sort', () => {
+    expect(flattenTags([['los', 'angeles']])).toEqual(['los', 'angeles'])
+  })
+
+  test('two bookmarks same tags', () => {
+    expect(flattenTags([['book'], ['book']])).toEqual(['book'])
+  })
+
+  test('two bookmarks unique tags', () => {
+    expect(flattenTags([['hello'], ['world']])).toEqual(['hello', 'world'])
+  })
+
+  test.skip('two bookmarks many tags', () => {
+    expect(flattenTags([['hello', 'cruel'], ['world']])).toEqual([
+      'hello',
+      'cruel',
+      'world',
+    ])
+  })
+
+  test.skip('two bookmarks bulk add tag', () => {
+    expect(
+      flattenTags([
+        ['europe', 'travel'],
+        ['united states', 'travel'],
+      ])
+    ).toEqual(['europe', 'united states', 'travel'])
   })
 })
