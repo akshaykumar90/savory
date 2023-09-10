@@ -1,15 +1,6 @@
 <template>
   <LoadingSkeleton v-if="isLoading" />
-  <ErrorScreen v-else-if="isError" :detail="errorDetail">
-    <PrimaryButton
-      :button-text="isFetching ? 'Retrying' : 'Retry'"
-      :is-disabled="isFetching"
-      @click="onRetry"
-    >
-      <ArrowPathIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-    </PrimaryButton>
-  </ErrorScreen>
-  <div v-else class="flex flex-col">
+  <div v-else-if="data" class="flex flex-col">
     <EmptyReading v-if="isEmpty && onReadingTab" />
     <EmptyPlaylist v-else-if="isEmpty && onPlaylistTab" />
     <PaginationCard v-else></PaginationCard>
@@ -25,6 +16,15 @@
       />
     </ul>
   </div>
+  <ErrorScreen v-else-if="isError" :detail="errorDetail">
+    <PrimaryButton
+      :button-text="isFetching ? 'Retrying' : 'Retry'"
+      :is-disabled="isFetching"
+      @click="onRetry"
+    >
+      <ArrowPathIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+    </PrimaryButton>
+  </ErrorScreen>
 </template>
 
 <script>
