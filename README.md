@@ -26,3 +26,7 @@ recompile on changes.
 ```bash
 npm run start:dev
 ```
+
+### .env
+
+For Auth0 settings, use the `Savory` Single Page Application in the development tenant.
