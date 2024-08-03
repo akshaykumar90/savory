@@ -13,20 +13,19 @@
     "build:ext": "cross-env NODE_ENV=production webpack --progress --env production --config config/webpack.config.webext.js"
   },
   "engines": {
-    "node": "16.x",
-    "npm": ">=4.0"
+    "node": "20.x"
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.6.5",
     "@babel/polyfill": "^7.0.0",
     "@headlessui/vue": "^1.4.2",
     "@heroicons/vue": "^2.0.12",
-    "@tailwindcss/forms": "^0.4.0-alpha.2",
+    "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/line-clamp": "^0.3.0",
     "@tanstack/vue-query": "^4.10.1",
     "@vueuse/core": "^7.4.1",
     "amplitude-js": "^7.3.3",
-    "autoprefixer": "^10.4.0",
+    "autoprefixer": "^10.4.20",
     "axios": "^0.21.1",
     "lodash": "^4.17.13",
     "pinia": "^2.0.9",
@@ -39,7 +38,7 @@
     "@babel/plugin-syntax-dynamic-import": "^7.0.0",
     "@babel/preset-env": "^7.14.7",
     "@testing-library/vue": "^6.6.1",
-    "@vitejs/plugin-vue": "^2.0.1",
+    "@vitejs/plugin-vue": "^5.1.2",
     "babel-core": "^7.0.0-bridge.0",
     "babel-loader": "^8.2.3",
     "clean-webpack-plugin": "^4.0.0",
@@ -53,7 +52,7 @@
     "postcss": "^8.4.5",
     "postcss-loader": "^6.2.1",
     "style-loader": "^3.3.1",
-    "vite": "^3.1.8",
+    "vite": "^5.3.5",
     "vitest": "^0.24.0",
     "vue-loader": "^16.8.1",
     "webpack": "^5.65.0",
