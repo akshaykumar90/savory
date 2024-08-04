@@ -3,7 +3,6 @@ node_modules/
 build
 dist
 npm-debug.log
-yarn-error.log
 .idea
 *.iml
 .env*
