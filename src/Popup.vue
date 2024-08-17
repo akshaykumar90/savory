@@ -129,6 +129,8 @@ const { isLoading, isIdle, isError, data, error, mutate } = useMutation(
     onSuccess: (bookmark) => {
       queryClient.setQueryData(['bookmarks', bookmark.id], bookmark)
     },
+    retry: 3,
+    retryDelay: 500,
   }
 )
 

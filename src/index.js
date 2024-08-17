@@ -35,8 +35,7 @@ watch(
   () => tokenExpiredBeacon.value,
   (beacon) => {
     if (beacon) {
-      const { logout } = authStore
-      logout()
+      authStore.logout()
     }
   }
 )
@@ -45,8 +44,7 @@ watch(
   () => isAuthenticated.value,
   (isAuthenticated) => {
     if (isAuthenticated) {
-      const { getUserId } = authStore
-      eventLogger.setUserId(getUserId())
+      eventLogger.setUserId(authStore.getUserId())
     } else {
       eventLogger.setUserId(null)
     }

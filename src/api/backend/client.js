@@ -3,17 +3,10 @@ import axios from 'axios'
 export class Client {
   constructor(authStore, clientConfig, reqInterceptor) {
     this.auth = authStore
-    const { maxRetryCount, errorRetryInterval, urlsToRetry, ...axiosConfig } =
-      clientConfig
-    this.maxRetryCount = maxRetryCount || 3
-    this.errorRetryInterval = errorRetryInterval || 250
-    this.urlsToRetry = urlsToRetry || []
-    this.instance = axios.create(axiosConfig)
+    this.instance = axios.create(clientConfig)
     if (reqInterceptor) {
       this.instance.interceptors.request.use(reqInterceptor)
     }
-    // For tests
-    this.requestTimes = []
   }
 
   onAuthErrorRetry(config, error) {
@@ -29,49 +22,10 @@ export class Client {
     })
   }
 
-  onErrorRetry({ retryCount, ...config }, error) {
-    const maxRetryCount = this.maxRetryCount
-    const currentRetryCount = retryCount
-    if (currentRetryCount > maxRetryCount) {
-      return Promise.reject(error)
-    }
-
-    // Exponential backoff
-    const timeout =
-      ~~((Math.random() + 0.5) * (1 << Math.min(currentRetryCount, 8))) *
-      this.errorRetryInterval
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(
-          this._request({
-            ...config,
-            retryCount: retryCount + 1,
-          })
-        )
-      }, timeout)
-    })
-  }
-
   _request(config) {
-    this.requestTimes.push(Date.now())
     return this.instance.request(config).catch((error) => {
       if (error.response && error.response.status === 401) {
         return this.onAuthErrorRetry(config, error)
-      }
-      if (
-        error.request &&
-        (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED')
-      ) {
-        if (this.urlsToRetry.includes(config.url)) {
-          return this.onErrorRetry(
-            {
-              ...config,
-              retryCount: config.retryCount || 1,
-            },
-            error
-          )
-        }
       }
       throw error
     })
