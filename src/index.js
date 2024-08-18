@@ -5,7 +5,7 @@ import App from './App.vue'
 import { getRouter } from './router'
 import { useAuth } from './auth'
 import { eventLogger } from './api/events'
-import { clientConfig } from './api/backend'
+import { clientConfig } from './api/backend/config'
 import { Client } from './api/backend/client'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 

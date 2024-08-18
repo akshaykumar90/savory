@@ -3,7 +3,7 @@ import { useAuthState } from './authState'
 import { computed, ref } from 'vue'
 import { Auth0Client } from '@auth0/auth0-spa-js'
 import axios from 'axios'
-import { clientConfig } from '../api/backend'
+import { clientConfig } from '../api/backend/config'
 import { addXsrfHeader } from '../api/browser'
 
 const CALLBACK_URL = `${window.location.origin}/provider_cb`
