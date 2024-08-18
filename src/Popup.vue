@@ -129,6 +129,19 @@ const { isLoading, isIdle, isError, data, error, mutate } = useMutation(
     onSuccess: (bookmark) => {
       queryClient.setQueryData(['bookmarks', bookmark.id], bookmark)
     },
+    // Upto 3 retry attempts (i.e. 4 attempts total) in case of timeouts
+    retry: (failureCount, error) => {
+      if (
+        error.request &&
+        (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED')
+      ) {
+        return failureCount < 3
+      }
+      return false
+    },
+    // Exponential backoff delay, starting with 500ms
+    retryDelay: (failureCount) =>
+      ~~((Math.random() + 0.5) * (1 << Math.min(failureCount, 8))) * 500,
   }
 )
 

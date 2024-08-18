@@ -1,5 +1,5 @@
 import { useAuth } from './auth'
-import { clientConfig } from './api/backend'
+import { clientConfig } from './api/backend/config'
 import { Client } from './api/backend/client'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
