@@ -4,6 +4,7 @@ import {
   useQueries,
   useQuery,
   useQueryClient,
+  UseQueryResult,
 } from "@tanstack/react-query"
 import ky, { TimeoutError } from "ky"
 import { z } from "zod"
@@ -80,13 +81,7 @@ export function useBookmarkTags(bookmarkIds: string[]) {
 
   const tags = useQueries({
     queries: bookmarkIds.map(bookmarkQuery),
-    // TODO: Verify if causing too many renders
-    combine: (results) => {
-      const tags = results
-        .map((result) => (result.isSuccess ? result.data.tags : []))
-        .flat()
-      return uniqueTags(tags)
-    },
+    combine: uniqueTags,
   })
 
   const { data: allTags } = useQuery(tagsQuery)
@@ -119,7 +114,6 @@ export function useBookmarkTags(bookmarkIds: string[]) {
       return { oldValues }
     },
     onError: (err, newTag, context) => {
-      console.log(err)
       context?.oldValues.forEach((oldValue) => {
         const queryOptions = bookmarkQuery(oldValue.id)
         queryClient.setQueryData(queryOptions.queryKey, oldValue)
@@ -174,7 +168,11 @@ export function useBookmarkTags(bookmarkIds: string[]) {
 
 /// Helpers
 
-function uniqueTags(tags: string[]) {
+function uniqueTags(results: Array<UseQueryResult<{ tags: string[] }>>) {
+  const tags = results
+    .map((result) => (result.isSuccess ? result.data.tags : []))
+    .flat()
+
   const lastIndexMap = new Map<string, number>()
 
   // Store the last index of each tag.
