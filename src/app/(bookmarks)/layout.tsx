@@ -13,7 +13,7 @@ export default function AppLayout({
     <Providers>
       <div>
         <div className="h-16"></div>
-        <div className="fixed top-0 z-10 h-16 w-full">
+        <div className="fixed top-0 z-10 h-16 w-full transition-shadow group-[[data-scroll='true']]:shadow-lg">
           <AppHeader />
         </div>
         <div className="fixed left-0 top-0 right-0 z-20">

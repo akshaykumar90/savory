@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import "@/styles/app.css"
+import ScrollObserver from "@/components/scroll-observer"
 
 export const metadata: Metadata = {
   title: "Savory",
@@ -13,7 +14,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="theme-light bg-default font-sans text-base text-default">
+      <body
+        data-scroll="false"
+        className="theme-light bg-default font-sans text-base text-default group"
+      >
+        <ScrollObserver />
         {children}
       </body>
     </html>
