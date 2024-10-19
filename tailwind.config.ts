@@ -14,6 +14,10 @@ const config: Config = {
       bold: "600",
     },
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)"],
+      },
+
       textColor: {
         default: "var(--color-grey-600)",
         primary: "var(--color-primary)",
