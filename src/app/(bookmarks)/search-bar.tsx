@@ -2,12 +2,14 @@
 
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useRef } from "react"
 import { useDebouncedCallback } from "use-debounce"
 
 function SearchBar() {
   const router = useRouter()
   let searchParams = useSearchParams()
   let query = searchParams.get("q") ?? ""
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const handleSearch = useDebouncedCallback((newQuery: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -30,6 +32,12 @@ function SearchBar() {
     }
   }, 300)
 
+  useEffect(() => {
+    if (query === "" && inputRef.current) {
+      inputRef.current.value = ""
+    }
+  }, [query])
+
   return (
     <div className="flex flex-1 justify-center lg:justify-end">
       <div className="w-full px-2 lg:px-6">
@@ -50,6 +58,7 @@ function SearchBar() {
             name="search"
             className="text-black-100 placeholder-black-200 block h-full w-full rounded-md border border-transparent bg-gray-400 bg-opacity-25 py-2 pl-10 pr-3 leading-5 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 focus:outline-none focus:ring-1 sm:text-sm"
             onChange={(e) => handleSearch(e.target.value)}
+            ref={inputRef}
           />
         </div>
       </div>
