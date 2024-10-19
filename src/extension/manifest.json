@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Savory",
+  "version": "0.14.0",
+  "description": "Save your tabs and links in Savory from your Chrome browser quickly",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_popup": "popup.html",
+    "default_title": "Add to Savory"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+S",
+        "mac": "MacCtrl+S"
+      }
+    }
+  },
+  "host_permissions": ["https://*.savory.test/", "https://*.getsavory.co/"],
+  "permissions": ["activeTab", "cookies"]
+}
