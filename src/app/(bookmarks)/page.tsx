@@ -9,6 +9,42 @@ import PaginationCard from "./pagination-card"
 import DrillDownCard from "./drill-down-card"
 import { tagsQuery } from "@/lib/queries"
 import { RefreshOnFocus } from "./refresh-on-focus"
+import { Metadata } from "next"
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}): Promise<Metadata> {
+  let { name: urlName, site: urlSite, q: urlQuery } = searchParams
+
+  const tags = !urlName ? [] : Array.isArray(urlName) ? urlName : [urlName]
+  const site = Array.isArray(urlSite) ? urlSite[0] : urlSite
+  const filters = [site, ...tags].filter((x) => !!x)
+
+  const query = Array.isArray(urlQuery) ? urlQuery[0] : urlQuery
+
+  const titleArray = []
+
+  if (query) {
+    titleArray.push(`Search results for ${query}`)
+  }
+
+  if (filters.length) {
+    titleArray.push(filters.join(", "))
+  }
+
+  const titlePrefix = titleArray.join(" in ")
+
+  let title = "Savory"
+  if (titlePrefix) {
+    title = `${titlePrefix} – ${title}`
+  }
+
+  return {
+    title,
+  }
+}
 
 export default async function TagPage({
   searchParams,

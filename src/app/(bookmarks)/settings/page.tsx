@@ -1,5 +1,10 @@
+import { Metadata } from "next"
 import EditProfile from "./edit-profile"
 import * as bapi from "@/lib/bapi"
+
+export const metadata: Metadata = {
+  title: "Settings – Savory",
+}
 
 export default async function SettingsPage() {
   const user = await bapi.loadUserData()
