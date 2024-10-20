@@ -1,7 +1,6 @@
 "use client"
 
 import EditTags from "@/components/edit-tags"
-import { bookmarksToDeleteAtom } from "@/stores/dialog"
 import { selectedBookmarkIdsAtom } from "@/stores/selection"
 import {
   Popover,
@@ -14,12 +13,13 @@ import clsx from "clsx"
 import { useAtom } from "jotai"
 import { useResetAtom } from "jotai/utils"
 import { useSearchParams } from "next/navigation"
+import DeleteBookmarks from "./delete-bookmarks"
+import EditTagsDialog from "./tags-dialog"
 
 export default function TopToolbar() {
   const searchParams = useSearchParams()
   const [selectedBookmarkIds] = useAtom(selectedBookmarkIdsAtom)
   const clearSelectedIds = useResetAtom(selectedBookmarkIdsAtom)
-  const [, setBookmarksToDelete] = useAtom(bookmarksToDeleteAtom)
 
   const pageTags = searchParams.getAll("name")
   const numSelected = selectedBookmarkIds.size
@@ -75,20 +75,29 @@ export default function TopToolbar() {
                     </PopoverPanel>
                   </Popover>
                 </span>
-                <span className="inline-flex sm:shadow-sm">
-                  <button
-                    type="button"
+                <span className="inline-flex sm:hidden">
+                  <EditTagsDialog
+                    bookmarkId={Array.from(selectedBookmarkIds)}
                     className="relative -ml-px inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
-                    onClick={() =>
-                      setBookmarksToDelete(Array.from(selectedBookmarkIds))
-                    }
+                  >
+                    <TagIcon
+                      className="mr-2.5 h-5 w-5 text-gray-400"
+                      aria-hidden="true"
+                    />
+                    <span>Edit</span>
+                  </EditTagsDialog>
+                </span>
+                <span className="inline-flex sm:shadow-sm">
+                  <DeleteBookmarks
+                    bookmarkId={Array.from(selectedBookmarkIds)}
+                    className="relative -ml-px inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
                   >
                     <TrashIcon
                       className="mr-2.5 h-5 w-5 text-gray-400"
                       aria-hidden="true"
                     />
                     <span>Delete</span>
-                  </button>
+                  </DeleteBookmarks>
                 </span>
               </span>
             </div>

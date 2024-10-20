@@ -2,7 +2,6 @@
 
 import EditTags from "@/components/edit-tags"
 import { bookmarkQuery } from "@/lib/queries"
-import { bookmarksToDeleteAtom } from "@/stores/dialog"
 import {
   addToSelectionAtom,
   removeFromSelectionAtom,
@@ -17,6 +16,8 @@ import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import DeleteBookmarks from "./delete-bookmarks"
+import EditTagsDialog from "./tags-dialog"
 
 export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
   const searchParams = useSearchParams()
@@ -26,7 +27,6 @@ export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
   const [selectedBookmarkIds] = useAtom(selectedBookmarkIdsAtom)
   const [, addToSelection] = useAtom(addToSelectionAtom)
   const [, removeFromSelection] = useAtom(removeFromSelectionAtom)
-  const [, setBookmarksToDelete] = useAtom(bookmarksToDeleteAtom)
 
   if (!data) {
     // Remove bookmark from page when it's deleted
@@ -105,13 +105,15 @@ export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
                 </PopoverPanel>
               </Popover>
             </span>
+            <span className="inline-flex sm:hidden">
+              <EditTagsDialog bookmarkId={bookmarkId}>
+                <span>edit</span>
+              </EditTagsDialog>
+            </span>
             {"·"}
-            <button
-              type="button"
-              onClick={() => setBookmarksToDelete([bookmarkId])}
-            >
+            <DeleteBookmarks bookmarkId={bookmarkId}>
               <span>delete</span>
-            </button>
+            </DeleteBookmarks>
           </div>
         </div>
       </div>

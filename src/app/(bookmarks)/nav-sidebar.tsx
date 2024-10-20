@@ -21,7 +21,7 @@ function SidebarTab({
   href: string
   label: string
   isActive: boolean
-  Icon: any
+  Icon: any // todo: fix this
 }) {
   return (
     <Link

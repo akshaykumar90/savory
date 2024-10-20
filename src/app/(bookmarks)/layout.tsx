@@ -1,5 +1,4 @@
 import AppHeader from "./app-header"
-import DeleteBookmarksDialog from "./delete-bookmark"
 import OptionalNavSidebar from "./nav-sidebar"
 import Providers from "./providers"
 import TopToolbar from "./top-toolbar"
@@ -31,7 +30,6 @@ export default function AppLayout({
         </div>
       </div>
       <footer className="hidden h-16 sm:block"></footer>
-      <DeleteBookmarksDialog />
     </Providers>
   )
 }
