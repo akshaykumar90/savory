@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "dev:ext": "parcel watch src/extension/manifest.json",
-    "build:ext": "parcel build src/extension/manifest.json"
+    "dev:ext": "parcel watch manifest.json",
+    "build:ext": "parcel build manifest.json"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",

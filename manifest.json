@@ -4,19 +4,19 @@
   "version": "0.14.0",
   "description": "Save your tabs and links in Savory from your Chrome browser quickly",
   "icons": {
-    "16": "icons/icon16.png",
-    "32": "icons/icon32.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "public/icon16.png",
+    "32": "public/icon32.png",
+    "48": "public/icon48.png",
+    "128": "public/icon128.png"
   },
   "action": {
     "default_icon": {
-      "16": "icons/icon16.png",
-      "32": "icons/icon32.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "16": "public/icon16.png",
+      "32": "public/icon32.png",
+      "48": "public/icon48.png",
+      "128": "public/icon128.png"
     },
-    "default_popup": "popup.html",
+    "default_popup": "src/extension/popup.html",
     "default_title": "Add to Savory"
   },
   "commands": {

@@ -5,7 +5,11 @@ import { Inter } from "next/font/google"
 
 export const metadata: Metadata = {
   title: "Savory",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [
+    { rel: "icon", type: "image/png", url: "/icon16.png", sizes: "16x16" },
+    { rel: "icon", type: "image/png", url: "/icon32.png", sizes: "32x32" },
+    { rel: "icon", type: "image/png", url: "/icon48.png", sizes: "48x48" },
+  ],
 }
 
 const inter = Inter({
