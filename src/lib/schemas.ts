@@ -42,3 +42,14 @@ export const relatedTagsSchema = z.object({
   tags_list: tagsCountSchema,
   has_untagged: z.boolean(),
 })
+
+// Request schemas
+
+export const tagsRequestSchema = z.object({
+  bookmarkIds: z.array(z.string()),
+  name: z.string(),
+})
+
+export const deleteBookmarksRequestSchema = z.object({
+  bookmarkIds: z.array(z.string()),
+})

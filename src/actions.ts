@@ -12,7 +12,3 @@ export async function updateUser(prevState: null, formData: FormData) {
 
   return null
 }
-
-export async function deleteBookmark(bookmarkIds: string[]) {
-  await bapi.deleteBookmarks({ bookmarkIds })
-}

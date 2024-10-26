@@ -1,5 +1,5 @@
 import * as bapi from "@/lib/bapi"
-import { tagsRequestSchema } from "@/lib/queries"
+import { tagsRequestSchema } from "@/lib/schemas"
 
 export async function GET(request: Request) {
   const bapiTagsCount = await bapi.getTagsCount()
