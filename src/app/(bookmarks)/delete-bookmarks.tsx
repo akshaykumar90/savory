@@ -10,7 +10,7 @@ import {
 } from "@headlessui/react"
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline"
 import { useAtom } from "jotai"
-import { startTransition, useState } from "react"
+import { useState } from "react"
 
 export default function DeleteBookmarks({
   bookmarkId,
