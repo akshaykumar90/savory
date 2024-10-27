@@ -45,8 +45,25 @@ function SidebarTab({
   )
 }
 
-function NavSidebar(props: { currentTab: AllTabs }) {
-  let { currentTab } = props
+export default function NavSidebar() {
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+
+  let currentTab: AllTabs | undefined
+
+  if (pathname === "/tags") {
+    currentTab = "tags"
+  } else if (pathname === "/") {
+    let tags = searchParams.getAll("name")
+    if (tags.includes("reading")) {
+      currentTab = "reading"
+    } else if (tags.includes("playlist")) {
+      currentTab = "playlist"
+    } else {
+      currentTab = "home"
+    }
+  }
+
   return (
     <div className="flex flex-grow flex-col overflow-y-auto  pb-4">
       <div className="mt-5 flex flex-grow flex-col">
@@ -79,26 +96,4 @@ function NavSidebar(props: { currentTab: AllTabs }) {
       </div>
     </div>
   )
-}
-
-export default function OptionalNavSidebar() {
-  let searchParams = useSearchParams()
-  let pathname = usePathname()
-
-  let activeTab: AllTabs | undefined
-
-  if (pathname === "/tags") {
-    activeTab = "tags"
-  } else if (pathname === "/") {
-    let tags = searchParams.getAll("name")
-    if (tags.includes("reading")) {
-      activeTab = "reading"
-    } else if (tags.includes("playlist")) {
-      activeTab = "playlist"
-    } else {
-      activeTab = "home"
-    }
-  }
-
-  return activeTab ? <NavSidebar currentTab={activeTab} /> : null
 }

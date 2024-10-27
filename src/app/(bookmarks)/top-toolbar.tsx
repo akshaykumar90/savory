@@ -1,27 +1,19 @@
 "use client"
 
-import EditTags from "@/components/edit-tags"
 import { selectedBookmarkIdsAtom } from "@/stores/selection"
-import {
-  Popover,
-  PopoverButton,
-  PopoverPanel,
-  Transition,
-} from "@headlessui/react"
+import { Transition } from "@headlessui/react"
 import { TagIcon, TrashIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import clsx from "clsx"
 import { useAtom } from "jotai"
 import { useResetAtom } from "jotai/utils"
-import { useSearchParams } from "next/navigation"
 import DeleteBookmarks from "./delete-bookmarks"
 import EditTagsDialog from "./tags-dialog"
+import TagsPopover from "./tags-popover"
 
 export default function TopToolbar() {
-  const searchParams = useSearchParams()
   const [selectedBookmarkIds] = useAtom(selectedBookmarkIdsAtom)
   const clearSelectedIds = useResetAtom(selectedBookmarkIdsAtom)
 
-  const pageTags = searchParams.getAll("name")
   const numSelected = selectedBookmarkIds.size
 
   return (
@@ -53,27 +45,16 @@ export default function TopToolbar() {
             <div>
               <span className="relative z-0 inline-flex space-x-3 rounded-md">
                 <span className="hidden sm:inline-flex sm:shadow-sm">
-                  <Popover className="relative">
-                    <PopoverButton
-                      type="button"
-                      className="relative -ml-px inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
-                    >
-                      <TagIcon
-                        className="mr-2.5 h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                      <span>Edit</span>
-                    </PopoverButton>
-                    <PopoverPanel
-                      focus
-                      className="absolute left-0 z-50 mt-3 w-screen max-w-xs px-2 sm:px-0"
-                    >
-                      <EditTags
-                        bookmarkId={Array.from(selectedBookmarkIds)}
-                        pageTags={pageTags}
-                      />
-                    </PopoverPanel>
-                  </Popover>
+                  <TagsPopover
+                    bookmarkId={Array.from(selectedBookmarkIds)}
+                    className="relative -ml-px inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:z-10 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                  >
+                    <TagIcon
+                      className="mr-2.5 h-5 w-5 text-gray-400"
+                      aria-hidden="true"
+                    />
+                    <span>Edit</span>
+                  </TagsPopover>
                 </span>
                 <span className="inline-flex sm:hidden">
                   <EditTagsDialog

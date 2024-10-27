@@ -1,13 +1,11 @@
 "use client"
 
-import EditTags from "@/components/edit-tags"
 import { bookmarkQuery } from "@/lib/queries"
 import {
   addToSelectionAtom,
   removeFromSelectionAtom,
   selectedBookmarkIdsAtom,
 } from "@/stores/selection"
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react"
 import {
   CheckCircleIcon as CheckIcon,
   Bars3BottomLeftIcon as SelectIcon,
@@ -15,13 +13,11 @@ import {
 import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
 import DeleteBookmarks from "./delete-bookmarks"
 import EditTagsDialog from "./tags-dialog"
+import TagsPopover from "./tags-popover"
 
 export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
-  const searchParams = useSearchParams()
-
   const { data } = useQuery(bookmarkQuery(bookmarkId))
 
   const [selectedBookmarkIds] = useAtom(selectedBookmarkIdsAtom)
@@ -32,8 +28,6 @@ export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
     // Remove bookmark from page when it's deleted
     return null
   }
-
-  const pageTags = searchParams.getAll("name")
 
   let { title, url, site, tags, date_added: dateAdded } = data
 
@@ -94,15 +88,9 @@ export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
           <span className="inline-block">{timestring}</span>
           {"·"}
           <span className="hidden sm:inline-flex">
-            <Popover className="relative">
-              <PopoverButton type="button">edit</PopoverButton>
-              <PopoverPanel
-                focus
-                className="absolute left-0 z-50 mt-3 w-screen max-w-xs px-2 sm:px-0"
-              >
-                <EditTags bookmarkId={bookmarkId} pageTags={pageTags} />
-              </PopoverPanel>
-            </Popover>
+            <TagsPopover bookmarkId={bookmarkId}>
+              <span>edit</span>
+            </TagsPopover>
           </span>
           <span className="inline-flex sm:hidden">
             <EditTagsDialog bookmarkId={bookmarkId}>
