@@ -10,6 +10,7 @@ import DrillDownCard from "./drill-down-card"
 import { tagsQuery } from "@/lib/queries"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { Metadata } from "next"
+import { WaitForMutations } from "./wait-for-mutations"
 
 export async function generateMetadata({
   searchParams,
@@ -163,6 +164,7 @@ export default async function TagPage({
         </ul>
       </div>
       <RefreshOnFocus />
+      <WaitForMutations />
     </HydrationBoundary>
   )
 }
