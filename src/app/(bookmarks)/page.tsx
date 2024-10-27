@@ -156,7 +156,7 @@ export default async function TagPage({
             showUntagged={drillDownTagsResponse.has_untagged}
           />
         )}
-        <ul className="flex flex-col gap-4">
+        <ul className="flex flex-col">
           {bookmarksResponse.bookmarks.map((bookmark) => (
             <BookmarkRow key={bookmark.id} bookmarkId={bookmark.id} />
           ))}
