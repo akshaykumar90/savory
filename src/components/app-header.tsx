@@ -7,11 +7,10 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/react"
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline"
 import Image from "next/image"
 import Link from "next/link"
-import logo from "../../assets/logo_light.svg"
-import OptionalSearchBar from "./search-bar"
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline"
+import logo from "../assets/logo_light.svg"
 
 const mktSiteUrl = process.env.MKT_SITE_URL
 
@@ -76,7 +75,11 @@ function MobileNavLink({ href, label }: { href: string; label: string }) {
   }
 }
 
-export default function AppHeader() {
+export default function AppHeader({
+  children,
+}: Readonly<{
+  children?: React.ReactNode
+}>) {
   return (
     <Disclosure as="nav" className="border-b bg-default">
       <div className="px-2 sm:px-4 lg:px-8">
@@ -94,7 +97,8 @@ export default function AppHeader() {
             </div>
           </div>
 
-          <OptionalSearchBar />
+          {/* Optional search section */}
+          {children}
 
           <div className="flex lg:hidden">
             {/* Mobile menu button */}

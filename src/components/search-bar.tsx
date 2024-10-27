@@ -1,11 +1,11 @@
 "use client"
 
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef } from "react"
 import { useDebouncedCallback } from "use-debounce"
 
-function SearchBar() {
+export default function SearchBar() {
   const router = useRouter()
   let searchParams = useSearchParams()
   let query = searchParams.get("q") ?? ""
@@ -64,9 +64,4 @@ function SearchBar() {
       </div>
     </div>
   )
-}
-
-export default function OptionalSearchBar() {
-  let pathname = usePathname()
-  return pathname === "/" ? <SearchBar /> : null
 }

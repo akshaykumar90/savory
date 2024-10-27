@@ -1,7 +1,8 @@
-import AppHeader from "./app-header"
 import OptionalNavSidebar from "./nav-sidebar"
 import Providers from "./providers"
 import TopToolbar from "./top-toolbar"
+import AppHeader from "@/components/app-header"
+import SearchBar from "@/components/search-bar"
 
 export default function AppLayout({
   children,
@@ -13,7 +14,9 @@ export default function AppLayout({
       <div>
         <div className="h-16"></div>
         <div className="fixed top-0 z-10 h-16 w-full transition-shadow group-[[data-scroll='true']]:shadow-lg">
-          <AppHeader />
+          <AppHeader>
+            <SearchBar />
+          </AppHeader>
         </div>
         <div className="fixed left-0 top-0 right-0 z-20">
           <TopToolbar />
