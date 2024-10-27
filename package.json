@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H app.savory.test -p 8080 --experimental-https --experimental-https-ca ./certs/rootCA.pem --experimental-https-key ./certs/savory.test+4-key.pem --experimental-https-cert ./certs/savory.test+4.pem",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
