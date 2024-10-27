@@ -1,14 +1,20 @@
 "use client"
 
 import { useIsMutating } from "@tanstack/react-query"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 
 export function WaitForMutations() {
   const isMutating = useIsMutating()
+  const isMutatingRef = useRef(isMutating)
+
+  // Update the ref whenever isMutating changes
+  useEffect(() => {
+    isMutatingRef.current = isMutating
+  }, [isMutating])
 
   useEffect(() => {
     const beforeUnload = (event: BeforeUnloadEvent) => {
-      if (isMutating > 0) {
+      if (isMutatingRef.current > 0) {
         // Cancel the event as stated by the standard.
         event.preventDefault()
         // Older browsers supported custom message
@@ -22,7 +28,7 @@ export function WaitForMutations() {
     return () => {
       window.removeEventListener("beforeunload", beforeUnload)
     }
-  }, [isMutating])
+  }, [])
 
   return null
 }
