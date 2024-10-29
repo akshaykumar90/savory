@@ -21,7 +21,7 @@ function SidebarTab({
   href: string
   label: string
   isActive: boolean
-  Icon: any // todo: fix this
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
 }) {
   return (
     <Link
