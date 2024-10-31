@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   title: "Tags – Savory",
 }
 
-// TODO: This is being cached!?
 export default async function TagsPage() {
   const tagsResponse = await bapi.getTagsCount()
 

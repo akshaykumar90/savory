@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 
+// TODO: Bug? Count does not update when fetched via RSC payload.
 export default function TagFilter(props: {
   tags: Array<{ name: string; count: number }>
 }) {

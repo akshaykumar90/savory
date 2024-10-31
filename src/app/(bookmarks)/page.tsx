@@ -151,6 +151,7 @@ export default async function TagPage({
           nextCursor={bookmarksResponse.cursor_info.next_cursor}
           prevCursor={bookmarksResponse.cursor_info.previous_cursor}
         />
+        {/* TODO: Should not render for zero results */}
         {drillDownTagsResponse && (
           <DrillDownCard
             tags={drillTags}
