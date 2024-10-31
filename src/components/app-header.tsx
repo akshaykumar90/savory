@@ -35,7 +35,14 @@ const outboundLinks = [
 function DesktopNavLink({ href, label }: { href: string; label: string }) {
   return (
     <MenuItem>
-      {href.startsWith("/") ? (
+      {href.startsWith("/api") ? (
+        <a
+          href={href}
+          className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
+        >
+          {label}
+        </a>
+      ) : href.startsWith("/") ? (
         <Link
           href={href}
           className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
@@ -64,15 +71,19 @@ function MobileNavLink({ href, label }: { href: string; label: string }) {
       {label}
     </DisclosureButton>
   )
-  if (href.startsWith("/")) {
-    return <Link href={href}>{child}</Link>
-  } else {
-    return (
-      <a href={href} target="_blank">
-        {child}
-      </a>
-    )
-  }
+  return (
+    <MenuItem>
+      {href.startsWith("/api") ? (
+        <a href={href}>{child}</a>
+      ) : href.startsWith("/") ? (
+        <Link href={href}>{child}</Link>
+      ) : (
+        <a href={href} target="_blank">
+          {child}
+        </a>
+      )}
+    </MenuItem>
+  )
 }
 
 export default function AppHeader({

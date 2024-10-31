@@ -70,6 +70,7 @@ export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
             <Link
               className="decoration-primary underline-offset-1 hover:text-primary hover:underline"
               href={{ pathname: "/", query: { site } }}
+              prefetch={false}
             >
               {site}
             </Link>
@@ -79,6 +80,7 @@ export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
               key={index}
               className="decoration-primary underline-offset-1 hover:text-primary hover:underline"
               href={{ pathname: "/", query: { name: tag } }}
+              prefetch={false}
             >
               {tag}
             </Link>

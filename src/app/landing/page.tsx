@@ -11,9 +11,9 @@ export default function Home() {
             <Image className="h-16 w-auto" src={logo} alt="Savory" />
           </Link>
           <div className="hidden md:block">
-            <Link href="/api/auth/login" className="text-xs hover:underline">
+            <a href="/api/auth/login" className="text-xs hover:underline">
               Sign In
-            </Link>
+            </a>
           </div>
         </div>
       </nav>
@@ -26,17 +26,17 @@ export default function Home() {
             Get started for free and re-discover your bookmarks with the power
             of Savory.
           </p>
-          <Link
+          <a
             className="block mt-4 rounded bg-primary py-2 px-4 text-lg tracking-wide text-white hover:bg-blue-700 focus:outline-none"
             href="/api/auth/signup"
           >
             Create an Account
-          </Link>
+          </a>
           <p className="mt-4 text-xs leading-5 text-gray-700">
             Already have an account?{" "}
-            <Link href="/api/auth/login" className="underline">
+            <a href="/api/auth/login" className="underline">
               Sign In
-            </Link>
+            </a>
           </p>
         </div>
       </section>

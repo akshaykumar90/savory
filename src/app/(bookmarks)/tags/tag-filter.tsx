@@ -45,6 +45,7 @@ export default function TagFilter(props: {
           <li key={name}>
             <Link
               href={{ pathname: "/", query: { name } }}
+              prefetch={false}
               className="flex w-full flex-row justify-between rounded-lg p-4 text-gray-900 hover:bg-gray-50 hover:text-primary"
             >
               <span className="line-clamp-1">{name}</span>
