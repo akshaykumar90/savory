@@ -1,15 +1,16 @@
-import BookmarkRow from "./bookmark-row"
+import * as bapi from "@/lib/bapi"
+import { tagsQuery } from "@/lib/queries"
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query"
-import * as bapi from "@/lib/bapi"
-import PaginationCard from "./pagination-card"
-import DrillDownCard from "./drill-down-card"
-import { tagsQuery } from "@/lib/queries"
-import { RefreshOnFocus } from "./refresh-on-focus"
 import { Metadata } from "next"
+import BookmarkRow from "./bookmark-row"
+import DrillDownCard from "./drill-down-card"
+import ErrorScreen from "./error-screen"
+import PaginationCard from "./pagination-card"
+import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
 
 export async function generateMetadata({
@@ -80,35 +81,40 @@ export default async function TagPage({
 
   let tagsResponse, bookmarksResponse, drillDownTagsResponse
 
-  if (query) {
-    // Search page
-    let arr = await Promise.all([
-      bapi.getTagsCount(),
-      bapi.searchBookmarks({
-        ...commonArgs,
-        query,
-      }),
-    ])
-    tagsResponse = arr[0]
-    bookmarksResponse = arr[1]
-  } else if (tags.length || site) {
-    // Tag page
-    let arr = await Promise.all([
-      bapi.getTagsCount(),
-      bapi.getBookmarks(commonArgs),
-      bapi.getDrillDownTags({ tags, site }),
-    ])
-    tagsResponse = arr[0]
-    bookmarksResponse = arr[1]
-    drillDownTagsResponse = arr[2]
-  } else {
-    // Home page
-    let arr = await Promise.all([
-      bapi.getTagsCount(),
-      bapi.getBookmarks(commonArgs),
-    ])
-    tagsResponse = arr[0]
-    bookmarksResponse = arr[1]
+  try {
+    if (query) {
+      // Search page
+      let arr = await Promise.all([
+        bapi.getTagsCount(),
+        bapi.searchBookmarks({
+          ...commonArgs,
+          query,
+        }),
+      ])
+      tagsResponse = arr[0]
+      bookmarksResponse = arr[1]
+    } else if (tags.length || site) {
+      // Tag page
+      let arr = await Promise.all([
+        bapi.getTagsCount(),
+        bapi.getBookmarks(commonArgs),
+        bapi.getDrillDownTags({ tags, site }),
+      ])
+      tagsResponse = arr[0]
+      bookmarksResponse = arr[1]
+      drillDownTagsResponse = arr[2]
+    } else {
+      // Home page
+      let arr = await Promise.all([
+        bapi.getTagsCount(),
+        bapi.getBookmarks(commonArgs),
+      ])
+      tagsResponse = arr[0]
+      bookmarksResponse = arr[1]
+    }
+  } catch (error) {
+    // TODO: If error is logout, redirect!
+    return <ErrorScreen />
   }
 
   bookmarksResponse.bookmarks.forEach((bookmark) => {

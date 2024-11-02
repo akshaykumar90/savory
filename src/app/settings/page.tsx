@@ -7,7 +7,17 @@ export const metadata: Metadata = {
 }
 
 export default async function SettingsPage() {
-  const user = await bapi.loadUserData()
+  let user
+  try {
+    user = await bapi.loadUserData()
+  } catch (error) {
+    // TODO: If error is logout, redirect!
+    return (
+      <p className="p-4">
+        There was an error loading user settings. Please retry.
+      </p>
+    )
+  }
 
   return (
     <main className="my-4 sm:my-10">
