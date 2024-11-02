@@ -125,6 +125,8 @@ export default async function TagPage({
       })
       .map(({ name }) => name) ?? []
 
+  const hasUntagged = drillDownTagsResponse?.has_untagged ?? false
+
   const numTotal = bookmarksResponse.total
 
   let message
@@ -151,12 +153,8 @@ export default async function TagPage({
           nextCursor={bookmarksResponse.cursor_info.next_cursor}
           prevCursor={bookmarksResponse.cursor_info.previous_cursor}
         />
-        {/* TODO: Should not render for zero results */}
-        {drillDownTagsResponse && (
-          <DrillDownCard
-            tags={drillTags}
-            showUntagged={drillDownTagsResponse.has_untagged}
-          />
+        {(drillTags.length > 0 || hasUntagged) && (
+          <DrillDownCard tags={drillTags} showUntagged={hasUntagged} />
         )}
         <ul className="flex flex-col">
           {bookmarksResponse.bookmarks.map((bookmark) => (
