@@ -13,7 +13,6 @@ const apiBaseUrl = "https://api.savory.test:8081/api/v1"
 
 const api = ky.create({
   prefixUrl: apiBaseUrl,
-  retry: 0,
   timeout: 3000,
   hooks: {
     beforeRequest: [
