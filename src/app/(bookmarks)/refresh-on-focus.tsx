@@ -8,6 +8,7 @@ export function RefreshOnFocus() {
 
   useEffect(() => {
     const onFocus = () => {
+      // TODO: Don't refresh search page on focus
       refresh()
     }
 
