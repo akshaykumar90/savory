@@ -11,6 +11,20 @@ export default function SearchBar() {
   let query = searchParams.get("q") ?? ""
   const inputRef = useRef<HTMLInputElement>(null)
 
+  useEffect(() => {
+    const onKeydown = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.ctrlKey || e.metaKey) && inputRef.current) {
+        inputRef.current.focus()
+      }
+    }
+
+    window.addEventListener("keydown", onKeydown)
+
+    return () => {
+      window.removeEventListener("keydown", onKeydown)
+    }
+  }, [])
+
   const handleSearch = useDebouncedCallback((newQuery: string) => {
     const params = new URLSearchParams(searchParams.toString())
 
