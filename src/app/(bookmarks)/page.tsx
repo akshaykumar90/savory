@@ -115,7 +115,9 @@ export default withPageAuthRequired(
         bookmarksResponse = arr[1]
       }
     } catch (error) {
-      return <ErrorScreen />
+      const wrappedError =
+        error instanceof Error ? error : new Error(JSON.stringify(error))
+      return <ErrorScreen error={wrappedError} />
     }
 
     bookmarksResponse.bookmarks.forEach((bookmark) => {

@@ -15,7 +15,9 @@ export default withPageAuthRequired(
     try {
       tagsResponse = await bapi.getTagsCount()
     } catch (error) {
-      return <ErrorScreen />
+      const wrappedError =
+        error instanceof Error ? error : new Error(JSON.stringify(error))
+      return <ErrorScreen error={wrappedError} />
     }
 
     return (
