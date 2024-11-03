@@ -1,14 +1,20 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 
 export function RefreshOnFocus() {
   const { refresh } = useRouter()
+  const searchParams = useSearchParams()
+
+  const isSearchPage = !!searchParams.get("q")
 
   useEffect(() => {
+    if (isSearchPage) {
+      return
+    }
+
     const onFocus = () => {
-      // TODO: Don't refresh search page on focus
       refresh()
     }
 
@@ -17,7 +23,7 @@ export function RefreshOnFocus() {
     return () => {
       window.removeEventListener("focus", onFocus)
     }
-  }, [refresh])
+  }, [refresh, isSearchPage])
 
   return null
 }
