@@ -113,6 +113,16 @@ export default withPageAuthRequired(
       ? Boolean(urlUntagged[0])
       : Boolean(urlUntagged)
 
+    const routeHasOneTag = (name: string) => {
+      if (site || query || cursor) {
+        return false
+      }
+      if (tags.length === 0 || tags.length > 1) {
+        return false
+      }
+      return tags[0].toLowerCase() === name
+    }
+
     const queryClient = new QueryClient()
 
     const commonArgs = {
@@ -164,9 +174,9 @@ export default withPageAuthRequired(
 
     if (bookmarksResponse.total === 0) {
       // Special empty states
-      if (tags.length === 1 && tags[0] === "reading") {
+      if (routeHasOneTag("reading")) {
         return <EmptyReading />
-      } else if (tags.length === 1 && tags[0] === "playlist") {
+      } else if (routeHasOneTag("playlist")) {
         return <EmptyPlaylist />
       }
     }
