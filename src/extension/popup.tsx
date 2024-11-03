@@ -6,6 +6,12 @@ import { HTTPError } from "ky"
 import { useEffect } from "react"
 import browser from "webextension-polyfill"
 
+const SAVORY_APP_URL = "https://app.savory.test:8080"
+
+function openSavory() {
+  browser.tabs.create({ url: SAVORY_APP_URL })
+}
+
 export default function Popup() {
   return (
     <div className="w-[300px] p-2">
@@ -109,6 +115,7 @@ function PopupContents() {
                 </PopoverButton>
                 <button
                   type="button"
+                  onClick={() => openSavory()}
                   className="ml-3 rounded-md bg-green-50 px-2 py-1.5 text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
                 >
                   Open Savory
@@ -151,7 +158,6 @@ function Spinner() {
 }
 
 function PopupError({ error }: { error: Error }) {
-  // TODO: Make this work! API should actually return 401 when logged out.
   if (error instanceof HTTPError && error.response.status === 401) {
     return (
       <div>
@@ -167,6 +173,7 @@ function PopupError({ error }: { error: Error }) {
         <div className="mt-5">
           <button
             type="button"
+            onClick={() => openSavory()}
             className="inline-flex items-center rounded-md border border-transparent bg-sky-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 sm:text-sm"
           >
             Login
