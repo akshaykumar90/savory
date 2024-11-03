@@ -13,6 +13,8 @@ import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
 import { withPageAuthRequired } from "@auth0/nextjs-auth0"
+import Image from "next/image"
+import emptyArt from "../../assets/reflecting.png"
 
 export async function generateMetadata({
   searchParams,
@@ -47,6 +49,46 @@ export async function generateMetadata({
   return {
     title,
   }
+}
+
+function EmptyState({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="py-16 px-4 text-center sm:px-6 lg:px-8">
+      <Image
+        className="mx-auto w-3/4 opacity-75 sm:w-1/2"
+        src={emptyArt}
+        alt=""
+        width="400"
+        height="326"
+      />
+      <h3 className="mt-10 text-sm font-medium text-gray-900">{title}</h3>
+      <p className="mt-1 text-sm text-gray-500">{children}</p>
+    </div>
+  )
+}
+
+function EmptyReading() {
+  return (
+    <EmptyState title="Your reading list is empty.">
+      Add the &quot;reading&quot; tag to any saved item and it will show up
+      here!
+    </EmptyState>
+  )
+}
+
+function EmptyPlaylist() {
+  return (
+    <EmptyState title="Your playlist is empty.">
+      Add the &quot;playlist&quot; tag to any saved item and it will show up
+      here!
+    </EmptyState>
+  )
 }
 
 export default withPageAuthRequired(
@@ -118,6 +160,15 @@ export default withPageAuthRequired(
       const wrappedError =
         error instanceof Error ? error : new Error(JSON.stringify(error))
       return <ErrorScreen error={wrappedError} />
+    }
+
+    if (bookmarksResponse.total === 0) {
+      // Special empty states
+      if (tags.length === 1 && tags[0] === "reading") {
+        return <EmptyReading />
+      } else if (tags.length === 1 && tags[0] === "playlist") {
+        return <EmptyPlaylist />
+      }
     }
 
     bookmarksResponse.bookmarks.forEach((bookmark) => {
