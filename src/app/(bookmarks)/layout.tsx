@@ -12,6 +12,11 @@ export default function AppLayout({
 }>) {
   return (
     <Providers>
+      {/*
+      This div is load bearing! This serves as the common parent for top
+      toolbar and the main view, which is required for dismissing edit tags
+      popover to work.
+      */}
       <div>
         <div className="h-16"></div>
         <div className="fixed top-0 z-10 h-16 w-full transition-shadow group-[[data-scroll='true']]:shadow-lg">
@@ -24,20 +29,20 @@ export default function AppLayout({
         <div className="fixed left-0 top-0 right-0 z-20">
           <TopToolbar />
         </div>
-      </div>
-      <div className="flex gap-4 sm:mx-2">
-        <div className="hidden sm:block sm:flex-shrink-0">
-          <div className="w-64">
-            <Suspense>
-              <NavSidebar />
-            </Suspense>
+        <div className="flex gap-4 sm:mx-2">
+          <div className="hidden sm:block sm:flex-shrink-0">
+            <div className="w-64">
+              <Suspense>
+                <NavSidebar />
+              </Suspense>
+            </div>
+          </div>
+          <div className="min-w-0 max-w-[36rem] flex-1">
+            <main>{children}</main>
           </div>
         </div>
-        <div className="min-w-0 max-w-[36rem] flex-1">
-          <main>{children}</main>
-        </div>
+        <footer className="hidden h-16 sm:block"></footer>
       </div>
-      <footer className="hidden h-16 sm:block"></footer>
     </Providers>
   )
 }
