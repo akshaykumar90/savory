@@ -5,75 +5,15 @@ import {
   useQueryClient,
   UseQueryResult,
 } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
-import { bookmarkQuery, tagsQuery } from "./queries"
 import { z } from "zod"
-import {
-  bookmarkSchema,
-  deleteBookmarksRequestSchema,
-  tagsRequestSchema,
-} from "./schemas"
+
 import { nextApp } from "./napi"
-import { TimeoutError } from "ky"
+import { bookmarkQuery, tagsQuery } from "./queries"
+import { tagsRequestSchema } from "./schemas"
 
 type TagsRequest = z.infer<typeof tagsRequestSchema>
-type DeleteBookmarksRequest = z.infer<typeof deleteBookmarksRequestSchema>
 
-export function useDeleteBookmarks() {
-  const queryClient = useQueryClient()
-  const router = useRouter()
-
-  return useMutation({
-    mutationFn: async (bookmarkIds: string[]) => {
-      const body: DeleteBookmarksRequest = {
-        bookmarkIds,
-      }
-      await nextApp.delete("bookmarks", {
-        json: body,
-      })
-    },
-    onMutate: (bookmarkIds: string[]) => {
-      // optimistic update
-      bookmarkIds.forEach((id) => {
-        queryClient.setQueryData(["bookmarks", id], null)
-      })
-    },
-    onSuccess: () => {
-      router.refresh()
-    },
-  })
-}
-
-export function useNewBookmark() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (tab: {
-      title: string
-      url: string
-      dateAddedMs: number
-    }) => {
-      const response = await nextApp.post("bookmarks", { json: tab }).json()
-      return bookmarkSchema.parse(response)
-    },
-    onSuccess: (bookmark) => {
-      const queryOptions = bookmarkQuery(bookmark.id)
-      queryClient.setQueryData(queryOptions.queryKey, bookmark)
-    },
-    retry: (failureCount, error) => {
-      if (error instanceof TimeoutError) {
-        // Upto 3 retry attempts (i.e. 4 attempts total) in case of timeouts
-        return failureCount < 3
-      }
-      return false
-    },
-    // Exponential backoff delay, starting with 500ms
-    retryDelay: (failureCount) =>
-      ~~((Math.random() + 0.5) * (1 << Math.min(failureCount, 8))) * 500,
-  })
-}
-
-export function useBookmarkTags(bookmarkIds: string[]) {
+export default function useBookmarkTags(bookmarkIds: string[]) {
   const queryClient = useQueryClient()
 
   const tags = useQueries({
@@ -162,8 +102,6 @@ export function useBookmarkTags(bookmarkIds: string[]) {
     removeTag,
   }
 }
-
-/// Helpers
 
 function uniqueTags(results: Array<UseQueryResult<{ tags: string[] }>>) {
   const tags = results

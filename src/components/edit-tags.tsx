@@ -1,7 +1,7 @@
 import _ from "lodash"
 import { useState } from "react"
 import TagButton from "./tag-button"
-import { useBookmarkTags } from "@/lib/mutations"
+import useBookmarkTags from "@/lib/use-bookmark-tags"
 
 type EditTagsProps = {
   bookmarkId: string | string[]

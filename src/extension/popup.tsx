@@ -1,5 +1,5 @@
 import EditTags from "@/components/edit-tags"
-import { useNewBookmark } from "@/lib/mutations"
+import useNewBookmark from "@/lib/use-new-bookmark"
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react"
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/20/solid"
 import { HTTPError } from "ky"

@@ -24,11 +24,6 @@ const api = ky.create({
   },
 })
 
-export async function getBookmark({ id }: { id: string }) {
-  const responseData = await api.get(`bookmarks/${id}`).json()
-  return bookmarkSchema.parse(responseData)
-}
-
 export async function getBookmarks({
   num,
   tags,

@@ -1,6 +1,6 @@
 "use client"
 
-import { useDeleteBookmarks } from "@/lib/mutations"
+import useDeleteBookmarks from "@/lib/use-delete-bookmarks"
 import { removeMultipleFromSelectionAtom } from "@/stores/selection"
 import {
   Dialog,
