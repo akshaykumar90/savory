@@ -6,9 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "dev:ext": "parcel watch manifest.json",
-    "build:ext": "parcel build manifest.json"
+    "lint": "next lint"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",
@@ -26,7 +24,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@parcel/config-webextension": "^2.12.0",
     "@tailwindcss/forms": "^0.5.7",
     "@types/lodash": "^4.17.7",
     "@types/node": "^20",
@@ -35,9 +32,7 @@
     "@types/webextension-polyfill": "^0.12.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.6",
-    "parcel": "^2.12.0",
     "postcss": "^8",
-    "process": "^0.11.10",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
     "webextension-polyfill": "^0.12.0"
