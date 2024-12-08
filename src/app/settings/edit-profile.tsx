@@ -1,17 +1,8 @@
 "use client"
 
-import { useFormState, useFormStatus } from "react-dom"
 import { updateUser } from "@/actions"
 import PrimaryButton from "@/components/primary-button"
-
-function Submit() {
-  const { pending } = useFormStatus()
-  return (
-    <PrimaryButton isSubmitButton={true} isDisabled={pending}>
-      Update
-    </PrimaryButton>
-  )
-}
+import { useActionState } from "react"
 
 export default function EditProfile(props: {
   userCreatedAt: Date
@@ -19,7 +10,7 @@ export default function EditProfile(props: {
   email?: string
 }) {
   let { userCreatedAt, fullName, email } = props
-  const [state, formAction] = useFormState(updateUser, null)
+  const [state, formAction, isPending] = useActionState(updateUser, null)
   return (
     <form className="space-y-4" action={formAction}>
       <div>
@@ -84,7 +75,9 @@ export default function EditProfile(props: {
       </div>
       <div className="pt-5">
         <div className="flex justify-end">
-          <Submit />
+          <PrimaryButton isSubmitButton={true} isDisabled={isPending}>
+            Update
+          </PrimaryButton>
         </div>
       </div>
     </form>
