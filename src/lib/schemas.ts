@@ -53,3 +53,9 @@ export const tagsRequestSchema = z.object({
 export const deleteBookmarksRequestSchema = z.object({
   bookmarkIds: z.array(z.string()),
 })
+
+// Form schemas
+
+export const editProfileFormSchema = z.object({
+  name: z.string(),
+})
