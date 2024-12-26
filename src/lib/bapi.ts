@@ -9,7 +9,7 @@ import {
   userSchema,
 } from "./schemas"
 
-const apiBaseUrl = "https://api.savory.test:8081/api/v1"
+const apiBaseUrl = process.env.API_BASE_URL
 
 const api = ky.create({
   prefixUrl: apiBaseUrl,

@@ -6,7 +6,7 @@ import { HTTPError } from "ky"
 import { useEffect } from "react"
 import browser from "webextension-polyfill"
 
-const SAVORY_APP_URL = "https://app.savory.test:8080"
+const SAVORY_APP_URL = import.meta.env.VITE_APP_BASE_URL
 
 function openSavory() {
   browser.tabs.create({ url: SAVORY_APP_URL })
