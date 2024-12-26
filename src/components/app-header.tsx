@@ -161,7 +161,7 @@ export default function AppHeader({
                       label={link.label}
                     />
                   ))}
-                  <DesktopNavLink href="/api/auth/logout" label="Logout" />
+                  <DesktopNavLink href="/auth/logout" label="Logout" />
                 </MenuItems>
               </Menu>
             </div>
@@ -190,7 +190,7 @@ export default function AppHeader({
               label={link.label}
             />
           ))}
-          <MobileNavLink href="/api/auth/logout" label="Logout" />
+          <MobileNavLink href="/auth/logout" label="Logout" />
         </div>
       </DisclosurePanel>
     </Disclosure>

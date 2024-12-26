@@ -1,19 +1,21 @@
 import * as bapi from "@/lib/bapi"
 import { tagsQuery } from "@/lib/queries"
+import { AccessTokenError } from "@auth0/nextjs-auth0/errors"
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query"
 import { Metadata } from "next"
+import Image from "next/image"
+import { redirect } from "next/navigation"
+import emptyArt from "../../assets/reflecting.png"
 import BookmarkRow from "./bookmark-row"
 import DrillDownCard from "./drill-down-card"
 import ErrorScreen from "./error-screen"
 import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
-import Image from "next/image"
-import emptyArt from "../../assets/reflecting.png"
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -167,6 +169,9 @@ export default async function TagPage({
       bookmarksResponse = arr[1]
     }
   } catch (error) {
+    if (error instanceof AccessTokenError) {
+      redirect("/landing")
+    }
     const wrappedError =
       error instanceof Error ? error : new Error(JSON.stringify(error))
     return <ErrorScreen error={wrappedError} />

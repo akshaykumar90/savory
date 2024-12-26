@@ -1,6 +1,8 @@
 import { Metadata } from "next"
 import EditProfile from "./edit-profile"
 import * as bapi from "@/lib/bapi"
+import { AccessTokenError } from "@auth0/nextjs-auth0/errors"
+import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
   title: "Settings – Savory",
@@ -11,6 +13,9 @@ export default async function SettingsPage() {
   try {
     user = await bapi.loadUserData()
   } catch (error) {
+    if (error instanceof AccessTokenError) {
+      redirect("/landing")
+    }
     return (
       <p className="p-4">
         There was an error loading user settings. Please retry.

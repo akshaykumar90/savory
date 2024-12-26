@@ -1,6 +1,6 @@
 // Backend API (bapi)
-import { getAccessToken } from "@auth0/nextjs-auth0"
 import ky from "ky"
+import { auth0 } from "./auth0"
 import {
   bookmarkSchema,
   bookmarksPageSchema,
@@ -17,8 +17,8 @@ const api = ky.create({
   hooks: {
     beforeRequest: [
       async (request) => {
-        const { accessToken } = await getAccessToken()
-        request.headers.set("Authorization", `Bearer ${accessToken}`)
+        const token = await auth0.getAccessToken()
+        request.headers.set("Authorization", `Bearer ${token.token}`)
       },
     ],
   },

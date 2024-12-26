@@ -11,7 +11,7 @@ export default function Home() {
             <Image className="h-16 w-auto" src={logo} alt="Savory" />
           </Link>
           <div className="hidden md:block">
-            <a href="/api/auth/login" className="text-xs hover:underline">
+            <a href="/auth/login" className="text-xs hover:underline">
               Sign In
             </a>
           </div>
@@ -28,13 +28,13 @@ export default function Home() {
           </p>
           <a
             className="block mt-4 rounded bg-primary py-2 px-4 text-lg tracking-wide text-white hover:bg-blue-700 focus:outline-none"
-            href="/api/auth/signup"
+            href="/auth/login?screen_hint=signup"
           >
             Create an Account
           </a>
           <p className="mt-4 text-xs leading-5 text-gray-700">
             Already have an account?{" "}
-            <a href="/api/auth/login" className="underline">
+            <a href="/auth/login" className="underline">
               Sign In
             </a>
           </p>
