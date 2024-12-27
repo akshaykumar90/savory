@@ -219,14 +219,23 @@ export default async function TagPage({
     }
   }
 
+  const {
+    has_next_page: hasNextPage,
+    has_previous_page: hasPreviousPage,
+    next_cursor: nextCursor,
+    previous_cursor: prevCursor,
+  } = bookmarksResponse.cursor_info
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="flex flex-col">
         <PaginationCard
           showClearFiltersButton={tags.length > 0 || !!site || !!query}
           message={message}
-          nextCursor={bookmarksResponse.cursor_info.next_cursor}
-          prevCursor={bookmarksResponse.cursor_info.previous_cursor}
+          hasNextPage={hasNextPage}
+          hasPreviousPage={hasPreviousPage}
+          nextCursor={nextCursor}
+          prevCursor={prevCursor}
         />
         {(drillTags.length > 0 || hasUntagged) && (
           <DrillDownCard tags={drillTags} showUntagged={hasUntagged} />

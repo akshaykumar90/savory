@@ -5,14 +5,28 @@ import { XMarkIcon } from "@heroicons/react/24/outline"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useTransition } from "react"
 
+function getNextUrl(searchParams: URLSearchParams, cursor: string | undefined) {
+  const params = new URLSearchParams(searchParams.toString())
+  if (cursor) {
+    params.set("cursor", cursor)
+  } else {
+    params.delete("cursor")
+  }
+  return `/?${params.toString()}`
+}
+
 export default function PaginationCard({
   message,
   showClearFiltersButton,
+  hasNextPage,
+  hasPreviousPage,
   nextCursor,
   prevCursor,
 }: {
   message: string
   showClearFiltersButton: boolean
+  hasNextPage: boolean
+  hasPreviousPage: boolean
   nextCursor?: string
   prevCursor?: string
 }) {
@@ -44,12 +58,10 @@ export default function PaginationCard({
             <button
               type="button"
               className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50"
-              disabled={!prevCursor || pending}
+              disabled={!hasPreviousPage || pending}
               onClick={() => {
-                if (prevCursor) {
-                  const params = new URLSearchParams(searchParams.toString())
-                  params.set("cursor", prevCursor)
-                  const url = `/?${params.toString()}`
+                if (hasPreviousPage) {
+                  const url = getNextUrl(searchParams, prevCursor)
                   startTransition(() => router.push(url))
                 }
               }}
@@ -60,12 +72,10 @@ export default function PaginationCard({
             <button
               type="button"
               className="relative -ml-px inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50"
-              disabled={!nextCursor || pending}
+              disabled={!hasNextPage || pending}
               onClick={() => {
-                if (nextCursor) {
-                  const params = new URLSearchParams(searchParams.toString())
-                  params.set("cursor", nextCursor)
-                  const url = `/?${params.toString()}`
+                if (hasNextPage) {
+                  const url = getNextUrl(searchParams, nextCursor)
                   startTransition(() => router.push(url))
                 }
               }}
