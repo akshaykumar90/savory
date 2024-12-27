@@ -12,7 +12,7 @@ import Image from "next/image"
 import Link from "next/link"
 import logo from "../assets/logo_light.svg"
 
-const mktSiteUrl = process.env.MKT_SITE_URL
+const mktSiteUrl = process.env.NEXT_PUBLIC_MKT_SITE_URL
 
 const appLinks = [
   {

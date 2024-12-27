@@ -4,6 +4,9 @@ import { updateUser } from "@/actions"
 import PrimaryButton from "@/components/primary-button"
 import { useActionState } from "react"
 
+const mktSiteUrl = process.env.NEXT_PUBLIC_MKT_SITE_URL
+const feedbackUrl = `${mktSiteUrl}/feedback`
+
 export default function EditProfile(props: {
   userCreatedAt: Date
   fullName?: string
@@ -65,7 +68,11 @@ export default function EditProfile(props: {
               />
             </div>
             <p className="mt-2 text-sm text-gray-500" id="email-description">
-              <a className="underline underline-offset-2" target="_blank">
+              <a
+                className="underline underline-offset-2"
+                target="_blank"
+                href={feedbackUrl}
+              >
                 Contact us
               </a>{" "}
               to update your email.
