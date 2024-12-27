@@ -71,18 +71,14 @@ function MobileNavLink({ href, label }: { href: string; label: string }) {
       {label}
     </DisclosureButton>
   )
-  return (
-    <MenuItem>
-      {href.startsWith("/auth") ? (
-        <a href={href}>{child}</a>
-      ) : href.startsWith("/") ? (
-        <Link href={href}>{child}</Link>
-      ) : (
-        <a href={href} target="_blank">
-          {child}
-        </a>
-      )}
-    </MenuItem>
+  return href.startsWith("/auth") ? (
+    <a href={href}>{child}</a>
+  ) : href.startsWith("/") ? (
+    <Link href={href}>{child}</Link>
+  ) : (
+    <a href={href} target="_blank">
+      {child}
+    </a>
   )
 }
 
