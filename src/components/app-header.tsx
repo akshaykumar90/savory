@@ -35,7 +35,7 @@ const outboundLinks = [
 function DesktopNavLink({ href, label }: { href: string; label: string }) {
   return (
     <MenuItem>
-      {href.startsWith("/api") ? (
+      {href.startsWith("/auth") ? (
         <a
           href={href}
           className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
@@ -73,7 +73,7 @@ function MobileNavLink({ href, label }: { href: string; label: string }) {
   )
   return (
     <MenuItem>
-      {href.startsWith("/api") ? (
+      {href.startsWith("/auth") ? (
         <a href={href}>{child}</a>
       ) : href.startsWith("/") ? (
         <Link href={href}>{child}</Link>
