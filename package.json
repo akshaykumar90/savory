@@ -1,6 +1,7 @@
 {
-  "name": "savory-next",
-  "version": "0.1.0",
+  "name": "savory",
+  "description": "Webapp for Savory",
+  "author": "Akshay Kumar <akshaykumar90@gmail.com>",
   "private": true,
   "type": "module",
   "scripts": {
