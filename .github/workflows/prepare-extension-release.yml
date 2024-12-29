@@ -26,7 +26,7 @@ jobs:
       - run: npm install
       - run: npm run build:ext
       - name: Create zip file
-        run: zip -rj "$GITHUB_REF_NAME.zip" dist
+        run: zip -r "$GITHUB_REF_NAME.zip" dist
       - name: Release
         uses: softprops/action-gh-release@v2.0.8
         with:
