@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../styles/app.css" />
+    <!-- This is a hack. We currently don't load the Inter font in extension but
+    we still need to set `--font-inter` css variable to something for the
+    extension to fallback to the default font stack. -->
+    <style>
+      :root {
+        --font-inter: "fixme";
+      }
+    </style>
+    <script src="index.tsx" type="module"></script>
+  </head>
+  <body class="theme-light bg-default font-sans text-base text-default">
+    <div id="savory-chrome-extension-app"></div>
+  </body>
+</html>

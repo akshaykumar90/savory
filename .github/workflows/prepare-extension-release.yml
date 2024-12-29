@@ -7,9 +7,7 @@ on:
       - 'v*'
 
 env:
-  API_BASE_URL: 'https://api.getsavory.co/api/v1'
-  API_COOKIES_URL: 'https://api.getsavory.co'
-  SAVORY_APP_URL: 'https://app.getsavory.co'
+  VITE_APP_BASE_URL: 'https://app.getsavory.co'
 
 jobs:
   build:
@@ -26,14 +24,9 @@ jobs:
           node-version: '20.x'
           cache: 'npm'
       - run: npm install
-      - run: npm test
       - run: npm run build:ext
-        env:
-          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-          AUTH0_CLIENTID: ${{ secrets.AUTH0_CLIENTID }}
-          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
       - name: Create zip file
-        run: zip -rj "$GITHUB_REF_NAME.zip" build
+        run: zip -rj "$GITHUB_REF_NAME.zip" dist
       - name: Release
         uses: softprops/action-gh-release@v2.0.8
         with:

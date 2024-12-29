@@ -1,0 +1,5 @@
+app.savory.test:8080
+
+tls {$CERT_FILE:cert.pem} {$KEY_FILE:key.pem}
+
+reverse_proxy 127.0.0.1:3000
