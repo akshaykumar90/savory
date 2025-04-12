@@ -6,6 +6,10 @@ export const auth0 = new Auth0Client({
     scope: "openid profile email",
     audience: process.env.AUTH0_AUDIENCE,
   },
+  session: {
+    rolling: false,
+    absoluteDuration: 60 * 60 * 24 * 30, // 30 days
+  },
 })
 
 export function withApiAuthRequired(
