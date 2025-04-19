@@ -1,10 +1,10 @@
-import * as bapi from "@/lib/bapi"
-import TagFilter from "./tag-filter"
-import { RefreshOnFocus } from "../refresh-on-focus"
-import { Metadata } from "next"
-import ErrorScreen from "../error-screen"
-import { redirect } from "next/navigation"
+import { getTagsCount } from "@/lib/db/queries"
 import { AccessTokenError } from "@auth0/nextjs-auth0/errors"
+import { Metadata } from "next"
+import { redirect } from "next/navigation"
+import ErrorScreen from "../error-screen"
+import { RefreshOnFocus } from "../refresh-on-focus"
+import TagFilter from "./tag-filter"
 
 export const metadata: Metadata = {
   title: "Tags – Savory",
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default async function TagsPage() {
   let tagsResponse
   try {
-    tagsResponse = await bapi.getTagsCount()
+    tagsResponse = await getTagsCount()
   } catch (error) {
     if (error instanceof AccessTokenError) {
       redirect("/landing")
