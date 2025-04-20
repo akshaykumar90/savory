@@ -132,36 +132,6 @@ export async function addBookmark({
   return bookmarkSchema.parse(responseData)
 }
 
-export async function bulkAddTag({
-  bookmarkIds,
-  name,
-}: {
-  bookmarkIds: string[]
-  name: string
-}) {
-  return await api.post("tags/bulk", {
-    json: {
-      name,
-      bookmark_ids: bookmarkIds,
-    },
-  })
-}
-
-export async function bulkRemoveTag({
-  bookmarkIds,
-  name,
-}: {
-  bookmarkIds: string[]
-  name: string
-}) {
-  return await api.delete("tags/bulk", {
-    json: {
-      name,
-      bookmark_ids: bookmarkIds,
-    },
-  })
-}
-
 export async function loadUserData() {
   const responseData = await api.get("users/me").json()
   return userSchema.parse(responseData)
