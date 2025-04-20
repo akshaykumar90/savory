@@ -43,7 +43,6 @@ export const bookmarks = pgTable("bookmark", {
   search: text("search"),
 })
 
-// BookmarkTags table
 export const bookmarkTags = pgTable("bookmark_tags", {
   bookmarkId: uuid("bookmark_id")
     .references(() => bookmarks.id)

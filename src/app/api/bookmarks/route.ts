@@ -1,5 +1,6 @@
 import { withApiAuthRequired } from "@/lib/auth0"
 import * as bapi from "@/lib/bapi"
+import { deleteBookmarks } from "@/lib/db/queries"
 import { deleteBookmarksRequestSchema } from "@/lib/schemas"
 
 export const POST = withApiAuthRequired(async (request: Request) => {
@@ -10,7 +11,7 @@ export const POST = withApiAuthRequired(async (request: Request) => {
 
 export const DELETE = withApiAuthRequired(async (request: Request) => {
   const body = await request.json()
-  const deleteBookmarksRequest = deleteBookmarksRequestSchema.parse(body)
-  await bapi.deleteBookmarks(deleteBookmarksRequest)
+  const { bookmarkIds } = deleteBookmarksRequestSchema.parse(body)
+  await deleteBookmarks(bookmarkIds)
   return new Response(null, { status: 204 })
 })

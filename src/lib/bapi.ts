@@ -92,18 +92,6 @@ export async function getDrillDownTags({
   return relatedTagsSchema.parse(responseData)
 }
 
-export async function deleteBookmarks({
-  bookmarkIds,
-}: {
-  bookmarkIds: string[]
-}) {
-  return await api.delete("bookmarks/", {
-    json: {
-      bookmark_ids: bookmarkIds,
-    },
-  })
-}
-
 export async function addBookmark({
   title,
   url,

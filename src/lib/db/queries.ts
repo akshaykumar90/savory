@@ -1,7 +1,7 @@
 import { and, count, eq } from "drizzle-orm"
 import { auth0 } from "../auth0"
 import { db } from "./drizzle"
-import { bookmarkTags, users, userTags } from "./schema"
+import { bookmarks, bookmarkTags, users, userTags } from "./schema"
 
 export async function getUser() {
   const session = await auth0.getSession()
@@ -128,6 +128,18 @@ export async function removeTag(bookmarkIds: string[], tagName: string) {
 
     if (result.length > 0 && result[0].count === 0) {
       await db.delete(userTags).where(eq(userTags.id, tagId))
+    }
+  })
+}
+
+export async function deleteBookmarks(bookmarkIds: string[]) {
+  await db.transaction(async (tx) => {
+    for (const bookmarkId of bookmarkIds) {
+      await tx
+        .delete(bookmarkTags)
+        .where(eq(bookmarkTags.bookmarkId, bookmarkId))
+
+      await tx.delete(bookmarks).where(eq(bookmarks.id, bookmarkId))
     }
   })
 }
