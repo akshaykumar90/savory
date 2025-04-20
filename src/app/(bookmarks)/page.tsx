@@ -16,6 +16,7 @@ import ErrorScreen from "./error-screen"
 import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
+import { getTagsCount } from "@/lib/db/queries"
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -141,7 +142,7 @@ export default async function TagPage({
     if (query) {
       // Search page
       let arr = await Promise.all([
-        bapi.getTagsCount(),
+        getTagsCount(),
         bapi.searchBookmarks({
           ...commonArgs,
           query,
@@ -152,7 +153,7 @@ export default async function TagPage({
     } else if (tags.length || site) {
       // Tag page
       let arr = await Promise.all([
-        bapi.getTagsCount(),
+        getTagsCount(),
         bapi.getBookmarks(commonArgs),
         bapi.getDrillDownTags({ tags, site }),
       ])
@@ -162,7 +163,7 @@ export default async function TagPage({
     } else {
       // Home page
       let arr = await Promise.all([
-        bapi.getTagsCount(),
+        getTagsCount(),
         bapi.getBookmarks(commonArgs),
       ])
       tagsResponse = arr[0]

@@ -81,11 +81,6 @@ export async function searchBookmarks({
   return bookmarksPageSchema.parse(responseData)
 }
 
-export async function getTagsCount() {
-  const responseData = await api.get("tags/").json()
-  return tagsCountSchema.parse(responseData)
-}
-
 export async function getDrillDownTags({
   tags,
   site,
