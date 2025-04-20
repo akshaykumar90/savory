@@ -5,8 +5,6 @@ import {
   bookmarkSchema,
   bookmarksPageSchema,
   relatedTagsSchema,
-  tagsCountSchema,
-  userSchema,
 } from "./schemas"
 
 const apiBaseUrl = process.env.API_BASE_URL
@@ -125,17 +123,4 @@ export async function addBookmark({
     })
     .json()
   return bookmarkSchema.parse(responseData)
-}
-
-export async function loadUserData() {
-  const responseData = await api.get("users/me").json()
-  return userSchema.parse(responseData)
-}
-
-export async function updateUser({ fullName }: { fullName: string }) {
-  return await api.put("users/me", {
-    json: {
-      full_name: fullName,
-    },
-  })
 }

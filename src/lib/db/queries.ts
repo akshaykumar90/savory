@@ -16,10 +16,15 @@ export async function getUser() {
     .limit(1)
 
   if (user.length === 0) {
-    return null
+    throw new Error("Session not found")
   }
 
   return user[0]
+}
+
+export async function updateUser(fullName: string) {
+  const user = await getUser()
+  await db.update(users).set({ fullName }).where(eq(users.id, user.id))
 }
 
 export async function getTagsCount() {
