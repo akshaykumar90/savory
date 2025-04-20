@@ -1,7 +1,9 @@
-import { and, count, eq } from "drizzle-orm"
+import { and, count, desc, eq, inArray, sql } from "drizzle-orm"
 import { auth0 } from "../auth0"
 import { db } from "./drizzle"
 import { bookmarks, bookmarkTags, users, userTags } from "./schema"
+import { createHash } from "crypto"
+import { getDomain } from "tldts"
 
 export async function getUser() {
   const session = await auth0.getSession()
@@ -142,4 +144,84 @@ export async function deleteBookmarks(bookmarkIds: string[]) {
       await tx.delete(bookmarks).where(eq(bookmarks.id, bookmarkId))
     }
   })
+}
+
+export async function findLatestBookmarkWithUrl(url: string) {
+  const user = await getUser()
+  if (!user) {
+    throw new Error("Inactive user")
+  }
+
+  const userId = user.id
+  const urlDigest = createHash("md5").update(url).digest("hex")
+  let filter = eq(sql`md5(${bookmarks.url}::text)`, urlDigest)
+
+  if (url.startsWith("https")) {
+    const httpUrl = "http" + url.substring(5)
+    const httpUrlDigest = createHash("md5").update(httpUrl).digest("hex")
+
+    filter = inArray(sql`md5(${bookmarks.url}::text)`, [
+      urlDigest,
+      httpUrlDigest,
+    ])
+  }
+
+  const foundBookmarks = await db
+    .select({
+      id: bookmarks.id,
+      title: bookmarks.title,
+      url: bookmarks.url,
+      dateAdded: bookmarks.dateAdded,
+      site: bookmarks.site,
+    })
+    .from(bookmarks)
+    .orderBy(desc(bookmarks.dateAdded))
+    .where(and(eq(bookmarks.ownerId, userId), filter))
+
+  if (foundBookmarks.length === 0) {
+    return null
+  }
+
+  const latestBookmark = foundBookmarks[0]
+
+  // Fetch tags for this bookmark
+  const tags = await db
+    .select({
+      name: userTags.name,
+      displayName: userTags.displayName,
+    })
+    .from(userTags)
+    .innerJoin(bookmarkTags, eq(userTags.id, bookmarkTags.tagId))
+    .where(eq(bookmarkTags.bookmarkId, latestBookmark.id))
+
+  return {
+    ...latestBookmark,
+    tags,
+  }
+}
+
+export async function createBookmark(
+  title: string,
+  url: string,
+  dateAdded: Date
+) {
+  const user = await getUser()
+  if (!user) {
+    throw new Error("Inactive user")
+  }
+
+  const bookmark = {
+    id: crypto.randomUUID(),
+    title,
+    url,
+    dateAdded,
+    site: getDomain(url, { allowPrivateDomains: true }),
+  }
+
+  await db.insert(bookmarks).values({
+    ...bookmark,
+    ownerId: user.id,
+  })
+
+  return bookmark
 }
