@@ -59,7 +59,12 @@ export async function addTag(bookmarkIds: string[], tagName: string) {
     const existingTags = await tx
       .select({ id: userTags.id })
       .from(userTags)
-      .where(and(eq(userTags.name, tagName), eq(userTags.ownerId, userId)))
+      .where(
+        and(
+          eq(userTags.name, tagName.toLowerCase()),
+          eq(userTags.ownerId, userId)
+        )
+      )
 
     if (existingTags.length > 0) {
       tagId = existingTags[0].id
@@ -92,7 +97,12 @@ export async function removeTag(bookmarkIds: string[], tagName: string) {
     const existingTags = await tx
       .select({ id: userTags.id })
       .from(userTags)
-      .where(and(eq(userTags.name, tagName), eq(userTags.ownerId, userId)))
+      .where(
+        and(
+          eq(userTags.name, tagName.toLowerCase()),
+          eq(userTags.ownerId, userId)
+        )
+      )
 
     if (existingTags.length === 0) {
       return
