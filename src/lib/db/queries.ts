@@ -1,9 +1,9 @@
-import { and, count, desc, eq, inArray, sql } from "drizzle-orm"
+import { createHash } from "crypto"
+import { and, count, desc, eq, gt, inArray, not, SQL, sql } from "drizzle-orm"
+import { getDomain } from "tldts"
 import { auth0 } from "../auth0"
 import { db } from "./drizzle"
 import { bookmarks, bookmarkTags, users, userTags } from "./schema"
-import { createHash } from "crypto"
-import { getDomain } from "tldts"
 
 export async function getUser() {
   const session = await auth0.getSession()
@@ -224,4 +224,65 @@ export async function createBookmark(
   })
 
   return bookmark
+}
+
+export async function getDrillDownTags(tags: string[], site?: string) {
+  const user = await getUser()
+  if (!user) {
+    throw new Error("Inactive user")
+  }
+
+  const dbTags = tags.map((tag) => tag.toLowerCase())
+
+  let sq
+
+  if (dbTags.length > 0) {
+    const filters: SQL[] = []
+    filters.push(eq(userTags.ownerId, user.id))
+
+    const pgTagsArray = `{${dbTags.map((tag) => `"${tag}"`).join(",")}}`
+
+    let stmt = db
+      .select({
+        bookmarkId: bookmarkTags.bookmarkId,
+      })
+      .from(userTags)
+      .innerJoin(bookmarkTags, eq(userTags.id, bookmarkTags.tagId))
+      .groupBy(bookmarkTags.bookmarkId)
+      .having(sql`array_agg(${userTags.name}) @> ${pgTagsArray}::VARCHAR[]`)
+
+    if (site) {
+      filters.push(eq(bookmarks.site, site))
+      stmt = stmt.innerJoin(
+        bookmarks,
+        eq(bookmarks.id, bookmarkTags.bookmarkId)
+      )
+    }
+
+    sq = stmt.where(and(...filters)).as("sq")
+  } else if (site) {
+    // Only site
+    sq = db
+      .select({
+        bookmarkId: bookmarks.id,
+      })
+      .from(bookmarks)
+      .where(and(eq(bookmarks.ownerId, user.id), eq(bookmarks.site, site)))
+      .as("sq")
+  } else {
+    return []
+  }
+
+  return await db
+    .select({
+      displayName: userTags.displayName,
+      count: count(bookmarkTags.bookmarkId),
+    })
+    .from(bookmarkTags)
+    .innerJoin(sq, eq(bookmarkTags.bookmarkId, sq.bookmarkId))
+    .innerJoin(userTags, eq(userTags.id, bookmarkTags.tagId))
+    .where(dbTags.length > 0 ? not(inArray(userTags.name, dbTags)) : undefined)
+    .groupBy(userTags.id)
+    .having(gt(count(userTags.name), 1))
+    .orderBy(userTags.name)
 }

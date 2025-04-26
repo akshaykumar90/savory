@@ -1,4 +1,5 @@
 import * as bapi from "@/lib/bapi"
+import { getDrillDownTags, getTagsCount } from "@/lib/db/queries"
 import { tagsQuery } from "@/lib/queries"
 import { AccessTokenError } from "@auth0/nextjs-auth0/errors"
 import {
@@ -16,7 +17,6 @@ import ErrorScreen from "./error-screen"
 import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
-import { getTagsCount } from "@/lib/db/queries"
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -155,7 +155,7 @@ export default async function TagPage({
       let arr = await Promise.all([
         getTagsCount(),
         bapi.getBookmarks(commonArgs),
-        bapi.getDrillDownTags({ tags, site }),
+        getDrillDownTags(tags, site),
       ])
       tagsResponse = arr[0]
       bookmarksResponse = arr[1]
@@ -193,19 +193,17 @@ export default async function TagPage({
 
   queryClient.setQueryData(tagsQuery.queryKey, tagsResponse)
 
-  const drillTags =
-    drillDownTagsResponse?.tags_list
-      // Sort the search results by decreasing tag frequency
-      .sort(({ count: freq1 }, { count: freq2 }) => {
-        return -(freq1 - freq2)
-      })
-      .map(({ name }) => name) ?? []
-
-  const hasUntagged = drillDownTagsResponse?.has_untagged ?? false
+  const drillTags = (drillDownTagsResponse ?? [])
+    // Sort the search results by decreasing tag frequency
+    .sort(({ count: freq1 }, { count: freq2 }) => {
+      return -(freq1 - freq2)
+    })
+    .map((tag) => tag.displayName)
 
   const numTotal = bookmarksResponse.total
 
-  let message
+  let message: string
+  let hasUntagged = false
 
   if (numTotal === 0) {
     message = "Nothing to see here"
@@ -215,6 +213,7 @@ export default async function TagPage({
       message = `${numTotal} ${itemsStr} in ${tags.join(", ")}`
     } else if (site) {
       message = `${numTotal} ${itemsStr} in ${site}`
+      hasUntagged = true
     } else {
       message = `${numTotal} ${itemsStr}`
     }

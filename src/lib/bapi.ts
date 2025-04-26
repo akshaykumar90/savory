@@ -1,7 +1,7 @@
 // Backend API (bapi)
 import ky from "ky"
 import { auth0 } from "./auth0"
-import { bookmarksPageSchema, relatedTagsSchema } from "./schemas"
+import { bookmarksPageSchema } from "./schemas"
 
 const apiBaseUrl = process.env.API_BASE_URL
 
@@ -73,17 +73,4 @@ export async function searchBookmarks({
     })
     .json()
   return bookmarksPageSchema.parse(responseData)
-}
-
-export async function getDrillDownTags({
-  tags,
-  site,
-}: {
-  tags?: string[]
-  site?: string
-}) {
-  const responseData = await api
-    .post("tags/recs", { json: { tags, site } })
-    .json()
-  return relatedTagsSchema.parse(responseData)
 }
