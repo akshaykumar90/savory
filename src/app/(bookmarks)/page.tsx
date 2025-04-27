@@ -1,5 +1,10 @@
-import * as bapi from "@/lib/bapi"
-import { getDrillDownTags, getTagsCount } from "@/lib/db/queries"
+import {
+  CursorType,
+  getBookmarks,
+  getDrillDownTags,
+  getTagsCount,
+  searchBookmarks,
+} from "@/lib/db/queries"
 import { tagsQuery } from "@/lib/queries"
 import { AccessTokenError } from "@auth0/nextjs-auth0/errors"
 import {
@@ -131,7 +136,6 @@ export default async function TagPage({
   const commonArgs = {
     ...(site && { site }),
     ...(tags.length && { tags }),
-    ...(cursor && { cursor }),
     ...(untagged && { untagged }),
     num: 25,
   }
@@ -141,20 +145,35 @@ export default async function TagPage({
   try {
     if (query) {
       // Search page
+      let searchCursor: number | undefined
+      if (cursor) {
+        const numOffsetString = Buffer.from(cursor, "base64").toString("utf-8")
+        searchCursor = parseInt(numOffsetString)
+      }
       let arr = await Promise.all([
         getTagsCount(),
-        bapi.searchBookmarks({
+        searchBookmarks({
           ...commonArgs,
           query,
+          cursor: searchCursor,
         }),
+        getDrillDownTags(tags, site),
       ])
       tagsResponse = arr[0]
       bookmarksResponse = arr[1]
     } else if (tags.length || site) {
       // Tag page
+      let bookmarksCursor: Date | undefined
+      if (cursor) {
+        const dateMsString = Buffer.from(cursor, "base64").toString("utf-8")
+        bookmarksCursor = new Date(parseInt(dateMsString))
+      }
       let arr = await Promise.all([
         getTagsCount(),
-        bapi.getBookmarks(commonArgs),
+        getBookmarks({
+          ...commonArgs,
+          cursor: bookmarksCursor,
+        }),
         getDrillDownTags(tags, site),
       ])
       tagsResponse = arr[0]
@@ -162,9 +181,17 @@ export default async function TagPage({
       drillDownTagsResponse = arr[2]
     } else {
       // Home page
+      let bookmarksCursor: Date | undefined
+      if (cursor) {
+        const dateMsString = Buffer.from(cursor, "base64").toString("utf-8")
+        bookmarksCursor = new Date(parseInt(dateMsString))
+      }
       let arr = await Promise.all([
         getTagsCount(),
-        bapi.getBookmarks(commonArgs),
+        getBookmarks({
+          ...commonArgs,
+          cursor: bookmarksCursor,
+        }),
       ])
       tagsResponse = arr[0]
       bookmarksResponse = arr[1]
@@ -219,12 +246,7 @@ export default async function TagPage({
     }
   }
 
-  const {
-    has_next_page: hasNextPage,
-    has_previous_page: hasPreviousPage,
-    next_cursor: nextCursor,
-    previous_cursor: prevCursor,
-  } = bookmarksResponse.cursor_info
+  const { nextCursor, prevCursor } = bookmarksResponse
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -232,10 +254,8 @@ export default async function TagPage({
         <PaginationCard
           showClearFiltersButton={tags.length > 0 || !!site || !!query}
           message={message}
-          hasNextPage={hasNextPage}
-          hasPreviousPage={hasPreviousPage}
-          nextCursor={nextCursor}
-          prevCursor={prevCursor}
+          nextCursor={nextCursor && encodeCursor(nextCursor)}
+          prevCursor={prevCursor && encodeCursor(prevCursor)}
         />
         {(drillTags.length > 0 || hasUntagged) && (
           <DrillDownCard tags={drillTags} showUntagged={hasUntagged} />
@@ -250,4 +270,14 @@ export default async function TagPage({
       <WaitForMutations />
     </HydrationBoundary>
   )
+}
+
+function encodeCursor(cursor: CursorType) {
+  if (cursor.type === "bookmarks") {
+    const buffer = Buffer.from(cursor.cursorDate.valueOf().toString(), "utf-8")
+    return buffer.toString("base64")
+  } else if (cursor.type === "search") {
+    const buffer = Buffer.from(cursor.cursorOffset.toString(), "utf-8")
+    return buffer.toString("base64")
+  }
 }

@@ -1,5 +1,20 @@
 import { createHash } from "crypto"
-import { and, count, desc, eq, gt, inArray, not, SQL, sql } from "drizzle-orm"
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gt,
+  gte,
+  inArray,
+  isNull,
+  lt,
+  not,
+  SQL,
+  sql,
+} from "drizzle-orm"
+import { PgSelect } from "drizzle-orm/pg-core"
 import { getDomain } from "tldts"
 import { auth0 } from "../auth0"
 import { db } from "./drizzle"
@@ -285,4 +300,350 @@ export async function getDrillDownTags(tags: string[], site?: string) {
     .groupBy(userTags.id)
     .having(gt(count(userTags.name), 1))
     .orderBy(userTags.name)
+}
+
+function buildBookmarksQuery<T extends PgSelect>(args: {
+  qb: T
+  userId: string
+  site?: string
+  tags?: string[]
+  untagged?: boolean
+}) {
+  const { qb, userId, site, tags, untagged } = args
+
+  if (tags && tags.length > 0 && untagged) {
+    throw new Error("Cannot build bookmarks query with both tags and untagged")
+  }
+
+  let query
+
+  const filters: SQL[] = []
+  filters.push(eq(bookmarks.ownerId, userId))
+
+  if (site) {
+    filters.push(eq(bookmarks.site, site))
+  }
+  if (tags && tags.length > 0) {
+    query = qb
+      .innerJoin(bookmarkTags, eq(bookmarks.id, bookmarkTags.bookmarkId))
+      .innerJoin(userTags, eq(userTags.id, bookmarkTags.tagId))
+    const dbTags = tags.map((tag) => tag.toLowerCase())
+    const [first, ...rest] = dbTags
+    if (!rest.length) {
+      // The where clause with owner_id is needed for performance, to use the
+      // `unique_owner_id_name` index on the user_tag table
+      filters.push(eq(userTags.ownerId, userId))
+      filters.push(eq(userTags.name, first))
+    } else {
+      const pgTagsArray = `{${dbTags.map((tag) => `"${tag}"`).join(",")}}`
+      query = qb
+        .groupBy(bookmarks.id)
+        .having(sql`array_agg(${userTags.name}) @> ${pgTagsArray}::VARCHAR[]`)
+    }
+  } else if (untagged) {
+    query = qb.leftJoin(bookmarkTags, eq(bookmarks.id, bookmarkTags.bookmarkId))
+    filters.push(isNull(bookmarkTags.tagId))
+  }
+
+  return [query ?? qb, filters] as const
+}
+
+async function hydrateTags(
+  bookmarksPage: Array<Omit<BookmarksPage, "tags">>
+): Promise<Array<BookmarksPage>> {
+  const user = await getUser()
+  if (!user) {
+    throw new Error("Inactive user")
+  }
+
+  const bookmarkTagsData = await db
+    .select({
+      bookmarkId: bookmarks.id,
+      name: userTags.name,
+      displayName: userTags.displayName,
+    })
+    .from(bookmarks)
+    .innerJoin(bookmarkTags, eq(bookmarks.id, bookmarkTags.bookmarkId))
+    .innerJoin(userTags, eq(userTags.id, bookmarkTags.tagId))
+    .where(
+      inArray(
+        bookmarks.id,
+        bookmarksPage.map((b) => b.id)
+      )
+    )
+
+  const emptyMap: Record<string, string[]> = {}
+
+  const tagsByBookmarkId = bookmarkTagsData.reduce((acc, tag) => {
+    if (acc[tag.bookmarkId]) {
+      acc[tag.bookmarkId].push(tag.displayName)
+    } else {
+      acc[tag.bookmarkId] = [tag.displayName]
+    }
+    return acc
+  }, emptyMap)
+
+  return bookmarksPage.map((bookmark) => ({
+    ...bookmark,
+    tags: tagsByBookmarkId[bookmark.id] || [],
+  }))
+}
+
+type BookmarksCursor = {
+  type: "bookmarks"
+  cursorDate: Date
+}
+
+type SearchCursor = {
+  type: "search"
+  cursorOffset: number
+}
+
+export type CursorType = BookmarksCursor | SearchCursor
+
+type BookmarksPage = {
+  id: string
+  title: string | null
+  url: string
+  dateAdded: Date
+  site: string | null
+  tags: string[]
+}
+
+export async function getBookmarks(args: {
+  site?: string
+  tags?: string[]
+  untagged?: boolean
+  num?: number
+  cursor?: Date
+}): Promise<{
+  bookmarks: BookmarksPage[]
+  total: number
+  nextCursor?: CursorType
+  prevCursor?: CursorType
+}> {
+  const { site, tags, untagged, cursor } = args
+
+  const limit = args.num || 100
+
+  const user = await getUser()
+  if (!user) {
+    throw new Error("Inactive user")
+  }
+
+  // Bookmarks query
+  const [qb, filters] = buildBookmarksQuery({
+    qb: db
+      .select({
+        id: bookmarks.id,
+        title: bookmarks.title,
+        url: bookmarks.url,
+        dateAdded: bookmarks.dateAdded,
+        site: bookmarks.site,
+      })
+      .from(bookmarks)
+      .$dynamic(),
+    userId: user.id,
+    site,
+    tags,
+    untagged,
+  })
+
+  const queryFilters = and(
+    ...filters,
+    cursor ? lt(bookmarks.dateAdded, cursor) : undefined
+  )
+
+  const limit_plus_one = limit + 1
+  const query = qb
+    .where(queryFilters)
+    .orderBy(desc(bookmarks.dateAdded))
+    .limit(limit_plus_one)
+
+  // Bookmarks count query
+  const [countQb, countFilters] = buildBookmarksQuery({
+    qb: db
+      .select({
+        count: sql<number>`count(*) OVER ()`.mapWith(Number),
+      })
+      .from(bookmarks)
+      .$dynamic(),
+    userId: user.id,
+    site,
+    tags,
+    untagged,
+  })
+
+  const countQuery = countQb.where(and(...countFilters))
+
+  // Previous page cursor query
+  const [previousPageQb, previousPageFilters] = buildBookmarksQuery({
+    qb: db
+      .select({
+        dateAdded: bookmarks.dateAdded,
+      })
+      .from(bookmarks)
+      .$dynamic(),
+    userId: user.id,
+    site,
+    tags,
+    untagged,
+  })
+
+  const previousPageQueryFilters = and(
+    ...previousPageFilters,
+    cursor ? gte(bookmarks.dateAdded, cursor) : undefined
+  )
+
+  const backwardQuery = cursor
+    ? previousPageQb
+        .where(previousPageQueryFilters)
+        .orderBy(asc(bookmarks.dateAdded))
+        .limit(limit)
+    : Promise.resolve([])
+
+  const [results, countResult, previousPageResults] = await Promise.all([
+    query,
+    countQuery,
+    backwardQuery,
+  ])
+
+  const total = countResult[0].count
+
+  const hasNextPage = results.length === limit_plus_one
+
+  const bookmarksPage = hasNextPage ? results.slice(0, -1) : results
+  const bookmarksWithTags = await hydrateTags(bookmarksPage)
+
+  const nextCursor = hasNextPage
+    ? ({
+        type: "bookmarks",
+        cursorDate: results[limit - 1].dateAdded,
+      } as const)
+    : undefined
+
+  let prevCursor: BookmarksCursor | undefined
+
+  if (previousPageResults.length > 0) {
+    const prevCursorDate = new Date(
+      previousPageResults[previousPageResults.length - 1].dateAdded
+    )
+    prevCursorDate.setMilliseconds(prevCursorDate.getMilliseconds() + 1)
+    prevCursor = {
+      type: "bookmarks",
+      cursorDate: prevCursorDate,
+    }
+  }
+
+  return {
+    bookmarks: bookmarksWithTags,
+    total,
+    nextCursor,
+    prevCursor,
+  }
+}
+
+export async function searchBookmarks(args: {
+  query: string
+  site?: string
+  tags?: string[]
+  untagged?: boolean
+  num?: number
+  cursor?: number
+}): Promise<{
+  bookmarks: BookmarksPage[]
+  total: number
+  nextCursor?: CursorType
+  prevCursor?: CursorType
+}> {
+  const { query, site, tags, untagged, cursor } = args
+
+  const limit = args.num || 100
+
+  const user = await getUser()
+  if (!user) {
+    throw new Error("Inactive user")
+  }
+
+  // Search query
+  const [qb, filters] = buildBookmarksQuery({
+    qb: db
+      .select({
+        id: bookmarks.id,
+        title: bookmarks.title,
+        url: bookmarks.url,
+        dateAdded: bookmarks.dateAdded,
+        site: bookmarks.site,
+      })
+      .from(bookmarks)
+      .$dynamic(),
+    userId: user.id,
+    site,
+    tags,
+    untagged,
+  })
+
+  const queryFilters = and(
+    ...filters,
+    sql`${bookmarks.search} @@ plainto_tsquery('english', ${query})`
+  )
+
+  const limit_plus_one = limit + 1
+  let searchQuery = qb
+    .where(queryFilters)
+    .orderBy(
+      sql`ts_rank(${bookmarks.search}, plainto_tsquery('english', ${query})) desc`
+    )
+    .limit(limit_plus_one)
+
+  if (cursor) {
+    searchQuery = searchQuery.offset(cursor)
+  }
+
+  // Count query
+  const [countQb] = buildBookmarksQuery({
+    qb: db
+      .select({
+        count: sql<number>`count(*)`.mapWith(Number),
+      })
+      .from(bookmarks)
+      .$dynamic(),
+    userId: user.id,
+    site,
+    tags,
+    untagged,
+  })
+
+  const countQuery = countQb.where(queryFilters)
+
+  const [results, countResult] = await Promise.all([searchQuery, countQuery])
+
+  const total = countResult[0].count
+
+  const hasNextPage = results.length === limit_plus_one
+
+  const bookmarksPage = hasNextPage ? results.slice(0, -1) : results
+  const bookmarksWithTags = await hydrateTags(bookmarksPage)
+
+  const nextCursor = hasNextPage
+    ? ({
+        type: "search",
+        cursorOffset: cursor ? cursor + limit : limit,
+      } as const)
+    : undefined
+
+  const prevCursor =
+    cursor && cursor > 0
+      ? ({
+          type: "search",
+          cursorOffset: cursor - limit,
+        } as const)
+      : undefined
+
+  return {
+    bookmarks: bookmarksWithTags,
+    total,
+    nextCursor,
+    prevCursor,
+  }
 }

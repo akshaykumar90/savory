@@ -35,7 +35,7 @@ export const bookmarks = pgTable("bookmark", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: varchar("title"),
   url: varchar("url").notNull(),
-  dateAdded: timestamp("date_added", { withTimezone: true }),
+  dateAdded: timestamp("date_added", { withTimezone: true }).notNull(),
   site: varchar("site"),
   ownerId: uuid("owner_id")
     .references(() => users.id)

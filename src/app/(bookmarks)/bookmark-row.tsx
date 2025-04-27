@@ -29,10 +29,10 @@ export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
     return null
   }
 
-  let { title, url, site, tags, date_added: dateAdded } = data
+  let { title, url, site, tags, dateAdded } = data
 
   const selected = selectedBookmarkIds.has(bookmarkId)
-  let timestring = new Date(dateAdded).toLocaleDateString(undefined, {
+  let timestring = dateAdded.toLocaleDateString(undefined, {
     year: "numeric",
     month: "long",
     day: "numeric",

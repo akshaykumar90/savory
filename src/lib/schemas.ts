@@ -14,7 +14,7 @@ export const bookmarkSchema = z.object({
   title: z.string(),
   url: z.string(),
   site: z.string().optional(),
-  date_added: z.number(),
+  dateAdded: z.date(),
   tags: z.array(z.string()),
 })
 

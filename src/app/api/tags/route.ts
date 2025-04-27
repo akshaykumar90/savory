@@ -3,8 +3,8 @@ import { addTag, getTagsCount, removeTag } from "@/lib/db/queries"
 import { tagsRequestSchema } from "@/lib/schemas"
 
 export const GET = withApiAuthRequired(async (request: Request) => {
-  const bapiTagsCount = await getTagsCount()
-  return new Response(JSON.stringify(bapiTagsCount))
+  const tagsCount = await getTagsCount()
+  return new Response(JSON.stringify(tagsCount))
 })
 
 export const POST = withApiAuthRequired(async (request: Request) => {
