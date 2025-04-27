@@ -16,14 +16,14 @@ import {
 } from "drizzle-orm"
 import { PgSelect } from "drizzle-orm/pg-core"
 import { getDomain } from "tldts"
-import { auth0 } from "../auth0"
+import { auth0, SessionNotFoundError } from "../auth0"
 import { db } from "./drizzle"
 import { bookmarks, bookmarkTags, users, userTags } from "./schema"
 
 export async function getUser() {
   const session = await auth0.getSession()
   if (!session) {
-    throw new Error("Session not found")
+    throw new SessionNotFoundError()
   }
   const subject = session.user.sub
   const user = await db
@@ -33,7 +33,7 @@ export async function getUser() {
     .limit(1)
 
   if (user.length === 0) {
-    throw new Error("Session not found")
+    throw new SessionNotFoundError("User not found")
   }
 
   return user[0]
@@ -46,9 +46,6 @@ export async function updateUser(fullName: string) {
 
 export async function getTagsCount() {
   const user = await getUser()
-  if (!user) {
-    throw new Error("Inactive user")
-  }
   const tagsWithCounts = await db
     .select({
       name: userTags.displayName,
@@ -65,9 +62,6 @@ export async function getTagsCount() {
 
 export async function addTag(bookmarkIds: string[], tagName: string) {
   const user = await getUser()
-  if (!user) {
-    throw new Error("Inactive user")
-  }
 
   const userId = user.id
   await db.transaction(async (tx) => {
@@ -105,9 +99,6 @@ export async function addTag(bookmarkIds: string[], tagName: string) {
 
 export async function removeTag(bookmarkIds: string[], tagName: string) {
   const user = await getUser()
-  if (!user) {
-    throw new Error("Inactive user")
-  }
 
   const userId = user.id
   await db.transaction(async (tx) => {
@@ -163,9 +154,6 @@ export async function deleteBookmarks(bookmarkIds: string[]) {
 
 export async function findLatestBookmarkWithUrl(url: string) {
   const user = await getUser()
-  if (!user) {
-    throw new Error("Inactive user")
-  }
 
   const userId = user.id
   const urlDigest = createHash("md5").update(url).digest("hex")
@@ -221,9 +209,6 @@ export async function createBookmark(
   dateAdded: Date
 ) {
   const user = await getUser()
-  if (!user) {
-    throw new Error("Inactive user")
-  }
 
   const bookmark = {
     id: crypto.randomUUID(),
@@ -243,9 +228,6 @@ export async function createBookmark(
 
 export async function getDrillDownTags(tags: string[], site?: string) {
   const user = await getUser()
-  if (!user) {
-    throw new Error("Inactive user")
-  }
 
   const dbTags = tags.map((tag) => tag.toLowerCase())
 
@@ -427,9 +409,6 @@ export async function getBookmarks(args: {
   const limit = args.num || 100
 
   const user = await getUser()
-  if (!user) {
-    throw new Error("Inactive user")
-  }
 
   // Bookmarks query
   const [qb, filters] = buildBookmarksQuery({
@@ -561,9 +540,6 @@ export async function searchBookmarks(args: {
   const limit = args.num || 100
 
   const user = await getUser()
-  if (!user) {
-    throw new Error("Inactive user")
-  }
 
   // Search query
   const [qb, filters] = buildBookmarksQuery({

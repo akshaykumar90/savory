@@ -1,4 +1,3 @@
-import { AccessTokenError } from "@auth0/nextjs-auth0/errors"
 import { Auth0Client } from "@auth0/nextjs-auth0/server"
 
 export const auth0 = new Auth0Client({
@@ -12,6 +11,13 @@ export const auth0 = new Auth0Client({
   },
 })
 
+export class SessionNotFoundError extends Error {
+  constructor(message = "No active session found") {
+    super(message)
+    this.name = "SessionNotFoundError"
+  }
+}
+
 export function withApiAuthRequired(
   handler: (request: Request) => Promise<Response>
 ) {
@@ -19,7 +25,7 @@ export function withApiAuthRequired(
     try {
       return await handler(request)
     } catch (error) {
-      if (error instanceof AccessTokenError) {
+      if (error instanceof SessionNotFoundError) {
         return new Response(null, { status: 401 })
       }
       throw error

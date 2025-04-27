@@ -1,5 +1,5 @@
+import { SessionNotFoundError } from "@/lib/auth0"
 import { getUser } from "@/lib/db/queries"
-import { AccessTokenError } from "@auth0/nextjs-auth0/errors"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import EditProfile from "./edit-profile"
@@ -13,7 +13,7 @@ export default async function SettingsPage() {
   try {
     user = await getUser()
   } catch (error) {
-    if (error instanceof AccessTokenError) {
+    if (error instanceof SessionNotFoundError) {
       redirect("/landing")
     }
     return (

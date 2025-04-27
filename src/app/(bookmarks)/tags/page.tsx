@@ -1,5 +1,5 @@
+import { SessionNotFoundError } from "@/lib/auth0"
 import { getTagsCount } from "@/lib/db/queries"
-import { AccessTokenError } from "@auth0/nextjs-auth0/errors"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import ErrorScreen from "../error-screen"
@@ -15,7 +15,7 @@ export default async function TagsPage() {
   try {
     tagsResponse = await getTagsCount()
   } catch (error) {
-    if (error instanceof AccessTokenError) {
+    if (error instanceof SessionNotFoundError) {
       redirect("/landing")
     }
     const wrappedError =

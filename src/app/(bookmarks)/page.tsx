@@ -1,3 +1,4 @@
+import { SessionNotFoundError } from "@/lib/auth0"
 import {
   CursorType,
   getBookmarks,
@@ -6,7 +7,6 @@ import {
   searchBookmarks,
 } from "@/lib/db/queries"
 import { tagsQuery } from "@/lib/queries"
-import { AccessTokenError } from "@auth0/nextjs-auth0/errors"
 import {
   dehydrate,
   HydrationBoundary,
@@ -197,7 +197,7 @@ export default async function TagPage({
       bookmarksResponse = arr[1]
     }
   } catch (error) {
-    if (error instanceof AccessTokenError) {
+    if (error instanceof SessionNotFoundError) {
       redirect("/landing")
     }
     const wrappedError =
