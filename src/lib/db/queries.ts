@@ -152,7 +152,49 @@ export async function deleteBookmarks(bookmarkIds: string[]) {
   })
 }
 
-export async function findLatestBookmarkWithUrl(url: string) {
+async function hydrateTags(
+  bookmarksPage: Array<Omit<BookmarksPage, "tags">>
+): Promise<Array<BookmarksPage>> {
+  const user = await getUser()
+  if (!user) {
+    throw new Error("Inactive user")
+  }
+
+  const bookmarkTagsData = await db
+    .select({
+      bookmarkId: bookmarks.id,
+      displayName: userTags.displayName,
+    })
+    .from(bookmarks)
+    .innerJoin(bookmarkTags, eq(bookmarks.id, bookmarkTags.bookmarkId))
+    .innerJoin(userTags, eq(userTags.id, bookmarkTags.tagId))
+    .where(
+      inArray(
+        bookmarks.id,
+        bookmarksPage.map((b) => b.id)
+      )
+    )
+
+  const emptyMap: Record<string, string[]> = {}
+
+  const tagsByBookmarkId = bookmarkTagsData.reduce((acc, tag) => {
+    if (acc[tag.bookmarkId]) {
+      acc[tag.bookmarkId].push(tag.displayName)
+    } else {
+      acc[tag.bookmarkId] = [tag.displayName]
+    }
+    return acc
+  }, emptyMap)
+
+  return bookmarksPage.map((bookmark) => ({
+    ...bookmark,
+    tags: tagsByBookmarkId[bookmark.id] || [],
+  }))
+}
+
+export async function findLatestBookmarkWithUrl(
+  url: string
+): Promise<BookmarksPage | null> {
   const user = await getUser()
 
   const userId = user.id
@@ -185,22 +227,9 @@ export async function findLatestBookmarkWithUrl(url: string) {
     return null
   }
 
-  const latestBookmark = foundBookmarks[0]
+  const latestBookmark = (await hydrateTags([foundBookmarks[0]]))[0]
 
-  // Fetch tags for this bookmark
-  const tags = await db
-    .select({
-      name: userTags.name,
-      displayName: userTags.displayName,
-    })
-    .from(userTags)
-    .innerJoin(bookmarkTags, eq(userTags.id, bookmarkTags.tagId))
-    .where(eq(bookmarkTags.bookmarkId, latestBookmark.id))
-
-  return {
-    ...latestBookmark,
-    tags,
-  }
+  return latestBookmark
 }
 
 export async function createBookmark(
@@ -328,47 +357,6 @@ function buildBookmarksQuery<T extends PgSelect>(args: {
   }
 
   return [query ?? qb, filters] as const
-}
-
-async function hydrateTags(
-  bookmarksPage: Array<Omit<BookmarksPage, "tags">>
-): Promise<Array<BookmarksPage>> {
-  const user = await getUser()
-  if (!user) {
-    throw new Error("Inactive user")
-  }
-
-  const bookmarkTagsData = await db
-    .select({
-      bookmarkId: bookmarks.id,
-      name: userTags.name,
-      displayName: userTags.displayName,
-    })
-    .from(bookmarks)
-    .innerJoin(bookmarkTags, eq(bookmarks.id, bookmarkTags.bookmarkId))
-    .innerJoin(userTags, eq(userTags.id, bookmarkTags.tagId))
-    .where(
-      inArray(
-        bookmarks.id,
-        bookmarksPage.map((b) => b.id)
-      )
-    )
-
-  const emptyMap: Record<string, string[]> = {}
-
-  const tagsByBookmarkId = bookmarkTagsData.reduce((acc, tag) => {
-    if (acc[tag.bookmarkId]) {
-      acc[tag.bookmarkId].push(tag.displayName)
-    } else {
-      acc[tag.bookmarkId] = [tag.displayName]
-    }
-    return acc
-  }, emptyMap)
-
-  return bookmarksPage.map((bookmark) => ({
-    ...bookmark,
-    tags: tagsByBookmarkId[bookmark.id] || [],
-  }))
 }
 
 type BookmarksCursor = {
