@@ -95,6 +95,8 @@ export async function addTag(bookmarkIds: string[], tagName: string) {
         target: [bookmarkTags.bookmarkId, bookmarkTags.tagId],
       })
   })
+
+  await updateSearchColumn(bookmarkIds)
 }
 
 export async function removeTag(bookmarkIds: string[], tagName: string) {
@@ -138,6 +140,8 @@ export async function removeTag(bookmarkIds: string[], tagName: string) {
       await db.delete(userTags).where(eq(userTags.id, tagId))
     }
   })
+
+  await updateSearchColumn(bookmarkIds)
 }
 
 export async function deleteBookmarks(bookmarkIds: string[]) {
@@ -152,15 +156,20 @@ export async function deleteBookmarks(bookmarkIds: string[]) {
   })
 }
 
-async function hydrateTags(
-  bookmarksPage: Array<Omit<BookmarksPage, "tags">>
-): Promise<Array<BookmarksPage>> {
-  const user = await getUser()
-  if (!user) {
-    throw new Error("Inactive user")
+async function getTags(
+  tx: any,
+  bookmarkIds: string[]
+): Promise<
+  Array<{
+    bookmarkId: string
+    displayName: string
+  }>
+> {
+  if (bookmarkIds.length === 0) {
+    return []
   }
 
-  const bookmarkTagsData = await db
+  return await tx
     .select({
       bookmarkId: bookmarks.id,
       displayName: userTags.displayName,
@@ -169,15 +178,28 @@ async function hydrateTags(
     .innerJoin(bookmarkTags, eq(bookmarks.id, bookmarkTags.bookmarkId))
     .innerJoin(userTags, eq(userTags.id, bookmarkTags.tagId))
     .where(
-      inArray(
-        bookmarks.id,
-        bookmarksPage.map((b) => b.id)
-      )
+      bookmarkIds.length > 1
+        ? inArray(bookmarks.id, bookmarkIds)
+        : eq(bookmarks.id, bookmarkIds[0])
     )
+}
+
+async function hydrateTagsForBookmarksPage(
+  tx: any,
+  bookmarksPage: Array<Omit<BookmarksPage, "tags">>
+): Promise<Array<BookmarksPage>> {
+  if (bookmarksPage.length === 0) {
+    return []
+  }
+
+  const tags = await getTags(
+    tx,
+    bookmarksPage.map((b) => b.id)
+  )
 
   const emptyMap: Record<string, string[]> = {}
 
-  const tagsByBookmarkId = bookmarkTagsData.reduce((acc, tag) => {
+  const tagsByBookmarkId = tags.reduce((acc, tag) => {
     if (acc[tag.bookmarkId]) {
       acc[tag.bookmarkId].push(tag.displayName)
     } else {
@@ -190,6 +212,50 @@ async function hydrateTags(
     ...bookmark,
     tags: tagsByBookmarkId[bookmark.id] || [],
   }))
+}
+
+function getSearchColumn(
+  bookmark: Omit<BookmarksPage, "tags"> & {
+    tags?: string[]
+  }
+) {
+  const allTags = (bookmark.tags ?? []).join(" ")
+  const title = bookmark.title || ""
+  const url = bookmark.url
+  const site = bookmark.site || ""
+
+  const searchString = [allTags, title, url, site].join(" ")
+
+  return sql`to_tsvector('english', ${searchString})`
+}
+
+async function updateSearchColumn(bookmarkIds: string[]) {
+  await db.transaction(async (tx) => {
+    const allBookmarks = await tx
+      .select({
+        id: bookmarks.id,
+        dateAdded: bookmarks.dateAdded,
+        title: bookmarks.title,
+        url: bookmarks.url,
+        site: bookmarks.site,
+      })
+      .from(bookmarks)
+      .where(inArray(bookmarks.id, bookmarkIds))
+
+    const bookmarksWithTags = await hydrateTagsForBookmarksPage(
+      tx,
+      allBookmarks
+    )
+
+    for (const bookmark of bookmarksWithTags) {
+      const searchColumn = getSearchColumn(bookmark)
+
+      await tx
+        .update(bookmarks)
+        .set({ search: searchColumn })
+        .where(eq(bookmarks.id, bookmark.id))
+    }
+  })
 }
 
 export async function findLatestBookmarkWithUrl(
@@ -227,9 +293,16 @@ export async function findLatestBookmarkWithUrl(
     return null
   }
 
-  const latestBookmark = (await hydrateTags([foundBookmarks[0]]))[0]
+  const latestBookmark = foundBookmarks[0]
 
-  return latestBookmark
+  const tags = (await getTags(db, [latestBookmark.id])).map(
+    (tag) => tag.displayName
+  )
+
+  return {
+    ...latestBookmark,
+    tags,
+  }
 }
 
 export async function createBookmark(
@@ -250,6 +323,7 @@ export async function createBookmark(
   await db.insert(bookmarks).values({
     ...bookmark,
     ownerId: user.id,
+    search: getSearchColumn(bookmark),
   })
 
   return bookmark
@@ -480,7 +554,7 @@ export async function getBookmarks(args: {
   const hasNextPage = results.length === limit_plus_one
 
   const bookmarksPage = hasNextPage ? results.slice(0, -1) : results
-  const bookmarksWithTags = await hydrateTags(bookmarksPage)
+  const bookmarksWithTags = await hydrateTagsForBookmarksPage(db, bookmarksPage)
 
   const nextCursor = hasNextPage
     ? ({
@@ -587,7 +661,7 @@ export async function searchBookmarks(args: {
   const hasNextPage = results.length === limit_plus_one
 
   const bookmarksPage = hasNextPage ? results.slice(0, -1) : results
-  const bookmarksWithTags = await hydrateTags(bookmarksPage)
+  const bookmarksWithTags = await hydrateTagsForBookmarksPage(db, bookmarksPage)
 
   const nextCursor = hasNextPage
     ? ({
