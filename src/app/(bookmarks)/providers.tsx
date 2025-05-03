@@ -1,24 +1,16 @@
 "use client"
 
-// Since QueryClientProvider relies on useContext under the hood, we have to put 'use client' on top
+import type { AppRouter } from "@/crud/routers/_app"
+import { TRPCProvider } from "@/lib/trpc"
+import { makeQueryClient } from "@/lib/trpc/query-client"
 import {
   isServer,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query"
+import { createTRPCClient, httpBatchLink } from "@trpc/client"
 import { Provider as JotaiProvider } from "jotai"
-
-function makeQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
-        staleTime: 60 * 1000,
-      },
-    },
-  })
-}
+import { useState } from "react"
 
 let browserQueryClient: QueryClient | undefined = undefined
 
@@ -32,16 +24,40 @@ function getQueryClient() {
   }
 }
 
+function getUrl() {
+  const base = (() => {
+    if (typeof window !== "undefined") return ""
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
+    return "http://localhost:3000"
+  })()
+  return `${base}/api/trpc`
+}
+
 export default function Providers({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // NOTE: Avoid useState when initializing the query client if you don't
+  //       have a suspense boundary between this and the code that may
+  //       suspend because React will throw away the client on the initial
+  //       render if it suspends and there is no boundary
   const queryClient = getQueryClient()
+  const [trpcClient] = useState(() =>
+    createTRPCClient<AppRouter>({
+      links: [
+        httpBatchLink({
+          url: getUrl(),
+        }),
+      ],
+    })
+  )
 
   return (
     <QueryClientProvider client={queryClient}>
-      <JotaiProvider>{children}</JotaiProvider>
+      <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+        <JotaiProvider>{children}</JotaiProvider>
+      </TRPCProvider>
     </QueryClientProvider>
   )
 }

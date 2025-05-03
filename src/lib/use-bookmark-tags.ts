@@ -8,12 +8,14 @@ import {
 import { z } from "zod"
 
 import { nextApp } from "./napi"
-import { bookmarkQuery, tagsQuery } from "./queries"
+import { bookmarkQuery } from "./queries"
 import { tagsRequestSchema } from "./schemas"
+import { useTRPC } from "./trpc"
 
 type TagsRequest = z.infer<typeof tagsRequestSchema>
 
 export default function useBookmarkTags(bookmarkIds: string[]) {
+  const trpc = useTRPC()
   const queryClient = useQueryClient()
 
   const tags = useQueries({
@@ -21,7 +23,26 @@ export default function useBookmarkTags(bookmarkIds: string[]) {
     combine: uniqueTags,
   })
 
-  const { data: allTags } = useQuery(tagsQuery)
+  const { data: allTags } = useQuery(
+    trpc.tags.getTagsCount.queryOptions(undefined, {
+      retry: 1,
+      // Prevent tags query from being garbage collected. This query powers tags
+      // autocomplete.
+      //
+      // Since this query is part of the `EditTags` component which is not always
+      // mounted, these queries become "inactive" and by default are garbage
+      // collected after 5 minutes. This is not great for user experience because
+      // users will see a lag in autocomplete when opening the edit tags dialog
+      // after 5 minutes.
+      //
+      // Setting this to Infinity means the tags cache sticks around and
+      // autocomplete always works. Note that the query will be refreshed on
+      // mounting the `EditTags` component.
+      gcTime: Infinity,
+    })
+  )
+
+  const tagsQueryKey = trpc.tags.getTagsCount.queryKey()
 
   const { mutate: addTag } = useMutation({
     mutationFn: async (newTag: string) => {
@@ -32,7 +53,7 @@ export default function useBookmarkTags(bookmarkIds: string[]) {
       await nextApp.post("tags", { json: body })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tagsQuery.queryKey })
+      queryClient.invalidateQueries({ queryKey: tagsQueryKey })
     },
     onMutate: (newTag: string) => {
       let oldValues = []
@@ -69,7 +90,7 @@ export default function useBookmarkTags(bookmarkIds: string[]) {
       })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tagsQuery.queryKey })
+      queryClient.invalidateQueries({ queryKey: tagsQueryKey })
     },
     onMutate: (tagToRemove: string) => {
       let oldValues = []

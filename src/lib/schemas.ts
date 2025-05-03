@@ -9,13 +9,6 @@ export const bookmarkSchema = z.object({
   tags: z.array(z.string()),
 })
 
-export const tagsCountSchema = z.array(
-  z.object({
-    name: z.string(),
-    count: z.number(),
-  })
-)
-
 // Request schemas
 
 export const tagsRequestSchema = z.object({

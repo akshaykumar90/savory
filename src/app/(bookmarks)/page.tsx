@@ -6,7 +6,6 @@ import {
   getTagsCount,
   searchBookmarks,
 } from "@/lib/db/queries"
-import { tagsQuery } from "@/lib/queries"
 import {
   dehydrate,
   HydrationBoundary,
@@ -22,6 +21,7 @@ import ErrorScreen from "./error-screen"
 import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
+import { trpc } from "@/lib/trpc/server"
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -218,7 +218,7 @@ export default async function TagPage({
     queryClient.setQueryData(["bookmarks", bookmark.id], bookmark)
   })
 
-  queryClient.setQueryData(tagsQuery.queryKey, tagsResponse)
+  queryClient.setQueryData(trpc.tags.getTagsCount.queryKey(), tagsResponse)
 
   const drillTags = (drillDownTagsResponse ?? [])
     // Sort the search results by decreasing tag frequency
