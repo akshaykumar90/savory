@@ -1,5 +1,5 @@
 import { SessionNotFoundError } from "@/lib/auth0"
-import { getTagsCount } from "@/lib/db/queries"
+import { getTagsCount } from "@/db/queries"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import ErrorScreen from "../error-screen"

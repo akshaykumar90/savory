@@ -1,5 +1,5 @@
 import { withApiAuthRequired } from "@/lib/auth0"
-import { addTag, getTagsCount, removeTag } from "@/lib/db/queries"
+import { addTag, getTagsCount, removeTag } from "@/db/queries"
 import { tagsRequestSchema } from "@/lib/schemas"
 
 export const GET = withApiAuthRequired(async (request: Request) => {

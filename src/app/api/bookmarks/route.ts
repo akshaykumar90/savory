@@ -3,7 +3,7 @@ import {
   createBookmark,
   deleteBookmarks,
   findLatestBookmarkWithUrl,
-} from "@/lib/db/queries"
+} from "@/db/queries"
 import { deleteBookmarksRequestSchema } from "@/lib/schemas"
 
 export const POST = withApiAuthRequired(async (request: Request) => {

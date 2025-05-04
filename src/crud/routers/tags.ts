@@ -1,4 +1,4 @@
-import { addTag, getTagsCount, removeTag } from "@/lib/db/queries"
+import { addTag, getTagsCount, removeTag } from "@/db/queries"
 import { z } from "zod"
 import { baseProcedure, createTRPCRouter } from "../trpc"
 

@@ -16,9 +16,9 @@ import {
 } from "drizzle-orm"
 import { PgSelect } from "drizzle-orm/pg-core"
 import { getDomain } from "tldts"
-import { auth0, SessionNotFoundError } from "../auth0"
 import { db } from "./drizzle"
 import { bookmarks, bookmarkTags, users, userTags } from "./schema"
+import { auth0, SessionNotFoundError } from "@/lib/auth0"
 
 export async function getUser() {
   const session = await auth0.getSession()

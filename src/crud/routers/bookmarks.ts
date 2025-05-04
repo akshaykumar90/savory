@@ -5,7 +5,7 @@ import {
   deleteBookmarks,
   findLatestBookmarkWithUrl,
   getBookmarkById,
-} from "@/lib/db/queries"
+} from "@/db/queries"
 
 export const bookmarksRouter = createTRPCRouter({
   create: baseProcedure

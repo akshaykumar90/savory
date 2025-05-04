@@ -1,5 +1,5 @@
 import { SessionNotFoundError } from "@/lib/auth0"
-import { getUser } from "@/lib/db/queries"
+import { getUser } from "@/db/queries"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import EditProfile from "./edit-profile"

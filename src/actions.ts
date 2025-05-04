@@ -1,6 +1,6 @@
 "use server"
 
-import { updateUser as dbUpdateUser } from "@/lib/db/queries"
+import { updateUser as dbUpdateUser } from "@/db/queries"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { SessionNotFoundError } from "./lib/auth0"

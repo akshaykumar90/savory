@@ -5,7 +5,7 @@ import {
   getDrillDownTags,
   getTagsCount,
   searchBookmarks,
-} from "@/lib/db/queries"
+} from "@/db/queries"
 import {
   dehydrate,
   HydrationBoundary,
