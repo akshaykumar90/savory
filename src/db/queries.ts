@@ -1,3 +1,4 @@
+import { auth0 } from "@/lib/auth0"
 import { createHash } from "crypto"
 import {
   and,
@@ -18,35 +19,37 @@ import { PgSelect } from "drizzle-orm/pg-core"
 import { getDomain } from "tldts"
 import { db } from "./drizzle"
 import { bookmarks, bookmarkTags, users, userTags } from "./schema"
-import { auth0, SessionNotFoundError } from "@/lib/auth0"
 
 export async function getUser() {
   const session = await auth0.getSession()
   if (!session) {
-    throw new SessionNotFoundError()
+    return null
   }
   const subject = session.user.sub
-  const user = await db
+  const result = await db
     .select()
     .from(users)
     .where(eq(users.auth0Sub, subject))
     .limit(1)
 
-  if (user.length === 0) {
-    throw new SessionNotFoundError("User not found")
+  if (result.length === 0) {
+    return null
   }
 
-  return user[0]
+  const user = result[0]
+  if (!user.isActive) {
+    return null
+  }
+
+  return user
 }
 
-export async function userHasAccess(bookmarkIds: string[]) {
-  const user = await getUser()
-
+export async function userHasAccess(userId: string, bookmarkIds: string[]) {
   const result = await db
     .select({ count: count() })
     .from(bookmarks)
     .where(
-      and(eq(bookmarks.ownerId, user.id), inArray(bookmarks.id, bookmarkIds))
+      and(eq(bookmarks.ownerId, userId), inArray(bookmarks.id, bookmarkIds))
     )
 
   if (result.length === 0) {
@@ -56,13 +59,11 @@ export async function userHasAccess(bookmarkIds: string[]) {
   return result[0].count === bookmarkIds.length
 }
 
-export async function updateUser(fullName: string) {
-  const user = await getUser()
-  await db.update(users).set({ fullName }).where(eq(users.id, user.id))
+export async function updateUser(userId: string, fullName: string) {
+  await db.update(users).set({ fullName }).where(eq(users.id, userId))
 }
 
-export async function getTagsCount() {
-  const user = await getUser()
+export async function getTagsCount(userId: string) {
   const tagsWithCounts = await db
     .select({
       name: userTags.displayName,
@@ -70,17 +71,18 @@ export async function getTagsCount() {
     })
     .from(userTags)
     .innerJoin(bookmarkTags, eq(userTags.id, bookmarkTags.tagId))
-    .where(eq(userTags.ownerId, user.id))
+    .where(eq(userTags.ownerId, userId))
     .groupBy(userTags.id)
     .orderBy(userTags.name)
 
   return tagsWithCounts
 }
 
-export async function addTag(bookmarkIds: string[], tagName: string) {
-  const user = await getUser()
-
-  const userId = user.id
+export async function addTag(
+  userId: string,
+  bookmarkIds: string[],
+  tagName: string
+) {
   await db.transaction(async (tx) => {
     let tagId = crypto.randomUUID()
 
@@ -116,10 +118,11 @@ export async function addTag(bookmarkIds: string[], tagName: string) {
   await updateSearchColumn(bookmarkIds)
 }
 
-export async function removeTag(bookmarkIds: string[], tagName: string) {
-  const user = await getUser()
-
-  const userId = user.id
+export async function removeTag(
+  userId: string,
+  bookmarkIds: string[],
+  tagName: string
+) {
   await db.transaction(async (tx) => {
     const existingTags = await tx
       .select({ id: userTags.id })
@@ -276,11 +279,9 @@ async function updateSearchColumn(bookmarkIds: string[]) {
 }
 
 export async function findLatestBookmarkWithUrl(
+  userId: string,
   url: string
 ): Promise<BookmarksPage | null> {
-  const user = await getUser()
-
-  const userId = user.id
   const urlDigest = createHash("md5").update(url).digest("hex")
   let filter = eq(sql`md5(${bookmarks.url}::text)`, urlDigest)
 
@@ -323,12 +324,9 @@ export async function findLatestBookmarkWithUrl(
 }
 
 export async function getBookmarkById(
+  userId: string,
   bookmarkId: string
 ): Promise<BookmarksPage | null> {
-  const user = await getUser()
-
-  const userId = user.id
-
   const foundBookmarks = await db
     .select({
       id: bookmarks.id,
@@ -358,12 +356,11 @@ export async function getBookmarkById(
 }
 
 export async function createBookmark(
+  userId: string,
   title: string,
   url: string,
   dateAdded: Date
 ) {
-  const user = await getUser()
-
   const bookmark = {
     id: crypto.randomUUID(),
     title,
@@ -374,7 +371,7 @@ export async function createBookmark(
 
   await db.insert(bookmarks).values({
     ...bookmark,
-    ownerId: user.id,
+    ownerId: userId,
     search: getSearchColumn(bookmark),
   })
 
@@ -384,16 +381,18 @@ export async function createBookmark(
   }
 }
 
-export async function getDrillDownTags(tags: string[], site?: string) {
-  const user = await getUser()
-
+export async function getDrillDownTags(
+  userId: string,
+  tags: string[],
+  site?: string
+) {
   const dbTags = tags.map((tag) => tag.toLowerCase())
 
   let sq
 
   if (dbTags.length > 0) {
     const filters: SQL[] = []
-    filters.push(eq(userTags.ownerId, user.id))
+    filters.push(eq(userTags.ownerId, userId))
 
     const pgTagsArray = `{${dbTags.map((tag) => `"${tag}"`).join(",")}}`
 
@@ -422,7 +421,7 @@ export async function getDrillDownTags(tags: string[], site?: string) {
         bookmarkId: bookmarks.id,
       })
       .from(bookmarks)
-      .where(and(eq(bookmarks.ownerId, user.id), eq(bookmarks.site, site)))
+      .where(and(eq(bookmarks.ownerId, userId), eq(bookmarks.site, site)))
       .as("sq")
   } else {
     return []
@@ -510,6 +509,7 @@ type BookmarksPage = {
 }
 
 export async function getBookmarks(args: {
+  userId: string
   site?: string
   tags?: string[]
   untagged?: boolean
@@ -521,11 +521,9 @@ export async function getBookmarks(args: {
   nextCursor?: CursorType
   prevCursor?: CursorType
 }> {
-  const { site, tags, untagged, cursor } = args
+  const { userId, site, tags, untagged, cursor } = args
 
   const limit = args.num || 100
-
-  const user = await getUser()
 
   // Bookmarks query
   const [qb, filters] = buildBookmarksQuery({
@@ -539,7 +537,7 @@ export async function getBookmarks(args: {
       })
       .from(bookmarks)
       .$dynamic(),
-    userId: user.id,
+    userId,
     site,
     tags,
     untagged,
@@ -564,7 +562,7 @@ export async function getBookmarks(args: {
       })
       .from(bookmarks)
       .$dynamic(),
-    userId: user.id,
+    userId,
     site,
     tags,
     untagged,
@@ -580,7 +578,7 @@ export async function getBookmarks(args: {
       })
       .from(bookmarks)
       .$dynamic(),
-    userId: user.id,
+    userId,
     site,
     tags,
     untagged,
@@ -640,6 +638,7 @@ export async function getBookmarks(args: {
 }
 
 export async function searchBookmarks(args: {
+  userId: string
   query: string
   site?: string
   tags?: string[]
@@ -652,7 +651,7 @@ export async function searchBookmarks(args: {
   nextCursor?: CursorType
   prevCursor?: CursorType
 }> {
-  const { query, site, tags, untagged, cursor } = args
+  const { userId, query, site, tags, untagged, cursor } = args
 
   const limit = args.num || 100
 
@@ -670,7 +669,7 @@ export async function searchBookmarks(args: {
       })
       .from(bookmarks)
       .$dynamic(),
-    userId: user.id,
+    userId,
     site,
     tags,
     untagged,
@@ -701,7 +700,7 @@ export async function searchBookmarks(args: {
       })
       .from(bookmarks)
       .$dynamic(),
-    userId: user.id,
+    userId,
     site,
     tags,
     untagged,

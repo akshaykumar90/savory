@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { baseProcedure, createTRPCRouter } from "../trpc"
+import { protectedProcedure, createTRPCRouter } from "../trpc"
 import {
   createBookmark,
   deleteBookmarks,
@@ -10,7 +10,7 @@ import {
 import { TRPCError } from "@trpc/server"
 
 export const bookmarksRouter = createTRPCRouter({
-  create: baseProcedure
+  create: protectedProcedure
     .input(
       z.object({
         title: z.string(),
@@ -18,35 +18,40 @@ export const bookmarksRouter = createTRPCRouter({
         dateAddedMs: z.number(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { title, url, dateAddedMs } = input
-      const existingBookmark = await findLatestBookmarkWithUrl(url)
+      const existingBookmark = await findLatestBookmarkWithUrl(ctx.userId, url)
       if (existingBookmark) {
         return existingBookmark
       }
       const dateAdded = new Date(dateAddedMs)
-      const newBookmark = await createBookmark(title, url, dateAdded)
+      const newBookmark = await createBookmark(
+        ctx.userId,
+        title,
+        url,
+        dateAdded
+      )
       return newBookmark
     }),
-  get: baseProcedure
+  get: protectedProcedure
     .input(
       z.object({
         id: z.string(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const { id: bookmarkId } = input
-      return await getBookmarkById(bookmarkId)
+      return await getBookmarkById(ctx.userId, bookmarkId)
     }),
-  delete: baseProcedure
+  delete: protectedProcedure
     .input(
       z.object({
         bookmarkIds: z.array(z.string()),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { bookmarkIds } = input
-      const hasAccess = await userHasAccess(bookmarkIds)
+      const hasAccess = await userHasAccess(ctx.userId, bookmarkIds)
       if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",

@@ -1,47 +1,47 @@
 import { addTag, getTagsCount, removeTag, userHasAccess } from "@/db/queries"
 import { z } from "zod"
-import { baseProcedure, createTRPCRouter } from "../trpc"
+import { protectedProcedure, createTRPCRouter } from "../trpc"
 import { TRPCError } from "@trpc/server"
 
 export const tagsRouter = createTRPCRouter({
-  getTagsCount: baseProcedure.query(async () => {
-    const tagsCount = await getTagsCount()
+  getTagsCount: protectedProcedure.query(async ({ ctx }) => {
+    const tagsCount = await getTagsCount(ctx.userId)
     return tagsCount
   }),
-  addTag: baseProcedure
+  addTag: protectedProcedure
     .input(
       z.object({
         bookmarkIds: z.array(z.string()),
         name: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { bookmarkIds, name } = input
-      const hasAccess = await userHasAccess(bookmarkIds)
+      const hasAccess = await userHasAccess(ctx.userId, bookmarkIds)
       if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can't touch it.",
         })
       }
-      await addTag(bookmarkIds, name)
+      await addTag(ctx.userId, bookmarkIds, name)
     }),
-  removeTag: baseProcedure
+  removeTag: protectedProcedure
     .input(
       z.object({
         bookmarkIds: z.array(z.string()),
         name: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { bookmarkIds, name } = input
-      const hasAccess = await userHasAccess(bookmarkIds)
+      const hasAccess = await userHasAccess(ctx.userId, bookmarkIds)
       if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can't touch it.",
         })
       }
-      await removeTag(bookmarkIds, name)
+      await removeTag(ctx.userId, bookmarkIds, name)
     }),
 })

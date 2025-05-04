@@ -1,9 +1,8 @@
 "use server"
 
-import { updateUser as dbUpdateUser } from "@/db/queries"
+import { updateUser as dbUpdateUser, getUser } from "@/db/queries"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { SessionNotFoundError } from "./lib/auth0"
 import { z } from "zod"
 
 const editProfileFormSchema = z.object({
@@ -13,14 +12,11 @@ const editProfileFormSchema = z.object({
 export async function updateUser(prevState: null, formData: FormData) {
   const form = Object.fromEntries(formData.entries())
   const { name: fullName } = editProfileFormSchema.parse(form)
-  try {
-    await dbUpdateUser(fullName)
-    revalidatePath("/settings")
-    return null
-  } catch (error) {
-    if (error instanceof SessionNotFoundError) {
-      redirect("/landing")
-    }
-    throw error
+  const user = await getUser()
+  if (!user) {
+    redirect("/landing")
   }
+  await dbUpdateUser(user.id, fullName)
+  revalidatePath("/settings")
+  return null
 }

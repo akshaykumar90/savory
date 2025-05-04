@@ -1,19 +1,33 @@
-import { initTRPC } from "@trpc/server"
+import { getUser } from "@/db/queries"
+import { initTRPC, TRPCError } from "@trpc/server"
 import { cache } from "react"
 import superjson from "superjson"
 
 export const createTRPCContext = cache(async () => {
-  /**
-   * @see: https://trpc.io/docs/server/context
-   */
-  return {}
+  const user = await getUser()
+
+  return {
+    userId: user?.id ?? null,
+  }
 })
 
-const t = initTRPC.create({
+type Context = Awaited<ReturnType<typeof createTRPCContext>>
+
+const t = initTRPC.context<Context>().create({
   transformer: superjson,
 })
 
 // Base router and procedure helpers
 export const createTRPCRouter = t.router
-export const createCallerFactory = t.createCallerFactory
-export const baseProcedure = t.procedure
+export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
+  if (!ctx.userId) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+    })
+  }
+  return next({
+    ctx: {
+      userId: ctx.userId,
+    },
+  })
+})

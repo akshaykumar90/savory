@@ -1,4 +1,3 @@
-import { SessionNotFoundError } from "@/lib/auth0"
 import { getUser } from "@/db/queries"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
@@ -9,18 +8,9 @@ export const metadata: Metadata = {
 }
 
 export default async function SettingsPage() {
-  let user
-  try {
-    user = await getUser()
-  } catch (error) {
-    if (error instanceof SessionNotFoundError) {
-      redirect("/landing")
-    }
-    return (
-      <p className="p-4">
-        There was an error loading user settings. Please retry.
-      </p>
-    )
+  const user = await getUser()
+  if (!user) {
+    redirect("/landing")
   }
 
   return (

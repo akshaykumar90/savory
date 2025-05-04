@@ -1,5 +1,10 @@
-import { withApiAuthRequired } from "@/lib/auth0"
-import { addTag, getTagsCount, removeTag, userHasAccess } from "@/db/queries"
+import {
+  addTag,
+  getTagsCount,
+  getUser,
+  removeTag,
+  userHasAccess,
+} from "@/db/queries"
 import { z } from "zod"
 
 const tagsRequestSchema = z.object({
@@ -7,33 +12,51 @@ const tagsRequestSchema = z.object({
   name: z.string(),
 })
 
-export const GET = withApiAuthRequired(async (request: Request) => {
-  const tagsCount = await getTagsCount()
+export const GET = async (request: Request) => {
+  const user = await getUser()
+  if (!user) {
+    return new Response("Unauthorized", {
+      status: 401,
+    })
+  }
+  const tagsCount = await getTagsCount(user.id)
   return new Response(JSON.stringify(tagsCount))
-})
+}
 
-export const POST = withApiAuthRequired(async (request: Request) => {
+export const POST = async (request: Request) => {
+  const user = await getUser()
+  if (!user) {
+    return new Response("Unauthorized", {
+      status: 401,
+    })
+  }
   const requestJson = await request.json()
   const { bookmarkIds, name } = tagsRequestSchema.parse(requestJson)
-  const hasAccess = await userHasAccess(bookmarkIds)
+  const hasAccess = await userHasAccess(user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {
       status: 403,
     })
   }
-  await addTag(bookmarkIds, name)
+  await addTag(user.id, bookmarkIds, name)
   return new Response(null, { status: 204 })
-})
+}
 
-export const DELETE = withApiAuthRequired(async (request: Request) => {
+export const DELETE = async (request: Request) => {
+  const user = await getUser()
+  if (!user) {
+    return new Response("Unauthorized", {
+      status: 401,
+    })
+  }
   const requestJson = await request.json()
   const { bookmarkIds, name } = tagsRequestSchema.parse(requestJson)
-  const hasAccess = await userHasAccess(bookmarkIds)
+  const hasAccess = await userHasAccess(user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {
       status: 403,
     })
   }
-  await removeTag(bookmarkIds, name)
+  await removeTag(user.id, bookmarkIds, name)
   return new Response(null, { status: 204 })
-})
+}

@@ -1,5 +1,4 @@
-import { SessionNotFoundError } from "@/lib/auth0"
-import { getTagsCount } from "@/db/queries"
+import { getTagsCount, getUser } from "@/db/queries"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import ErrorScreen from "../error-screen"
@@ -11,13 +10,14 @@ export const metadata: Metadata = {
 }
 
 export default async function TagsPage() {
+  const user = await getUser()
+  if (!user) {
+    redirect("/landing")
+  }
   let tagsResponse
   try {
-    tagsResponse = await getTagsCount()
+    tagsResponse = await getTagsCount(user.id)
   } catch (error) {
-    if (error instanceof SessionNotFoundError) {
-      redirect("/landing")
-    }
     const wrappedError =
       error instanceof Error ? error : new Error(JSON.stringify(error))
     return <ErrorScreen error={wrappedError} />

@@ -1,11 +1,12 @@
-import { SessionNotFoundError } from "@/lib/auth0"
 import {
   CursorType,
   getBookmarks,
   getDrillDownTags,
   getTagsCount,
+  getUser,
   searchBookmarks,
 } from "@/db/queries"
+import { trpc } from "@/lib/trpc/server"
 import {
   dehydrate,
   HydrationBoundary,
@@ -21,7 +22,6 @@ import ErrorScreen from "./error-screen"
 import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
-import { trpc } from "@/lib/trpc/server"
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -121,6 +121,11 @@ export default async function TagPage({
     ? Boolean(urlUntagged[0])
     : Boolean(urlUntagged)
 
+  const user = await getUser()
+  if (!user) {
+    redirect("/landing")
+  }
+
   const routeHasOneTag = (name: string) => {
     if (site || query || cursor) {
       return false
@@ -134,10 +139,11 @@ export default async function TagPage({
   const queryClient = new QueryClient()
 
   const commonArgs = {
+    userId: user.id,
+    num: 25,
     ...(site && { site }),
     ...(tags.length && { tags }),
     ...(untagged && { untagged }),
-    num: 25,
   }
 
   let tagsResponse, bookmarksResponse, drillDownTagsResponse
@@ -151,13 +157,13 @@ export default async function TagPage({
         searchCursor = parseInt(numOffsetString)
       }
       let arr = await Promise.all([
-        getTagsCount(),
+        getTagsCount(user.id),
         searchBookmarks({
           ...commonArgs,
           query,
           cursor: searchCursor,
         }),
-        getDrillDownTags(tags, site),
+        getDrillDownTags(user.id, tags, site),
       ])
       tagsResponse = arr[0]
       bookmarksResponse = arr[1]
@@ -169,12 +175,12 @@ export default async function TagPage({
         bookmarksCursor = new Date(parseInt(dateMsString))
       }
       let arr = await Promise.all([
-        getTagsCount(),
+        getTagsCount(user.id),
         getBookmarks({
           ...commonArgs,
           cursor: bookmarksCursor,
         }),
-        getDrillDownTags(tags, site),
+        getDrillDownTags(user.id, tags, site),
       ])
       tagsResponse = arr[0]
       bookmarksResponse = arr[1]
@@ -187,7 +193,7 @@ export default async function TagPage({
         bookmarksCursor = new Date(parseInt(dateMsString))
       }
       let arr = await Promise.all([
-        getTagsCount(),
+        getTagsCount(user.id),
         getBookmarks({
           ...commonArgs,
           cursor: bookmarksCursor,
@@ -197,9 +203,6 @@ export default async function TagPage({
       bookmarksResponse = arr[1]
     }
   } catch (error) {
-    if (error instanceof SessionNotFoundError) {
-      redirect("/landing")
-    }
     const wrappedError =
       error instanceof Error ? error : new Error(JSON.stringify(error))
     return <ErrorScreen error={wrappedError} />
