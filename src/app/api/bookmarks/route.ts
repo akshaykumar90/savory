@@ -3,6 +3,7 @@ import {
   createBookmark,
   deleteBookmarks,
   findLatestBookmarkWithUrl,
+  userHasAccess,
 } from "@/db/queries"
 import { deleteBookmarksRequestSchema } from "@/lib/schemas"
 
@@ -21,6 +22,12 @@ export const POST = withApiAuthRequired(async (request: Request) => {
 export const DELETE = withApiAuthRequired(async (request: Request) => {
   const body = await request.json()
   const { bookmarkIds } = deleteBookmarksRequestSchema.parse(body)
+  const hasAccess = await userHasAccess(bookmarkIds)
+  if (!hasAccess) {
+    return new Response("Forbidden", {
+      status: 403,
+    })
+  }
   await deleteBookmarks(bookmarkIds)
   return new Response(null, { status: 204 })
 })

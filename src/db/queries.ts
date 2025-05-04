@@ -39,6 +39,23 @@ export async function getUser() {
   return user[0]
 }
 
+export async function userHasAccess(bookmarkIds: string[]) {
+  const user = await getUser()
+
+  const result = await db
+    .select({ count: count() })
+    .from(bookmarks)
+    .where(
+      and(eq(bookmarks.ownerId, user.id), inArray(bookmarks.id, bookmarkIds))
+    )
+
+  if (result.length === 0) {
+    return false
+  }
+
+  return result[0].count === bookmarkIds.length
+}
+
 export async function updateUser(fullName: string) {
   const user = await getUser()
   await db.update(users).set({ fullName }).where(eq(users.id, user.id))

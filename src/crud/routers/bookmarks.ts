@@ -5,7 +5,9 @@ import {
   deleteBookmarks,
   findLatestBookmarkWithUrl,
   getBookmarkById,
+  userHasAccess,
 } from "@/db/queries"
+import { TRPCError } from "@trpc/server"
 
 export const bookmarksRouter = createTRPCRouter({
   create: baseProcedure
@@ -44,7 +46,13 @@ export const bookmarksRouter = createTRPCRouter({
     )
     .mutation(async ({ input }) => {
       const { bookmarkIds } = input
-      // TODO: add a check to see if the user is the owner of the bookmarks
+      const hasAccess = await userHasAccess(bookmarkIds)
+      if (!hasAccess) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You can't touch it.",
+        })
+      }
       await deleteBookmarks(bookmarkIds)
     }),
 })
