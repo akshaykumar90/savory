@@ -305,6 +305,41 @@ export async function findLatestBookmarkWithUrl(
   }
 }
 
+export async function getBookmarkById(
+  bookmarkId: string
+): Promise<BookmarksPage | null> {
+  const user = await getUser()
+
+  const userId = user.id
+
+  const foundBookmarks = await db
+    .select({
+      id: bookmarks.id,
+      title: bookmarks.title,
+      url: bookmarks.url,
+      dateAdded: bookmarks.dateAdded,
+      site: bookmarks.site,
+    })
+    .from(bookmarks)
+    .where(and(eq(bookmarks.ownerId, userId), eq(bookmarks.id, bookmarkId)))
+    .limit(1)
+
+  if (foundBookmarks.length === 0) {
+    return null
+  }
+
+  const latestBookmark = foundBookmarks[0]
+
+  const tags = (await getTags(db, [latestBookmark.id])).map(
+    (tag) => tag.displayName
+  )
+
+  return {
+    ...latestBookmark,
+    tags,
+  }
+}
+
 export async function createBookmark(
   title: string,
   url: string,
@@ -326,7 +361,10 @@ export async function createBookmark(
     search: getSearchColumn(bookmark),
   })
 
-  return bookmark
+  return {
+    ...bookmark,
+    tags: [],
+  }
 }
 
 export async function getDrillDownTags(tags: string[], site?: string) {

@@ -62,7 +62,7 @@ export default function EditTags({ bookmarkId, pageTags }: EditTagsProps) {
   const handleAddTag = (tagName: string) => {
     setNewTag("")
     if (tagName) {
-      addTag(tagName)
+      addTag({ name: tagName, bookmarkIds })
     }
   }
 
@@ -98,7 +98,7 @@ export default function EditTags({ bookmarkId, pageTags }: EditTagsProps) {
               name={tag.name}
               showRemove={true}
               accented={tag.accented}
-              onClick={() => removeTag(tag.name)}
+              onClick={() => removeTag({ name: tag.name, bookmarkIds })}
             />
           ))}
         </div>

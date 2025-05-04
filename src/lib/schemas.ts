@@ -1,14 +1,5 @@
 import { z } from "zod"
 
-export const bookmarkSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  url: z.string(),
-  site: z.string().optional(),
-  dateAdded: z.date(),
-  tags: z.array(z.string()),
-})
-
 // Request schemas
 
 export const tagsRequestSchema = z.object({

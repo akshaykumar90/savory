@@ -4,6 +4,7 @@ import {
   createBookmark,
   deleteBookmarks,
   findLatestBookmarkWithUrl,
+  getBookmarkById,
 } from "@/lib/db/queries"
 
 export const bookmarksRouter = createTRPCRouter({
@@ -24,6 +25,16 @@ export const bookmarksRouter = createTRPCRouter({
       const dateAdded = new Date(dateAddedMs)
       const newBookmark = await createBookmark(title, url, dateAdded)
       return newBookmark
+    }),
+  get: baseProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { id: bookmarkId } = input
+      return await getBookmarkById(bookmarkId)
     }),
   delete: baseProcedure
     .input(

@@ -11,6 +11,7 @@ import {
 import { createTRPCClient, httpBatchLink } from "@trpc/client"
 import { Provider as JotaiProvider } from "jotai"
 import { useState } from "react"
+import superjson from "superjson"
 
 let browserQueryClient: QueryClient | undefined = undefined
 
@@ -25,11 +26,11 @@ function getQueryClient() {
 }
 
 function getUrl() {
-  const base = (() => {
-    if (typeof window !== "undefined") return ""
-    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
-    return "http://localhost:3000"
-  })()
+  let base = process.env.NEXT_PUBLIC_APP_BASE_URL
+  if (!base) {
+    // we must be in the extension
+    base = import.meta.env.VITE_APP_BASE_URL
+  }
   return `${base}/api/trpc`
 }
 
@@ -47,6 +48,7 @@ export default function Providers({
     createTRPCClient<AppRouter>({
       links: [
         httpBatchLink({
+          transformer: superjson,
           url: getUrl(),
         }),
       ],

@@ -1,6 +1,6 @@
 "use client"
 
-import { bookmarkQuery } from "@/lib/queries"
+import { useTRPC } from "@/lib/trpc"
 import {
   addToSelectionAtom,
   removeFromSelectionAtom,
@@ -18,7 +18,14 @@ import EditTagsDialog from "./tags-dialog"
 import TagsPopover from "./tags-popover"
 
 export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
-  const { data } = useQuery(bookmarkQuery(bookmarkId))
+  const trpc = useTRPC()
+  const queryOptions = trpc.bookmarks.get.queryOptions(
+    {
+      id: bookmarkId,
+    },
+    { enabled: false }
+  )
+  const { data } = useQuery(queryOptions)
 
   const [selectedBookmarkIds] = useAtom(selectedBookmarkIdsAtom)
   const [, addToSelection] = useAtom(addToSelectionAtom)

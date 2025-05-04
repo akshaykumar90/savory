@@ -215,7 +215,10 @@ export default async function TagPage({
   }
 
   bookmarksResponse.bookmarks.forEach((bookmark) => {
-    queryClient.setQueryData(["bookmarks", bookmark.id], bookmark)
+    queryClient.setQueryData(
+      trpc.bookmarks.get.queryKey({ id: bookmark.id }),
+      bookmark
+    )
   })
 
   queryClient.setQueryData(trpc.tags.getTagsCount.queryKey(), tagsResponse)
