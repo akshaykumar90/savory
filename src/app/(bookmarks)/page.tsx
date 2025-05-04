@@ -1,5 +1,4 @@
 import {
-  CursorType,
   getBookmarks,
   getDrillDownTags,
   getTagsCount,
@@ -22,6 +21,7 @@ import ErrorScreen from "./error-screen"
 import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
+import type { CursorType } from "@/lib/types"
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 

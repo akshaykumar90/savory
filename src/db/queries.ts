@@ -19,6 +19,7 @@ import { PgSelect } from "drizzle-orm/pg-core"
 import { getDomain } from "tldts"
 import { db } from "./drizzle"
 import { bookmarks, bookmarkTags, users, userTags } from "./schema"
+import type { Bookmark, BookmarksCursor, CursorType } from "@/lib/types"
 
 export async function getUser() {
   const session = await auth0.getSession()
@@ -33,6 +34,7 @@ export async function getUser() {
     .limit(1)
 
   if (result.length === 0) {
+    // TODO: Create user if valid Auth0 session was presented
     return null
   }
 
@@ -206,8 +208,8 @@ async function getTags(
 
 async function hydrateTagsForBookmarksPage(
   tx: any,
-  bookmarksPage: Array<Omit<BookmarksPage, "tags">>
-): Promise<Array<BookmarksPage>> {
+  bookmarksPage: Array<Omit<Bookmark, "tags">>
+): Promise<Array<Bookmark>> {
   if (bookmarksPage.length === 0) {
     return []
   }
@@ -235,7 +237,7 @@ async function hydrateTagsForBookmarksPage(
 }
 
 function getSearchColumn(
-  bookmark: Omit<BookmarksPage, "tags"> & {
+  bookmark: Omit<Bookmark, "tags"> & {
     tags?: string[]
   }
 ) {
@@ -281,7 +283,7 @@ async function updateSearchColumn(bookmarkIds: string[]) {
 export async function findLatestBookmarkWithUrl(
   userId: string,
   url: string
-): Promise<BookmarksPage | null> {
+): Promise<Bookmark | null> {
   const urlDigest = createHash("md5").update(url).digest("hex")
   let filter = eq(sql`md5(${bookmarks.url}::text)`, urlDigest)
 
@@ -326,7 +328,7 @@ export async function findLatestBookmarkWithUrl(
 export async function getBookmarkById(
   userId: string,
   bookmarkId: string
-): Promise<BookmarksPage | null> {
+): Promise<Bookmark | null> {
   const foundBookmarks = await db
     .select({
       id: bookmarks.id,
@@ -487,27 +489,6 @@ function buildBookmarksQuery<T extends PgSelect>(args: {
   return [query ?? qb, filters] as const
 }
 
-type BookmarksCursor = {
-  type: "bookmarks"
-  cursorDate: Date
-}
-
-type SearchCursor = {
-  type: "search"
-  cursorOffset: number
-}
-
-export type CursorType = BookmarksCursor | SearchCursor
-
-type BookmarksPage = {
-  id: string
-  title: string | null
-  url: string
-  dateAdded: Date
-  site: string | null
-  tags: string[]
-}
-
 export async function getBookmarks(args: {
   userId: string
   site?: string
@@ -516,7 +497,7 @@ export async function getBookmarks(args: {
   num?: number
   cursor?: Date
 }): Promise<{
-  bookmarks: BookmarksPage[]
+  bookmarks: Bookmark[]
   total: number
   nextCursor?: CursorType
   prevCursor?: CursorType
@@ -646,7 +627,7 @@ export async function searchBookmarks(args: {
   num?: number
   cursor?: number
 }): Promise<{
-  bookmarks: BookmarksPage[]
+  bookmarks: Bookmark[]
   total: number
   nextCursor?: CursorType
   prevCursor?: CursorType
@@ -654,8 +635,6 @@ export async function searchBookmarks(args: {
   const { userId, query, site, tags, untagged, cursor } = args
 
   const limit = args.num || 100
-
-  const user = await getUser()
 
   // Search query
   const [qb, filters] = buildBookmarksQuery({
