@@ -4,7 +4,11 @@ import { updateUser as dbUpdateUser } from "@/db/queries"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { SessionNotFoundError } from "./lib/auth0"
-import { editProfileFormSchema } from "./lib/schemas"
+import { z } from "zod"
+
+const editProfileFormSchema = z.object({
+  name: z.string(),
+})
 
 export async function updateUser(prevState: null, formData: FormData) {
   const form = Object.fromEntries(formData.entries())

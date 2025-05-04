@@ -5,7 +5,11 @@ import {
   findLatestBookmarkWithUrl,
   userHasAccess,
 } from "@/db/queries"
-import { deleteBookmarksRequestSchema } from "@/lib/schemas"
+import { z } from "zod"
+
+const deleteBookmarksRequestSchema = z.object({
+  bookmarkIds: z.array(z.string()),
+})
 
 export const POST = withApiAuthRequired(async (request: Request) => {
   const body = await request.json()

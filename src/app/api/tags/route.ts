@@ -1,6 +1,11 @@
 import { withApiAuthRequired } from "@/lib/auth0"
 import { addTag, getTagsCount, removeTag, userHasAccess } from "@/db/queries"
-import { tagsRequestSchema } from "@/lib/schemas"
+import { z } from "zod"
+
+const tagsRequestSchema = z.object({
+  bookmarkIds: z.array(z.string()),
+  name: z.string(),
+})
 
 export const GET = withApiAuthRequired(async (request: Request) => {
   const tagsCount = await getTagsCount()
