@@ -657,7 +657,7 @@ export async function getBookmarks(args: {
   const [countQb, countFilters] = buildBookmarksQuery({
     qb: db
       .select({
-        count: sql<number>`count(*) OVER ()`.mapWith(Number),
+        count: sql<number>`count(*)`.mapWith(Number),
       })
       .from(bookmarks)
       .$dynamic(),
