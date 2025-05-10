@@ -25,8 +25,8 @@ export default async function SettingsPage() {
           <div className="rounded-lg border px-4 py-8 sm:px-6 lg:px-8">
             <EditProfile
               userCreatedAt={user.createdAt}
-              fullName={user.fullName}
-              email={user.email}
+              fullName={user.fullName ?? undefined}
+              email={user.email ?? undefined}
             />
           </div>
         </div>

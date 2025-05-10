@@ -9,4 +9,5 @@ export const auth0 = new Auth0Client({
     rolling: false,
     absoluteDuration: 60 * 60 * 24 * 30, // 30 days
   },
+  signInReturnToPath: "/login-callback",
 })

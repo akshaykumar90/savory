@@ -10,10 +10,10 @@ import {
 } from "drizzle-orm/pg-core"
 
 export const users = pgTable("user", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  fullName: varchar("full_name").notNull(),
+  id: uuid("id").primaryKey(),
+  fullName: varchar("full_name"),
   auth0Sub: varchar("auth0_sub").notNull(),
-  email: varchar("email").notNull().unique(),
+  email: varchar("email").unique(),
   isEmailVerified: boolean("is_email_verified").default(false),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at", { withTimezone: true })

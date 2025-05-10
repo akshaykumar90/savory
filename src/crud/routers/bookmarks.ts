@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { protectedProcedure, createTRPCRouter } from "../trpc"
 import {
-  createBookmark,
+  createBookmarkWithoutTags,
   deleteBookmarks,
   findLatestBookmarkWithUrl,
   getBookmarkById,
@@ -25,7 +25,7 @@ export const bookmarksRouter = createTRPCRouter({
         return existingBookmark
       }
       const dateAdded = new Date(dateAddedMs)
-      const newBookmark = await createBookmark(
+      const newBookmark = await createBookmarkWithoutTags(
         ctx.userId,
         title,
         url,

@@ -1,5 +1,5 @@
 import {
-  createBookmark,
+  createBookmarkWithoutTags,
   deleteBookmarks,
   findLatestBookmarkWithUrl,
   getUser,
@@ -33,7 +33,12 @@ export const POST = async (request: Request) => {
     return new Response(JSON.stringify(transformBookmark(existingBookmark)))
   }
   const dateAdded = new Date(dateAddedMs)
-  const newBookmark = await createBookmark(user.id, title, url, dateAdded)
+  const newBookmark = await createBookmarkWithoutTags(
+    user.id,
+    title,
+    url,
+    dateAdded
+  )
   return new Response(JSON.stringify(transformBookmark(newBookmark)))
 }
 

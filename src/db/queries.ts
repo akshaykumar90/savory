@@ -1,4 +1,5 @@
 import { auth0 } from "@/lib/auth0"
+import type { Bookmark, BookmarksCursor, CursorType } from "@/lib/types"
 import { createHash } from "crypto"
 import {
   and,
@@ -16,10 +17,10 @@ import {
   sql,
 } from "drizzle-orm"
 import { PgSelect } from "drizzle-orm/pg-core"
+import _ from "lodash"
 import { getDomain } from "tldts"
 import { db } from "./drizzle"
 import { bookmarks, bookmarkTags, users, userTags } from "./schema"
-import type { Bookmark, BookmarksCursor, CursorType } from "@/lib/types"
 
 export async function getUser() {
   const session = await auth0.getSession()
@@ -34,7 +35,6 @@ export async function getUser() {
     .limit(1)
 
   if (result.length === 0) {
-    // TODO: Create user if valid Auth0 session was presented
     return null
   }
 
@@ -44,6 +44,54 @@ export async function getUser() {
   }
 
   return user
+}
+
+export async function createOrUpdateUser({
+  auth0Sub,
+  email,
+  isEmailVerified,
+}: {
+  auth0Sub: string
+  email?: string
+  isEmailVerified?: boolean
+}): Promise<{ userId: string; isNewUser: boolean }> {
+  return await db.transaction(async (tx) => {
+    const result = await tx
+      .select()
+      .from(users)
+      .where(eq(users.auth0Sub, auth0Sub))
+      .limit(1)
+
+    const isNewUser = result.length === 0
+
+    let userId: string
+
+    if (isNewUser) {
+      userId = crypto.randomUUID()
+      await tx.insert(users).values({
+        id: userId,
+        auth0Sub,
+        email,
+        isEmailVerified,
+      })
+    } else {
+      userId = result[0].id
+      const loginCount = result[0].loginCount ?? 0
+      const now = new Date()
+      await tx
+        .update(users)
+        .set({
+          email,
+          isEmailVerified,
+          lastLogin: now,
+          loginCount: loginCount + 1,
+        })
+
+        .where(eq(users.auth0Sub, auth0Sub))
+    }
+
+    return { userId, isNewUser }
+  })
 }
 
 export async function userHasAccess(userId: string, bookmarkIds: string[]) {
@@ -359,10 +407,80 @@ export async function getBookmarkById(
 
 export async function createBookmark(
   userId: string,
+  input: {
+    title: string
+    url: string
+    dateAdded: Date
+    tags: string[]
+  }
+): Promise<Bookmark> {
+  const { title, url, dateAdded, tags } = input
+  const uniqTags = _.uniq(tags)
+  const lowerCaseTags = uniqTags.map((t) => t.toLowerCase())
+  return await db.transaction(async (tx) => {
+    const localTags = uniqTags.map((tag) => ({
+      id: crypto.randomUUID(),
+      name: tag.toLowerCase(),
+      displayName: tag,
+    }))
+
+    const dbTags = await tx
+      .select({
+        id: userTags.id,
+        name: userTags.name,
+        displayName: userTags.displayName,
+      })
+      .from(userTags)
+      .where(
+        and(inArray(userTags.name, lowerCaseTags), eq(userTags.ownerId, userId))
+      )
+
+    // dbTags are preferred over localTags
+    const finalTags = _.unionBy(dbTags, localTags, "name")
+
+    const bookmarkId = crypto.randomUUID()
+
+    const bookmark = {
+      id: bookmarkId,
+      title,
+      url,
+      dateAdded,
+      site: getDomain(url, { allowPrivateDomains: true }),
+    }
+
+    await tx.insert(bookmarks).values({
+      ...bookmark,
+      ownerId: userId,
+      search: getSearchColumn({ ...bookmark, tags }),
+    })
+
+    await tx
+      .insert(userTags)
+      .values(
+        finalTags.map((tag) => ({
+          ...tag,
+          ownerId: userId,
+        }))
+      )
+      .onConflictDoNothing()
+
+    await tx
+      .insert(bookmarkTags)
+      .values(finalTags.map((tag) => ({ bookmarkId, tagId: tag.id })))
+
+    return {
+      ...bookmark,
+      tags: uniqTags,
+    }
+  })
+}
+
+export async function createBookmarkWithoutTags(
+  userId: string,
   title: string,
   url: string,
   dateAdded: Date
-) {
+): Promise<Bookmark> {
   const bookmark = {
     id: crypto.randomUUID(),
     title,
