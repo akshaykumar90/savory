@@ -25,14 +25,16 @@ export const users = pgTable("user", {
 })
 
 export const userTags = pgTable("user_tag", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: uuid("id").primaryKey(),
   name: varchar("name").notNull(),
   displayName: varchar("display_name").notNull(),
-  ownerId: uuid("owner_id").references(() => users.id),
+  ownerId: uuid("owner_id")
+    .references(() => users.id)
+    .notNull(),
 })
 
 export const bookmarks = pgTable("bookmark", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: uuid("id").primaryKey(),
   title: varchar("title"),
   url: varchar("url").notNull(),
   dateAdded: timestamp("date_added", { withTimezone: true }).notNull(),
