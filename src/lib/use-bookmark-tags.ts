@@ -1,113 +1,8 @@
-import {
-  useMutation,
-  useQueries,
-  useQuery,
-  useQueryClient,
-  UseQueryResult,
-} from "@tanstack/react-query"
-import { z } from "zod"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
-import { nextApp } from "./napi"
-import { bookmarkQuery, tagsQuery } from "./queries"
-import { tagsRequestSchema } from "./schemas"
+import { useTRPC } from "./trpc"
 
-type TagsRequest = z.infer<typeof tagsRequestSchema>
-
-export default function useBookmarkTags(bookmarkIds: string[]) {
-  const queryClient = useQueryClient()
-
-  const tags = useQueries({
-    queries: bookmarkIds.map(bookmarkQuery),
-    combine: uniqueTags,
-  })
-
-  const { data: allTags } = useQuery(tagsQuery)
-
-  const { mutate: addTag } = useMutation({
-    mutationFn: async (newTag: string) => {
-      const body: TagsRequest = {
-        bookmarkIds,
-        name: newTag,
-      }
-      await nextApp.post("tags", { json: body })
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tagsQuery.queryKey })
-    },
-    onMutate: (newTag: string) => {
-      let oldValues = []
-      for (const id of bookmarkIds) {
-        const queryOptions = bookmarkQuery(id)
-        const bookmark = queryClient.getQueryData(queryOptions.queryKey)
-        if (bookmark) {
-          oldValues.push(bookmark)
-          const updatedBookmark = {
-            ...bookmark,
-            tags: [...bookmark.tags, newTag],
-          }
-          queryClient.setQueryData(queryOptions.queryKey, updatedBookmark)
-        }
-      }
-      return { oldValues }
-    },
-    onError: (err, newTag, context) => {
-      context?.oldValues.forEach((oldValue) => {
-        const queryOptions = bookmarkQuery(oldValue.id)
-        queryClient.setQueryData(queryOptions.queryKey, oldValue)
-      })
-    },
-  })
-
-  const { mutate: removeTag } = useMutation({
-    mutationFn: async (tagName: string) => {
-      const body: TagsRequest = {
-        bookmarkIds,
-        name: tagName,
-      }
-      await nextApp.delete("tags", {
-        json: body,
-      })
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tagsQuery.queryKey })
-    },
-    onMutate: (tagToRemove: string) => {
-      let oldValues = []
-      for (const id of bookmarkIds) {
-        const queryOptions = bookmarkQuery(id)
-        const bookmark = queryClient.getQueryData(queryOptions.queryKey)
-        if (bookmark) {
-          oldValues.push(bookmark)
-          const updatedBookmark = {
-            ...bookmark,
-            tags: bookmark.tags.filter((t) => t !== tagToRemove),
-          }
-          queryClient.setQueryData(queryOptions.queryKey, updatedBookmark)
-        }
-      }
-      return { oldValues }
-    },
-    onError: (err, newTag, context) => {
-      context?.oldValues.forEach((oldValue) => {
-        const queryOptions = bookmarkQuery(oldValue.id)
-        queryClient.setQueryData(queryOptions.queryKey, oldValue)
-      })
-    },
-  })
-
-  return {
-    tags,
-    allTags,
-    addTag,
-    removeTag,
-  }
-}
-
-function uniqueTags(results: Array<UseQueryResult<{ tags: string[] }>>) {
-  const tags = results
-    .map((result) => (result.isSuccess ? result.data.tags : []))
-    .flat()
-
+function uniqueTagsPickLastOccurrence(tags: string[]) {
   const lastIndexMap = new Map<string, number>()
 
   // Store the last index of each tag.
@@ -117,4 +12,112 @@ function uniqueTags(results: Array<UseQueryResult<{ tags: string[] }>>) {
 
   // Filter out any tag that is not the last occurrence.
   return tags.filter((tag, index) => lastIndexMap.get(tag) === index)
+}
+
+export default function useBookmarkTags(bookmarkIds: string[]) {
+  const trpc = useTRPC()
+  const queryClient = useQueryClient()
+
+  const bookmarkTags = bookmarkIds
+    .map((id) => {
+      const bookmark = queryClient.getQueryData(
+        trpc.bookmarks.get.queryKey({ id })
+      )
+      return bookmark?.tags ?? []
+    })
+    .flat()
+
+  const tags = uniqueTagsPickLastOccurrence(bookmarkTags)
+
+  const { data: allTags } = useQuery(
+    trpc.tags.getTagsCount.queryOptions(undefined, {
+      retry: 1,
+      // Prevent tags query from being garbage collected. This query powers tags
+      // autocomplete.
+      //
+      // Since this query is part of the `EditTags` component which is not always
+      // mounted, these queries become "inactive" and by default are garbage
+      // collected after 5 minutes. This is not great for user experience because
+      // users will see a lag in autocomplete when opening the edit tags dialog
+      // after 5 minutes.
+      //
+      // Setting this to Infinity means the tags cache sticks around and
+      // autocomplete always works. Note that the query will be refreshed on
+      // mounting the `EditTags` component.
+      gcTime: Infinity,
+    })
+  )
+
+  const tagsQueryKey = trpc.tags.getTagsCount.queryKey()
+
+  const { mutate: addTag } = useMutation(
+    trpc.tags.addTag.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: tagsQueryKey })
+      },
+      onMutate: ({ name: newTag }: { name: string }) => {
+        let oldValues = []
+        for (const id of bookmarkIds) {
+          const queryKey = trpc.bookmarks.get.queryKey({ id })
+          const bookmark = queryClient.getQueryData(queryKey)
+          if (bookmark) {
+            oldValues.push(bookmark)
+            const updatedBookmark = {
+              ...bookmark,
+              tags: [...bookmark.tags, newTag],
+            }
+            queryClient.setQueryData(queryKey, updatedBookmark)
+          }
+        }
+        return { oldValues }
+      },
+      onError: (err, newTag, context) => {
+        context?.oldValues.forEach((oldValue) => {
+          queryClient.setQueryData(
+            trpc.bookmarks.get.queryKey({ id: oldValue.id }),
+            oldValue
+          )
+        })
+      },
+    })
+  )
+
+  const { mutate: removeTag } = useMutation(
+    trpc.tags.removeTag.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: tagsQueryKey })
+      },
+      onMutate: ({ name: tagToRemove }: { name: string }) => {
+        let oldValues = []
+        for (const id of bookmarkIds) {
+          const queryKey = trpc.bookmarks.get.queryKey({ id })
+          const bookmark = queryClient.getQueryData(queryKey)
+          if (bookmark) {
+            oldValues.push(bookmark)
+            const updatedBookmark = {
+              ...bookmark,
+              tags: bookmark.tags.filter((t) => t !== tagToRemove),
+            }
+            queryClient.setQueryData(queryKey, updatedBookmark)
+          }
+        }
+        return { oldValues }
+      },
+      onError: (err, newTag, context) => {
+        context?.oldValues.forEach((oldValue) => {
+          queryClient.setQueryData(
+            trpc.bookmarks.get.queryKey({ id: oldValue.id }),
+            oldValue
+          )
+        })
+      },
+    })
+  )
+
+  return {
+    tags,
+    allTags,
+    addTag,
+    removeTag,
+  }
 }

@@ -1,27 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { bookmarkSchema } from "./schemas"
-import { nextApp } from "./napi"
-import { bookmarkQuery } from "./queries"
-import { TimeoutError } from "ky"
+import { useTRPC } from "./trpc"
 
 export default function useNewBookmark() {
+  const trpc = useTRPC()
   const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: async (tab: {
-      title: string
-      url: string
-      dateAddedMs: number
-    }) => {
-      const response = await nextApp.post("bookmarks", { json: tab }).json()
-      return bookmarkSchema.parse(response)
-    },
+  const mutationOptions = trpc.bookmarks.create.mutationOptions({
     onSuccess: (bookmark) => {
-      const queryOptions = bookmarkQuery(bookmark.id)
-      queryClient.setQueryData(queryOptions.queryKey, bookmark)
+      queryClient.setQueryData(
+        trpc.bookmarks.get.queryKey({ id: bookmark.id }),
+        bookmark
+      )
     },
     retry: (failureCount, error) => {
-      if (error instanceof TimeoutError) {
+      const httpStatus = error.data?.httpStatus
+      if (httpStatus && [502, 503, 504].includes(httpStatus)) {
         // Upto 3 retry attempts (i.e. 4 attempts total) in case of timeouts
         return failureCount < 3
       }
@@ -31,4 +24,6 @@ export default function useNewBookmark() {
     retryDelay: (failureCount) =>
       ~~((Math.random() + 0.5) * (1 << Math.min(failureCount, 8))) * 500,
   })
+
+  return useMutation(mutationOptions)
 }

@@ -18,21 +18,19 @@ function getNextUrl(searchParams: URLSearchParams, cursor: string | undefined) {
 export default function PaginationCard({
   message,
   showClearFiltersButton,
-  hasNextPage,
-  hasPreviousPage,
   nextCursor,
   prevCursor,
 }: {
   message: string
   showClearFiltersButton: boolean
-  hasNextPage: boolean
-  hasPreviousPage: boolean
   nextCursor?: string
   prevCursor?: string
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [pending, startTransition] = useTransition()
+  const hasNextPage = Boolean(nextCursor)
+  const hasPreviousPage = Boolean(prevCursor)
 
   return (
     <div>

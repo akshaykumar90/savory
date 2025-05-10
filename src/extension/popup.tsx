@@ -2,7 +2,6 @@ import EditTags from "@/components/edit-tags"
 import useNewBookmark from "@/lib/use-new-bookmark"
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react"
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/20/solid"
-import { HTTPError } from "ky"
 import { useEffect } from "react"
 import browser from "webextension-polyfill"
 
@@ -55,15 +54,19 @@ function PopupContents() {
   if (error) {
     return (
       <div className="rounded-md p-4">
-        <PopupError error={error} />
+        {error.data?.httpStatus === 401 ? (
+          <LoginError />
+        ) : (
+          <GenericError message={error.message} />
+        )}
       </div>
     )
   }
 
-  const nowMillis = new Date().getTime()
-  const bookmarkCreated = bookmark.date_added
+  const now = Date.now()
+  const bookmarkCreated = bookmark.dateAdded.getTime()
   const tenSecondMillis = 10 * 1000
-  const isOldBookmark = bookmarkCreated < nowMillis - tenSecondMillis
+  const isOldBookmark = now > bookmarkCreated + tenSecondMillis
 
   return (
     <Popover className="relative">
@@ -84,14 +87,11 @@ function PopupContents() {
                 <div className="mt-2 text-sm text-green-700">
                   <p>
                     Last added on{" "}
-                    {new Date(bookmark.date_added).toLocaleDateString(
-                      undefined,
-                      {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      }
-                    )}
+                    {bookmark.dateAdded.toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </p>
                 </div>
               </>
@@ -157,32 +157,31 @@ function Spinner() {
   )
 }
 
-function PopupError({ error }: { error: Error }) {
-  if (error instanceof HTTPError && error.response.status === 401) {
-    return (
-      <div>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">
-          Login to Savory
-        </h3>
-        <div className="mt-2 max-w-xl text-sm text-gray-500">
-          <p>
-            To add this tab to Savory, you need to log in or create a new
-            account.
-          </p>
-        </div>
-        <div className="mt-5">
-          <button
-            type="button"
-            onClick={() => openSavory()}
-            className="inline-flex items-center rounded-md border border-transparent bg-sky-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 sm:text-sm"
-          >
-            Login
-          </button>
-        </div>
+function LoginError() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium leading-6 text-gray-900">
+        Login to Savory
+      </h3>
+      <div className="mt-2 max-w-xl text-sm text-gray-500">
+        <p>
+          To add this tab to Savory, you need to log in or create a new account.
+        </p>
       </div>
-    )
-  }
+      <div className="mt-5">
+        <button
+          type="button"
+          onClick={() => openSavory()}
+          className="inline-flex items-center rounded-md border border-transparent bg-sky-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 sm:text-sm"
+        >
+          Login
+        </button>
+      </div>
+    </div>
+  )
+}
 
+function GenericError({ message }: { message: string }) {
   return (
     <div className="flex">
       <div className="flex-shrink-0">
@@ -193,7 +192,7 @@ function PopupError({ error }: { error: Error }) {
           There was an error adding to Savory
         </h3>
         <div className="mt-2 text-sm text-red-700">
-          <p>{error.toString()}</p>
+          <p>{message}</p>
         </div>
       </div>
     </div>

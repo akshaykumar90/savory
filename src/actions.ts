@@ -1,22 +1,22 @@
 "use server"
 
-import * as bapi from "@/lib/bapi"
+import { updateUser as dbUpdateUser, getUser } from "@/db/queries"
 import { revalidatePath } from "next/cache"
-import { editProfileFormSchema } from "./lib/schemas"
-import { AccessTokenError } from "@auth0/nextjs-auth0/errors"
 import { redirect } from "next/navigation"
+import { z } from "zod"
+
+const editProfileFormSchema = z.object({
+  name: z.string(),
+})
 
 export async function updateUser(prevState: null, formData: FormData) {
   const form = Object.fromEntries(formData.entries())
   const { name: fullName } = editProfileFormSchema.parse(form)
-  try {
-    await bapi.updateUser({ fullName })
-    revalidatePath("/settings")
-    return null
-  } catch (error) {
-    if (error instanceof AccessTokenError) {
-      redirect("/landing")
-    }
-    throw error
+  const user = await getUser()
+  if (!user) {
+    redirect("/landing")
   }
+  await dbUpdateUser(user.id, fullName)
+  revalidatePath("/settings")
+  return null
 }

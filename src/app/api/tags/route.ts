@@ -1,22 +1,62 @@
-import { withApiAuthRequired } from "@/lib/auth0"
-import * as bapi from "@/lib/bapi"
-import { tagsRequestSchema } from "@/lib/schemas"
+import {
+  addTag,
+  getTagsCount,
+  getUser,
+  removeTag,
+  userHasAccess,
+} from "@/db/queries"
+import { z } from "zod"
 
-export const GET = withApiAuthRequired(async (request: Request) => {
-  const bapiTagsCount = await bapi.getTagsCount()
-  return new Response(JSON.stringify(bapiTagsCount))
+const tagsRequestSchema = z.object({
+  bookmarkIds: z.array(z.string()),
+  name: z.string(),
 })
 
-export const POST = withApiAuthRequired(async (request: Request) => {
+export const GET = async (request: Request) => {
+  const user = await getUser()
+  if (!user) {
+    return new Response("Unauthorized", {
+      status: 401,
+    })
+  }
+  const tagsCount = await getTagsCount(user.id)
+  return new Response(JSON.stringify(tagsCount))
+}
+
+export const POST = async (request: Request) => {
+  const user = await getUser()
+  if (!user) {
+    return new Response("Unauthorized", {
+      status: 401,
+    })
+  }
   const requestJson = await request.json()
-  const addTagRequest = tagsRequestSchema.parse(requestJson)
-  await bapi.bulkAddTag(addTagRequest)
+  const { bookmarkIds, name } = tagsRequestSchema.parse(requestJson)
+  const hasAccess = await userHasAccess(user.id, bookmarkIds)
+  if (!hasAccess) {
+    return new Response("Forbidden", {
+      status: 403,
+    })
+  }
+  await addTag(user.id, bookmarkIds, name)
   return new Response(null, { status: 204 })
-})
+}
 
-export const DELETE = withApiAuthRequired(async (request: Request) => {
+export const DELETE = async (request: Request) => {
+  const user = await getUser()
+  if (!user) {
+    return new Response("Unauthorized", {
+      status: 401,
+    })
+  }
   const requestJson = await request.json()
-  const removeTagRequest = tagsRequestSchema.parse(requestJson)
-  await bapi.bulkRemoveTag(removeTagRequest)
+  const { bookmarkIds, name } = tagsRequestSchema.parse(requestJson)
+  const hasAccess = await userHasAccess(user.id, bookmarkIds)
+  if (!hasAccess) {
+    return new Response("Forbidden", {
+      status: 403,
+    })
+  }
+  await removeTag(user.id, bookmarkIds, name)
   return new Response(null, { status: 204 })
-})
+}
