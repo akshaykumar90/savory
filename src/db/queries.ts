@@ -86,7 +86,6 @@ export async function createOrUpdateUser({
           lastLogin: now,
           loginCount: loginCount + 1,
         })
-
         .where(eq(users.auth0Sub, auth0Sub))
     }
 
