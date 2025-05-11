@@ -2,7 +2,6 @@
 
 import type { AppRouter } from "@/crud/routers/_app"
 import { TRPCProvider } from "@/lib/trpc"
-import { makeQueryClient } from "@/lib/trpc/query-client"
 import {
   isServer,
   QueryClient,
@@ -12,6 +11,7 @@ import { createTRPCClient, httpBatchLink } from "@trpc/client"
 import { Provider as JotaiProvider } from "jotai"
 import { useState } from "react"
 import superjson from "superjson"
+import { makeQueryClient } from "../query-client"
 
 let browserQueryClient: QueryClient | undefined = undefined
 
@@ -23,15 +23,6 @@ function getQueryClient() {
     if (!browserQueryClient) browserQueryClient = makeQueryClient()
     return browserQueryClient
   }
-}
-
-function getUrl() {
-  let base = process.env.NEXT_PUBLIC_APP_BASE_URL
-  if (!base) {
-    // we must be in the extension
-    base = import.meta.env.VITE_APP_BASE_URL
-  }
-  return `${base}/api/trpc`
 }
 
 export default function Providers({
@@ -49,7 +40,7 @@ export default function Providers({
       links: [
         httpBatchLink({
           transformer: superjson,
-          url: getUrl(),
+          url: `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/trpc`,
         }),
       ],
     })

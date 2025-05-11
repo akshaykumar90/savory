@@ -5,7 +5,6 @@ import {
   getUser,
   searchBookmarks,
 } from "@/db/queries"
-import { trpc } from "@/lib/trpc/server"
 import {
   dehydrate,
   HydrationBoundary,
@@ -22,6 +21,7 @@ import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
 import type { CursorType } from "@/lib/types"
+import { trpc } from "../trpc-server"
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
