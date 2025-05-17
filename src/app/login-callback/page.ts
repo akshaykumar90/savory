@@ -1,4 +1,6 @@
-import { createBookmark, createOrUpdateUser } from "@/db/queries"
+import { getSession } from "@/db/drizzle"
+import { createBookmark } from "@/db/queries/bookmark"
+import { createOrUpdateUser } from "@/db/queries/user"
 import { auth0 } from "@/lib/auth0"
 import { redirect } from "next/navigation"
 
@@ -32,7 +34,9 @@ export default async function LoginCallback() {
     redirect("/landing")
   }
 
-  const { isNewUser, userId } = await createOrUpdateUser({
+  const dbSession = getSession()
+
+  const { isNewUser, userId } = await createOrUpdateUser(dbSession, {
     auth0Sub: session.user.sub,
     email: session.user.email,
     isEmailVerified: session.user.email_verified,
@@ -40,7 +44,7 @@ export default async function LoginCallback() {
 
   if (isNewUser) {
     for (const bookmark of getOnboardingBookmarks()) {
-      await createBookmark(userId, bookmark)
+      await createBookmark(dbSession, userId, bookmark)
     }
   }
 

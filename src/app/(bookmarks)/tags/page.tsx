@@ -1,4 +1,6 @@
-import { getTagsCount, getUser } from "@/db/queries"
+import { getSession } from "@/db/drizzle"
+import { getTagsCount } from "@/db/queries/bookmark"
+import { getUser } from "@/db/queries/user"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import ErrorScreen from "../error-screen"
@@ -10,13 +12,14 @@ export const metadata: Metadata = {
 }
 
 export default async function TagsPage() {
-  const user = await getUser()
+  const db = getSession()
+  const user = await getUser(db)
   if (!user) {
     redirect("/landing")
   }
   let tagsResponse
   try {
-    tagsResponse = await getTagsCount(user.id)
+    tagsResponse = await getTagsCount(db, user.id)
   } catch (error) {
     const wrappedError =
       error instanceof Error ? error : new Error(JSON.stringify(error))

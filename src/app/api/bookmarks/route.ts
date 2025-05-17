@@ -1,10 +1,10 @@
+import { getSession } from "@/db/drizzle"
 import {
   createBookmarkWithoutTags,
   deleteBookmarks,
   findLatestBookmarkWithUrl,
-  getUser,
-  userHasAccess,
-} from "@/db/queries"
+} from "@/db/queries/bookmark"
+import { getUser, userHasAccess } from "@/db/queries/user"
 import type { Bookmark } from "@/lib/types"
 import { z } from "zod"
 
@@ -20,7 +20,8 @@ function transformBookmark(bookmark: Bookmark) {
 }
 
 export const POST = async (request: Request) => {
-  const user = await getUser()
+  const db = getSession()
+  const user = await getUser(db)
   if (!user) {
     return new Response("Unauthorized", {
       status: 401,
@@ -28,12 +29,13 @@ export const POST = async (request: Request) => {
   }
   const body = await request.json()
   const { title, url, dateAddedMs } = body
-  const existingBookmark = await findLatestBookmarkWithUrl(user.id, url)
+  const existingBookmark = await findLatestBookmarkWithUrl(db, user.id, url)
   if (existingBookmark) {
     return new Response(JSON.stringify(transformBookmark(existingBookmark)))
   }
   const dateAdded = new Date(dateAddedMs)
   const newBookmark = await createBookmarkWithoutTags(
+    db,
     user.id,
     title,
     url,
@@ -43,7 +45,8 @@ export const POST = async (request: Request) => {
 }
 
 export const DELETE = async (request: Request) => {
-  const user = await getUser()
+  const db = getSession()
+  const user = await getUser(db)
   if (!user) {
     return new Response("Unauthorized", {
       status: 401,
@@ -51,12 +54,12 @@ export const DELETE = async (request: Request) => {
   }
   const body = await request.json()
   const { bookmarkIds } = deleteBookmarksRequestSchema.parse(body)
-  const hasAccess = await userHasAccess(user.id, bookmarkIds)
+  const hasAccess = await userHasAccess(db, user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {
       status: 403,
     })
   }
-  await deleteBookmarks(bookmarkIds)
+  await deleteBookmarks(db, bookmarkIds)
   return new Response(null, { status: 204 })
 }

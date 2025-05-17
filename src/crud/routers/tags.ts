@@ -1,11 +1,12 @@
-import { addTag, getTagsCount, removeTag, userHasAccess } from "@/db/queries"
 import { z } from "zod"
 import { protectedProcedure, createTRPCRouter } from "../trpc"
 import { TRPCError } from "@trpc/server"
+import { addTag, getTagsCount, removeTag } from "@/db/queries/bookmark"
+import { userHasAccess } from "@/db/queries/user"
 
 export const tagsRouter = createTRPCRouter({
   getTagsCount: protectedProcedure.query(async ({ ctx }) => {
-    const tagsCount = await getTagsCount(ctx.userId)
+    const tagsCount = await getTagsCount(ctx.db, ctx.userId)
     return tagsCount
   }),
   addTag: protectedProcedure
@@ -17,14 +18,14 @@ export const tagsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { bookmarkIds, name } = input
-      const hasAccess = await userHasAccess(ctx.userId, bookmarkIds)
+      const hasAccess = await userHasAccess(ctx.db, ctx.userId, bookmarkIds)
       if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can't touch it.",
         })
       }
-      await addTag(ctx.userId, bookmarkIds, name)
+      await addTag(ctx.db, ctx.userId, bookmarkIds, name)
     }),
   removeTag: protectedProcedure
     .input(
@@ -35,13 +36,13 @@ export const tagsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { bookmarkIds, name } = input
-      const hasAccess = await userHasAccess(ctx.userId, bookmarkIds)
+      const hasAccess = await userHasAccess(ctx.db, ctx.userId, bookmarkIds)
       if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can't touch it.",
         })
       }
-      await removeTag(ctx.userId, bookmarkIds, name)
+      await removeTag(ctx.db, ctx.userId, bookmarkIds, name)
     }),
 })

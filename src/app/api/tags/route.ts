@@ -1,10 +1,6 @@
-import {
-  addTag,
-  getTagsCount,
-  getUser,
-  removeTag,
-  userHasAccess,
-} from "@/db/queries"
+import { getSession } from "@/db/drizzle"
+import { addTag, getTagsCount, removeTag } from "@/db/queries/bookmark"
+import { getUser, userHasAccess } from "@/db/queries/user"
 import { z } from "zod"
 
 const tagsRequestSchema = z.object({
@@ -13,18 +9,20 @@ const tagsRequestSchema = z.object({
 })
 
 export const GET = async (request: Request) => {
-  const user = await getUser()
+  const db = getSession()
+  const user = await getUser(db)
   if (!user) {
     return new Response("Unauthorized", {
       status: 401,
     })
   }
-  const tagsCount = await getTagsCount(user.id)
+  const tagsCount = await getTagsCount(db, user.id)
   return new Response(JSON.stringify(tagsCount))
 }
 
 export const POST = async (request: Request) => {
-  const user = await getUser()
+  const db = getSession()
+  const user = await getUser(db)
   if (!user) {
     return new Response("Unauthorized", {
       status: 401,
@@ -32,18 +30,19 @@ export const POST = async (request: Request) => {
   }
   const requestJson = await request.json()
   const { bookmarkIds, name } = tagsRequestSchema.parse(requestJson)
-  const hasAccess = await userHasAccess(user.id, bookmarkIds)
+  const hasAccess = await userHasAccess(db, user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {
       status: 403,
     })
   }
-  await addTag(user.id, bookmarkIds, name)
+  await addTag(db, user.id, bookmarkIds, name)
   return new Response(null, { status: 204 })
 }
 
 export const DELETE = async (request: Request) => {
-  const user = await getUser()
+  const db = getSession()
+  const user = await getUser(db)
   if (!user) {
     return new Response("Unauthorized", {
       status: 401,
@@ -51,12 +50,12 @@ export const DELETE = async (request: Request) => {
   }
   const requestJson = await request.json()
   const { bookmarkIds, name } = tagsRequestSchema.parse(requestJson)
-  const hasAccess = await userHasAccess(user.id, bookmarkIds)
+  const hasAccess = await userHasAccess(db, user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {
       status: 403,
     })
   }
-  await removeTag(user.id, bookmarkIds, name)
+  await removeTag(db, user.id, bookmarkIds, name)
   return new Response(null, { status: 204 })
 }

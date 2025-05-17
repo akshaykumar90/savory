@@ -1,10 +1,12 @@
+import { getSession } from "@/db/drizzle"
 import {
   getBookmarks,
   getDrillDownTags,
   getTagsCount,
-  getUser,
   searchBookmarks,
-} from "@/db/queries"
+} from "@/db/queries/bookmark"
+import { getUser } from "@/db/queries/user"
+import type { CursorType } from "@/lib/types"
 import {
   dehydrate,
   HydrationBoundary,
@@ -14,14 +16,13 @@ import { Metadata } from "next"
 import Image from "next/image"
 import { redirect } from "next/navigation"
 import emptyArt from "../../assets/reflecting.png"
+import { trpc } from "../trpc-server"
 import BookmarkRow from "./bookmark-row"
 import DrillDownCard from "./drill-down-card"
 import ErrorScreen from "./error-screen"
 import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
-import type { CursorType } from "@/lib/types"
-import { trpc } from "../trpc-server"
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -121,7 +122,8 @@ export default async function TagPage({
     ? Boolean(urlUntagged[0])
     : Boolean(urlUntagged)
 
-  const user = await getUser()
+  const db = getSession()
+  const user = await getUser(db)
   if (!user) {
     redirect("/landing")
   }
@@ -157,13 +159,13 @@ export default async function TagPage({
         searchCursor = parseInt(numOffsetString)
       }
       let arr = await Promise.all([
-        getTagsCount(user.id),
-        searchBookmarks({
+        getTagsCount(db, user.id),
+        searchBookmarks(db, {
           ...commonArgs,
           query,
           cursor: searchCursor,
         }),
-        getDrillDownTags(user.id, tags, site),
+        getDrillDownTags(db, user.id, tags, site),
       ])
       tagsResponse = arr[0]
       bookmarksResponse = arr[1]
@@ -175,12 +177,12 @@ export default async function TagPage({
         bookmarksCursor = new Date(parseInt(dateMsString))
       }
       let arr = await Promise.all([
-        getTagsCount(user.id),
-        getBookmarks({
+        getTagsCount(db, user.id),
+        getBookmarks(db, {
           ...commonArgs,
           cursor: bookmarksCursor,
         }),
-        getDrillDownTags(user.id, tags, site),
+        getDrillDownTags(db, user.id, tags, site),
       ])
       tagsResponse = arr[0]
       bookmarksResponse = arr[1]
@@ -193,8 +195,8 @@ export default async function TagPage({
         bookmarksCursor = new Date(parseInt(dateMsString))
       }
       let arr = await Promise.all([
-        getTagsCount(user.id),
-        getBookmarks({
+        getTagsCount(db, user.id),
+        getBookmarks(db, {
           ...commonArgs,
           cursor: bookmarksCursor,
         }),
