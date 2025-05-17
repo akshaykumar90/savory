@@ -34,7 +34,7 @@ export default async function LoginCallback() {
     redirect("/landing")
   }
 
-  const dbSession = getSession()
+  const dbSession = await getSession()
 
   const { isNewUser, userId } = await createOrUpdateUser(dbSession, {
     auth0Sub: session.user.sub,

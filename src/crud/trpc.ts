@@ -5,7 +5,7 @@ import { cache } from "react"
 import superjson from "superjson"
 
 export const createTRPCContext = cache(async () => {
-  const db = getSession()
+  const db = await getSession()
   const user = await getUser(db)
 
   return {

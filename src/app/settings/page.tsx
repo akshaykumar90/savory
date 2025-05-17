@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 }
 
 export default async function SettingsPage() {
-  const db = getSession()
+  const db = await getSession()
   const user = await getUser(db)
   if (!user) {
     redirect("/landing")

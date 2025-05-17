@@ -13,7 +13,7 @@ const editProfileFormSchema = z.object({
 export async function updateUser(prevState: null, formData: FormData) {
   const form = Object.fromEntries(formData.entries())
   const { name: fullName } = editProfileFormSchema.parse(form)
-  const db = getSession()
+  const db = await getSession()
   const user = await getUser(db)
   if (!user) {
     redirect("/landing")

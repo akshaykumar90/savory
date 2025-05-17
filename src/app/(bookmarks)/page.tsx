@@ -122,7 +122,7 @@ export default async function TagPage({
     ? Boolean(urlUntagged[0])
     : Boolean(urlUntagged)
 
-  const db = getSession()
+  const db = await getSession()
   const user = await getUser(db)
   if (!user) {
     redirect("/landing")

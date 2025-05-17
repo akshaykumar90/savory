@@ -4,8 +4,8 @@ import * as schema from "./schema"
 import { cache } from "react"
 import { getCloudflareContext } from "@opennextjs/cloudflare"
 
-function makeDbSession() {
-  const { env } = getCloudflareContext()
+async function makeDbSession() {
+  const { env } = await getCloudflareContext({ async: true })
   const connectionString = env.CRDB.connectionString
   const client = postgres(connectionString)
   return drizzle(client, { schema, logger: false })
@@ -13,4 +13,4 @@ function makeDbSession() {
 
 export const getSession = cache(makeDbSession)
 
-export type Session = ReturnType<typeof getSession>
+export type Session = Awaited<ReturnType<typeof getSession>>

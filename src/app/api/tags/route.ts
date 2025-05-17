@@ -9,7 +9,7 @@ const tagsRequestSchema = z.object({
 })
 
 export const GET = async (request: Request) => {
-  const db = getSession()
+  const db = await getSession()
   const user = await getUser(db)
   if (!user) {
     return new Response("Unauthorized", {
@@ -21,7 +21,7 @@ export const GET = async (request: Request) => {
 }
 
 export const POST = async (request: Request) => {
-  const db = getSession()
+  const db = await getSession()
   const user = await getUser(db)
   if (!user) {
     return new Response("Unauthorized", {
@@ -41,7 +41,7 @@ export const POST = async (request: Request) => {
 }
 
 export const DELETE = async (request: Request) => {
-  const db = getSession()
+  const db = await getSession()
   const user = await getUser(db)
   if (!user) {
     return new Response("Unauthorized", {
