@@ -2,9 +2,12 @@ import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 import * as schema from "./schema"
 import { cache } from "react"
+import { getCloudflareContext } from "@opennextjs/cloudflare"
 
 function makeDbSession() {
-  const client = postgres(process.env.POSTGRES_URL!)
+  const { env } = getCloudflareContext()
+  const connectionString = env.CRDB.connectionString
+  const client = postgres(connectionString)
   return drizzle(client, { schema, logger: false })
 }
 

@@ -8,5 +8,11 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
-  }
+  },
+  "hyperdrive": [
+    {
+      "binding": "CRDB",
+      "id": "74e1591f31e24aed873c65760aa235f5"
+    }
+  ]
 }
