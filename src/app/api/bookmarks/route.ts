@@ -8,6 +8,12 @@ import { getUser, userHasAccess } from "@/db/queries/user"
 import type { Bookmark } from "@/lib/types"
 import { z } from "zod"
 
+const addBookmarkRequestSchema = z.object({
+  title: z.string(),
+  url: z.string(),
+  dateAddedMs: z.number(),
+})
+
 const deleteBookmarksRequestSchema = z.object({
   bookmarkIds: z.array(z.string()),
 })
@@ -28,7 +34,7 @@ export const POST = async (request: Request) => {
     })
   }
   const body = await request.json()
-  const { title, url, dateAddedMs } = body
+  const { title, url, dateAddedMs } = addBookmarkRequestSchema.parse(body)
   const existingBookmark = await findLatestBookmarkWithUrl(db, user.id, url)
   if (existingBookmark) {
     return new Response(JSON.stringify(transformBookmark(existingBookmark)))
