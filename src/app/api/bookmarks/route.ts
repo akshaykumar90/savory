@@ -4,8 +4,7 @@ import {
   deleteBookmarks,
   findLatestBookmarkWithUrl,
 } from "@/db/queries/bookmark"
-import { userHasAccess } from "@/db/queries/user"
-import { getUser } from "@/lib/auth0"
+import { getUser, userHasAccess } from "@/db/queries/user"
 import type { Bookmark } from "@/lib/types"
 import { z } from "zod"
 

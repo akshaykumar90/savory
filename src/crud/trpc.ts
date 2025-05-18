@@ -1,5 +1,5 @@
 import { getSession } from "@/db/drizzle"
-import { getUser } from "@/lib/auth0"
+import { getUser } from "@/db/queries/user"
 import { initTRPC, TRPCError } from "@trpc/server"
 import { cache } from "react"
 import superjson from "superjson"

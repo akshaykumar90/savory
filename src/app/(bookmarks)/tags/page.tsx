@@ -5,7 +5,7 @@ import { redirect } from "next/navigation"
 import ErrorScreen from "../error-screen"
 import { RefreshOnFocus } from "../refresh-on-focus"
 import TagFilter from "./tag-filter"
-import { getUser } from "@/lib/auth0"
+import { getUser } from "@/db/queries/user"
 
 export const metadata: Metadata = {
   title: "Tags – Savory",

@@ -1,7 +1,7 @@
-import { getUser } from "@/lib/auth0"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import EditProfile from "./edit-profile"
+import { getUser } from "@/db/queries/user"
 
 export const metadata: Metadata = {
   title: "Settings – Savory",

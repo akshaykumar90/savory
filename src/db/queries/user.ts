@@ -1,6 +1,38 @@
 import { and, count, eq, inArray } from "drizzle-orm"
-import type { Session } from "../drizzle"
+import { getSession, type Session } from "../drizzle"
 import { bookmarks, users } from "../schema"
+import { auth0 } from "@/lib/auth0"
+
+// IMPORTANT: This function should not take a db session as a parameter. We want
+// the `getSession` call to happen before we setup a database session, to make
+// any route calling this function opt-into dynamic rendering. If the db session
+// is created before, the build will fail due to a Hyperdrive configuration
+// error.
+export async function getUser() {
+  const session = await auth0.getSession()
+  if (!session) {
+    return null
+  }
+  const subject = session.user.sub
+
+  const db = await getSession()
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.auth0Sub, subject))
+    .limit(1)
+
+  if (result.length === 0) {
+    return null
+  }
+
+  const user = result[0]
+  if (!user.isActive) {
+    return null
+  }
+
+  return user
+}
 
 export async function userHasAccess(
   db: Session,

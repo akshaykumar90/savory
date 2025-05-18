@@ -4,8 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { z } from "zod"
 import { getSession } from "./db/drizzle"
-import { updateUser as dbUpdateUser } from "./db/queries/user"
-import { getUser } from "./lib/auth0"
+import { updateUser as dbUpdateUser, getUser } from "./db/queries/user"
 
 const editProfileFormSchema = z.object({
   name: z.string(),

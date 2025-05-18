@@ -1,7 +1,6 @@
 import { getSession } from "@/db/drizzle"
 import { addTag, getTagsCount, removeTag } from "@/db/queries/bookmark"
-import { userHasAccess } from "@/db/queries/user"
-import { getUser } from "@/lib/auth0"
+import { getUser, userHasAccess } from "@/db/queries/user"
 import { z } from "zod"
 
 const tagsRequestSchema = z.object({

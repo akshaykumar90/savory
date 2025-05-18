@@ -22,7 +22,7 @@ import ErrorScreen from "./error-screen"
 import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
-import { getUser } from "@/lib/auth0"
+import { getUser } from "@/db/queries/user"
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
