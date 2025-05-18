@@ -45,7 +45,6 @@
     "@types/react-dom": "19.0.1",
     "@types/webextension-polyfill": "^0.12.1",
     "@vitejs/plugin-react": "^4.3.3",
-    "esbuild": "^0.25.4",
     "eslint": "^8",
     "eslint-config-next": "15.0.4",
     "postcss": "^8",
