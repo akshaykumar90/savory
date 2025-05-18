@@ -14,5 +14,9 @@
       "binding": "CRDB",
       "id": "74e1591f31e24aed873c65760aa235f5"
     }
-  ]
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
 }
