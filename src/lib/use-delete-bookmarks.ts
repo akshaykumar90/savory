@@ -1,32 +1,23 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import { z } from "zod"
-import { nextApp } from "./napi"
-import { deleteBookmarksRequestSchema } from "./schemas"
-
-type DeleteBookmarksRequest = z.infer<typeof deleteBookmarksRequestSchema>
+import { useTRPC } from "./trpc"
 
 export default function useDeleteBookmarks() {
+  const trpc = useTRPC()
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  return useMutation({
-    mutationFn: async (bookmarkIds: string[]) => {
-      const body: DeleteBookmarksRequest = {
-        bookmarkIds,
-      }
-      await nextApp.delete("bookmarks", {
-        json: body,
-      })
-    },
-    onMutate: (bookmarkIds: string[]) => {
+  const mutationOptions = trpc.bookmarks.delete.mutationOptions({
+    onMutate: ({ bookmarkIds }: { bookmarkIds: string[] }) => {
       // optimistic update
       bookmarkIds.forEach((id) => {
-        queryClient.setQueryData(["bookmarks", id], null)
+        queryClient.setQueryData(trpc.bookmarks.get.queryKey({ id }), null)
       })
     },
     onSuccess: () => {
       router.refresh()
     },
   })
+
+  return useMutation(mutationOptions)
 }

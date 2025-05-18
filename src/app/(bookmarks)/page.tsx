@@ -1,6 +1,10 @@
-import * as bapi from "@/lib/bapi"
-import { tagsQuery } from "@/lib/queries"
-import { AccessTokenError } from "@auth0/nextjs-auth0/errors"
+import {
+  getBookmarks,
+  getDrillDownTags,
+  getTagsCount,
+  searchBookmarks,
+} from "@/db/queries/bookmark"
+import type { CursorType } from "@/lib/types"
 import {
   dehydrate,
   HydrationBoundary,
@@ -10,12 +14,15 @@ import { Metadata } from "next"
 import Image from "next/image"
 import { redirect } from "next/navigation"
 import emptyArt from "../../assets/reflecting.png"
+import { trpc } from "../trpc-server"
 import BookmarkRow from "./bookmark-row"
 import DrillDownCard from "./drill-down-card"
 import ErrorScreen from "./error-screen"
 import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
+import { getUser } from "@/db/queries/user"
+import { db } from "@/db/drizzle"
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -115,6 +122,11 @@ export default async function TagPage({
     ? Boolean(urlUntagged[0])
     : Boolean(urlUntagged)
 
+  const user = await getUser()
+  if (!user) {
+    redirect("/landing")
+  }
+
   const routeHasOneTag = (name: string) => {
     if (site || query || cursor) {
       return false
@@ -128,11 +140,11 @@ export default async function TagPage({
   const queryClient = new QueryClient()
 
   const commonArgs = {
+    userId: user.id,
+    num: 25,
     ...(site && { site }),
     ...(tags.length && { tags }),
-    ...(cursor && { cursor }),
     ...(untagged && { untagged }),
-    num: 25,
   }
 
   let tagsResponse, bookmarksResponse, drillDownTagsResponse
@@ -140,38 +152,58 @@ export default async function TagPage({
   try {
     if (query) {
       // Search page
+      let searchCursor: number | undefined
+      if (cursor) {
+        const numOffsetString = Buffer.from(cursor, "base64").toString("utf-8")
+        searchCursor = parseInt(numOffsetString)
+      }
       let arr = await Promise.all([
-        bapi.getTagsCount(),
-        bapi.searchBookmarks({
+        getTagsCount(db, user.id),
+        searchBookmarks(db, {
           ...commonArgs,
           query,
+          cursor: searchCursor,
         }),
+        getDrillDownTags(db, user.id, tags, site),
       ])
       tagsResponse = arr[0]
       bookmarksResponse = arr[1]
     } else if (tags.length || site) {
       // Tag page
+      let bookmarksCursor: Date | undefined
+      if (cursor) {
+        const dateMsString = Buffer.from(cursor, "base64").toString("utf-8")
+        bookmarksCursor = new Date(parseInt(dateMsString))
+      }
       let arr = await Promise.all([
-        bapi.getTagsCount(),
-        bapi.getBookmarks(commonArgs),
-        bapi.getDrillDownTags({ tags, site }),
+        getTagsCount(db, user.id),
+        getBookmarks(db, {
+          ...commonArgs,
+          cursor: bookmarksCursor,
+        }),
+        getDrillDownTags(db, user.id, tags, site),
       ])
       tagsResponse = arr[0]
       bookmarksResponse = arr[1]
       drillDownTagsResponse = arr[2]
     } else {
       // Home page
+      let bookmarksCursor: Date | undefined
+      if (cursor) {
+        const dateMsString = Buffer.from(cursor, "base64").toString("utf-8")
+        bookmarksCursor = new Date(parseInt(dateMsString))
+      }
       let arr = await Promise.all([
-        bapi.getTagsCount(),
-        bapi.getBookmarks(commonArgs),
+        getTagsCount(db, user.id),
+        getBookmarks(db, {
+          ...commonArgs,
+          cursor: bookmarksCursor,
+        }),
       ])
       tagsResponse = arr[0]
       bookmarksResponse = arr[1]
     }
   } catch (error) {
-    if (error instanceof AccessTokenError) {
-      redirect("/landing")
-    }
     const wrappedError =
       error instanceof Error ? error : new Error(JSON.stringify(error))
     return <ErrorScreen error={wrappedError} />
@@ -187,24 +219,25 @@ export default async function TagPage({
   }
 
   bookmarksResponse.bookmarks.forEach((bookmark) => {
-    queryClient.setQueryData(["bookmarks", bookmark.id], bookmark)
+    queryClient.setQueryData(
+      trpc.bookmarks.get.queryKey({ id: bookmark.id }),
+      bookmark
+    )
   })
 
-  queryClient.setQueryData(tagsQuery.queryKey, tagsResponse)
+  queryClient.setQueryData(trpc.tags.getTagsCount.queryKey(), tagsResponse)
 
-  const drillTags =
-    drillDownTagsResponse?.tags_list
-      // Sort the search results by decreasing tag frequency
-      .sort(({ count: freq1 }, { count: freq2 }) => {
-        return -(freq1 - freq2)
-      })
-      .map(({ name }) => name) ?? []
-
-  const hasUntagged = drillDownTagsResponse?.has_untagged ?? false
+  const drillTags = (drillDownTagsResponse ?? [])
+    // Sort the search results by decreasing tag frequency
+    .sort(({ count: freq1 }, { count: freq2 }) => {
+      return -(freq1 - freq2)
+    })
+    .map((tag) => tag.displayName)
 
   const numTotal = bookmarksResponse.total
 
-  let message
+  let message: string
+  let hasUntagged = false
 
   if (numTotal === 0) {
     message = "Nothing to see here"
@@ -214,17 +247,13 @@ export default async function TagPage({
       message = `${numTotal} ${itemsStr} in ${tags.join(", ")}`
     } else if (site) {
       message = `${numTotal} ${itemsStr} in ${site}`
+      hasUntagged = true
     } else {
       message = `${numTotal} ${itemsStr}`
     }
   }
 
-  const {
-    has_next_page: hasNextPage,
-    has_previous_page: hasPreviousPage,
-    next_cursor: nextCursor,
-    previous_cursor: prevCursor,
-  } = bookmarksResponse.cursor_info
+  const { nextCursor, prevCursor } = bookmarksResponse
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -232,10 +261,8 @@ export default async function TagPage({
         <PaginationCard
           showClearFiltersButton={tags.length > 0 || !!site || !!query}
           message={message}
-          hasNextPage={hasNextPage}
-          hasPreviousPage={hasPreviousPage}
-          nextCursor={nextCursor}
-          prevCursor={prevCursor}
+          nextCursor={nextCursor && encodeCursor(nextCursor)}
+          prevCursor={prevCursor && encodeCursor(prevCursor)}
         />
         {(drillTags.length > 0 || hasUntagged) && (
           <DrillDownCard tags={drillTags} showUntagged={hasUntagged} />
@@ -250,4 +277,14 @@ export default async function TagPage({
       <WaitForMutations />
     </HydrationBoundary>
   )
+}
+
+function encodeCursor(cursor: CursorType) {
+  if (cursor.type === "bookmarks") {
+    const buffer = Buffer.from(cursor.cursorDate.valueOf().toString(), "utf-8")
+    return buffer.toString("base64")
+  } else if (cursor.type === "search") {
+    const buffer = Buffer.from(cursor.cursorOffset.toString(), "utf-8")
+    return buffer.toString("base64")
+  }
 }

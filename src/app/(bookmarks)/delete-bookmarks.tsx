@@ -75,7 +75,7 @@ export default function DeleteBookmarks({
                   type="button"
                   data-autofocus
                   onClick={() => {
-                    deleteBookmarks(bookmarkIds)
+                    deleteBookmarks({ bookmarkIds })
                     removeFromSelection(bookmarkIds)
                     setIsOpen(false)
                   }}

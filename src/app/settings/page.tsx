@@ -1,26 +1,16 @@
 import { Metadata } from "next"
-import EditProfile from "./edit-profile"
-import * as bapi from "@/lib/bapi"
-import { AccessTokenError } from "@auth0/nextjs-auth0/errors"
 import { redirect } from "next/navigation"
+import EditProfile from "./edit-profile"
+import { getUser } from "@/db/queries/user"
 
 export const metadata: Metadata = {
   title: "Settings – Savory",
 }
 
 export default async function SettingsPage() {
-  let user
-  try {
-    user = await bapi.loadUserData()
-  } catch (error) {
-    if (error instanceof AccessTokenError) {
-      redirect("/landing")
-    }
-    return (
-      <p className="p-4">
-        There was an error loading user settings. Please retry.
-      </p>
-    )
+  const user = await getUser()
+  if (!user) {
+    redirect("/landing")
   }
 
   return (
@@ -34,9 +24,9 @@ export default async function SettingsPage() {
         <div className="mx-auto max-w-xl space-y-4 px-4 sm:space-y-10 sm:px-6 lg:px-8">
           <div className="rounded-lg border px-4 py-8 sm:px-6 lg:px-8">
             <EditProfile
-              userCreatedAt={new Date(user.created_at)}
-              fullName={user.full_name}
-              email={user.email}
+              userCreatedAt={user.createdAt}
+              fullName={user.fullName ?? undefined}
+              email={user.email ?? undefined}
             />
           </div>
         </div>
