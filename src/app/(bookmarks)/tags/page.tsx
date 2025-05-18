@@ -1,24 +1,24 @@
 import { getSession } from "@/db/drizzle"
 import { getTagsCount } from "@/db/queries/bookmark"
-import { getUser } from "@/db/queries/user"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import ErrorScreen from "../error-screen"
 import { RefreshOnFocus } from "../refresh-on-focus"
 import TagFilter from "./tag-filter"
+import { getUser } from "@/lib/auth0"
 
 export const metadata: Metadata = {
   title: "Tags – Savory",
 }
 
 export default async function TagsPage() {
-  const db = await getSession()
-  const user = await getUser(db)
+  const user = await getUser()
   if (!user) {
     redirect("/landing")
   }
   let tagsResponse
   try {
+    const db = await getSession()
     tagsResponse = await getTagsCount(db, user.id)
   } catch (error) {
     const wrappedError =

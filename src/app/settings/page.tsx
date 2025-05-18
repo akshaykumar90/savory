@@ -1,5 +1,4 @@
-import { getSession } from "@/db/drizzle"
-import { getUser } from "@/db/queries/user"
+import { getUser } from "@/lib/auth0"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import EditProfile from "./edit-profile"
@@ -9,8 +8,7 @@ export const metadata: Metadata = {
 }
 
 export default async function SettingsPage() {
-  const db = await getSession()
-  const user = await getUser(db)
+  const user = await getUser()
   if (!user) {
     redirect("/landing")
   }

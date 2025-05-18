@@ -1,31 +1,6 @@
-import { auth0 } from "@/lib/auth0"
 import { and, count, eq, inArray } from "drizzle-orm"
 import type { Session } from "../drizzle"
 import { bookmarks, users } from "../schema"
-
-export async function getUser(db: Session) {
-  const session = await auth0.getSession()
-  if (!session) {
-    return null
-  }
-  const subject = session.user.sub
-  const result = await db
-    .select()
-    .from(users)
-    .where(eq(users.auth0Sub, subject))
-    .limit(1)
-
-  if (result.length === 0) {
-    return null
-  }
-
-  const user = result[0]
-  if (!user.isActive) {
-    return null
-  }
-
-  return user
-}
 
 export async function userHasAccess(
   db: Session,

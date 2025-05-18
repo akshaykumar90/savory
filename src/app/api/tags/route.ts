@@ -1,6 +1,7 @@
 import { getSession } from "@/db/drizzle"
 import { addTag, getTagsCount, removeTag } from "@/db/queries/bookmark"
-import { getUser, userHasAccess } from "@/db/queries/user"
+import { userHasAccess } from "@/db/queries/user"
+import { getUser } from "@/lib/auth0"
 import { z } from "zod"
 
 const tagsRequestSchema = z.object({
@@ -9,20 +10,19 @@ const tagsRequestSchema = z.object({
 })
 
 export const GET = async (request: Request) => {
-  const db = await getSession()
-  const user = await getUser(db)
+  const user = await getUser()
   if (!user) {
     return new Response("Unauthorized", {
       status: 401,
     })
   }
+  const db = await getSession()
   const tagsCount = await getTagsCount(db, user.id)
   return new Response(JSON.stringify(tagsCount))
 }
 
 export const POST = async (request: Request) => {
-  const db = await getSession()
-  const user = await getUser(db)
+  const user = await getUser()
   if (!user) {
     return new Response("Unauthorized", {
       status: 401,
@@ -30,6 +30,7 @@ export const POST = async (request: Request) => {
   }
   const requestJson = await request.json()
   const { bookmarkIds, name } = tagsRequestSchema.parse(requestJson)
+  const db = await getSession()
   const hasAccess = await userHasAccess(db, user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {
@@ -41,8 +42,7 @@ export const POST = async (request: Request) => {
 }
 
 export const DELETE = async (request: Request) => {
-  const db = await getSession()
-  const user = await getUser(db)
+  const user = await getUser()
   if (!user) {
     return new Response("Unauthorized", {
       status: 401,
@@ -50,6 +50,7 @@ export const DELETE = async (request: Request) => {
   }
   const requestJson = await request.json()
   const { bookmarkIds, name } = tagsRequestSchema.parse(requestJson)
+  const db = await getSession()
   const hasAccess = await userHasAccess(db, user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {

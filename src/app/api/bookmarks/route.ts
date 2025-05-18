@@ -4,7 +4,8 @@ import {
   deleteBookmarks,
   findLatestBookmarkWithUrl,
 } from "@/db/queries/bookmark"
-import { getUser, userHasAccess } from "@/db/queries/user"
+import { userHasAccess } from "@/db/queries/user"
+import { getUser } from "@/lib/auth0"
 import type { Bookmark } from "@/lib/types"
 import { z } from "zod"
 
@@ -26,8 +27,7 @@ function transformBookmark(bookmark: Bookmark) {
 }
 
 export const POST = async (request: Request) => {
-  const db = await getSession()
-  const user = await getUser(db)
+  const user = await getUser()
   if (!user) {
     return new Response("Unauthorized", {
       status: 401,
@@ -35,6 +35,7 @@ export const POST = async (request: Request) => {
   }
   const body = await request.json()
   const { title, url, dateAddedMs } = addBookmarkRequestSchema.parse(body)
+  const db = await getSession()
   const existingBookmark = await findLatestBookmarkWithUrl(db, user.id, url)
   if (existingBookmark) {
     return new Response(JSON.stringify(transformBookmark(existingBookmark)))
@@ -51,8 +52,7 @@ export const POST = async (request: Request) => {
 }
 
 export const DELETE = async (request: Request) => {
-  const db = await getSession()
-  const user = await getUser(db)
+  const user = await getUser()
   if (!user) {
     return new Response("Unauthorized", {
       status: 401,
@@ -60,6 +60,7 @@ export const DELETE = async (request: Request) => {
   }
   const body = await request.json()
   const { bookmarkIds } = deleteBookmarksRequestSchema.parse(body)
+  const db = await getSession()
   const hasAccess = await userHasAccess(db, user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {

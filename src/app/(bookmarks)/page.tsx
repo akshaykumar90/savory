@@ -5,7 +5,6 @@ import {
   getTagsCount,
   searchBookmarks,
 } from "@/db/queries/bookmark"
-import { getUser } from "@/db/queries/user"
 import type { CursorType } from "@/lib/types"
 import {
   dehydrate,
@@ -23,6 +22,7 @@ import ErrorScreen from "./error-screen"
 import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
+import { getUser } from "@/lib/auth0"
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -122,8 +122,7 @@ export default async function TagPage({
     ? Boolean(urlUntagged[0])
     : Boolean(urlUntagged)
 
-  const db = await getSession()
-  const user = await getUser(db)
+  const user = await getUser()
   if (!user) {
     redirect("/landing")
   }
@@ -147,6 +146,8 @@ export default async function TagPage({
     ...(tags.length && { tags }),
     ...(untagged && { untagged }),
   }
+
+  const db = await getSession()
 
   let tagsResponse, bookmarksResponse, drillDownTagsResponse
 
