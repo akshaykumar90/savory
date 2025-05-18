@@ -1,5 +1,5 @@
 import { and, count, eq, inArray } from "drizzle-orm"
-import { getSession, type Session } from "../drizzle"
+import { db, type Session } from "../drizzle"
 import { bookmarks, users } from "../schema"
 import { auth0 } from "@/lib/auth0"
 
@@ -13,7 +13,6 @@ export async function getUser() {
   }
   const subject = session.user.sub
 
-  const db = getSession()
   const result = await db
     .select()
     .from(users)

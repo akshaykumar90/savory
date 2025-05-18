@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { z } from "zod"
-import { getSession } from "./db/drizzle"
 import { updateUser as dbUpdateUser, getUser } from "./db/queries/user"
+import { db } from "./db/drizzle"
 
 const editProfileFormSchema = z.object({
   name: z.string(),
@@ -17,7 +17,6 @@ export async function updateUser(prevState: null, formData: FormData) {
   if (!user) {
     redirect("/landing")
   }
-  const db = getSession()
   await dbUpdateUser(db, user.id, fullName)
   revalidatePath("/settings")
   return null

@@ -1,4 +1,3 @@
-import { getSession } from "@/db/drizzle"
 import {
   getBookmarks,
   getDrillDownTags,
@@ -23,6 +22,7 @@ import PaginationCard from "./pagination-card"
 import { RefreshOnFocus } from "./refresh-on-focus"
 import { WaitForMutations } from "./wait-for-mutations"
 import { getUser } from "@/db/queries/user"
+import { db } from "@/db/drizzle"
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -146,8 +146,6 @@ export default async function TagPage({
     ...(tags.length && { tags }),
     ...(untagged && { untagged }),
   }
-
-  const db = getSession()
 
   let tagsResponse, bookmarksResponse, drillDownTagsResponse
 

@@ -1,4 +1,4 @@
-import { getSession } from "@/db/drizzle"
+import { db } from "@/db/drizzle"
 import { getUser } from "@/db/queries/user"
 import { initTRPC, TRPCError } from "@trpc/server"
 import { cache } from "react"
@@ -6,11 +6,10 @@ import superjson from "superjson"
 
 export const createTRPCContext = cache(async () => {
   const user = await getUser()
-  const db = getSession()
 
   return {
     userId: user?.id ?? null,
-    db,
+    db: db,
   }
 })
 

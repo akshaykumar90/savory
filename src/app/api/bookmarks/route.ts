@@ -1,4 +1,4 @@
-import { getSession } from "@/db/drizzle"
+import { db } from "@/db/drizzle"
 import {
   createBookmarkWithoutTags,
   deleteBookmarks,
@@ -34,7 +34,6 @@ export const POST = async (request: Request) => {
   }
   const body = await request.json()
   const { title, url, dateAddedMs } = addBookmarkRequestSchema.parse(body)
-  const db = getSession()
   const existingBookmark = await findLatestBookmarkWithUrl(db, user.id, url)
   if (existingBookmark) {
     return new Response(JSON.stringify(transformBookmark(existingBookmark)))
@@ -59,7 +58,6 @@ export const DELETE = async (request: Request) => {
   }
   const body = await request.json()
   const { bookmarkIds } = deleteBookmarksRequestSchema.parse(body)
-  const db = getSession()
   const hasAccess = await userHasAccess(db, user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {

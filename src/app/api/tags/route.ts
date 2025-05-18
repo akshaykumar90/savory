@@ -1,4 +1,4 @@
-import { getSession } from "@/db/drizzle"
+import { db } from "@/db/drizzle"
 import { addTag, getTagsCount, removeTag } from "@/db/queries/bookmark"
 import { getUser, userHasAccess } from "@/db/queries/user"
 import { z } from "zod"
@@ -15,7 +15,6 @@ export const GET = async (request: Request) => {
       status: 401,
     })
   }
-  const db = getSession()
   const tagsCount = await getTagsCount(db, user.id)
   return new Response(JSON.stringify(tagsCount))
 }
@@ -29,7 +28,6 @@ export const POST = async (request: Request) => {
   }
   const requestJson = await request.json()
   const { bookmarkIds, name } = tagsRequestSchema.parse(requestJson)
-  const db = getSession()
   const hasAccess = await userHasAccess(db, user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {
@@ -49,7 +47,6 @@ export const DELETE = async (request: Request) => {
   }
   const requestJson = await request.json()
   const { bookmarkIds, name } = tagsRequestSchema.parse(requestJson)
-  const db = getSession()
   const hasAccess = await userHasAccess(db, user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {
