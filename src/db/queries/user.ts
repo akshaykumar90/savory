@@ -5,9 +5,7 @@ import { auth0 } from "@/lib/auth0"
 
 // IMPORTANT: This function should not take a db session as a parameter. We want
 // the `getSession` call to happen before we setup a database session, to make
-// any route calling this function opt-into dynamic rendering. If the db session
-// is created before, the build will fail due to a Hyperdrive configuration
-// error.
+// any route calling this function opt-into dynamic rendering.
 export async function getUser() {
   const session = await auth0.getSession()
   if (!session) {
