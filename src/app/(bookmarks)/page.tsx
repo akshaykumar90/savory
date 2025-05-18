@@ -147,7 +147,7 @@ export default async function TagPage({
     ...(untagged && { untagged }),
   }
 
-  const db = await getSession()
+  const db = getSession()
 
   let tagsResponse, bookmarksResponse, drillDownTagsResponse
 

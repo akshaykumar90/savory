@@ -17,7 +17,7 @@ export async function updateUser(prevState: null, formData: FormData) {
   if (!user) {
     redirect("/landing")
   }
-  const db = await getSession()
+  const db = getSession()
   await dbUpdateUser(db, user.id, fullName)
   revalidatePath("/settings")
   return null

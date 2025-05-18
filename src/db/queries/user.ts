@@ -15,7 +15,7 @@ export async function getUser() {
   }
   const subject = session.user.sub
 
-  const db = await getSession()
+  const db = getSession()
   const result = await db
     .select()
     .from(users)

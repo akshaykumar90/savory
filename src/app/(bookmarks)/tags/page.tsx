@@ -18,7 +18,7 @@ export default async function TagsPage() {
   }
   let tagsResponse
   try {
-    const db = await getSession()
+    const db = getSession()
     tagsResponse = await getTagsCount(db, user.id)
   } catch (error) {
     const wrappedError =

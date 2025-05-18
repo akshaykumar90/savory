@@ -15,7 +15,7 @@ export const GET = async (request: Request) => {
       status: 401,
     })
   }
-  const db = await getSession()
+  const db = getSession()
   const tagsCount = await getTagsCount(db, user.id)
   return new Response(JSON.stringify(tagsCount))
 }
@@ -29,7 +29,7 @@ export const POST = async (request: Request) => {
   }
   const requestJson = await request.json()
   const { bookmarkIds, name } = tagsRequestSchema.parse(requestJson)
-  const db = await getSession()
+  const db = getSession()
   const hasAccess = await userHasAccess(db, user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {
@@ -49,7 +49,7 @@ export const DELETE = async (request: Request) => {
   }
   const requestJson = await request.json()
   const { bookmarkIds, name } = tagsRequestSchema.parse(requestJson)
-  const db = await getSession()
+  const db = getSession()
   const hasAccess = await userHasAccess(db, user.id, bookmarkIds)
   if (!hasAccess) {
     return new Response("Forbidden", {

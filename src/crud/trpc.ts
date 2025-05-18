@@ -6,7 +6,7 @@ import superjson from "superjson"
 
 export const createTRPCContext = cache(async () => {
   const user = await getUser()
-  const db = await getSession()
+  const db = getSession()
 
   return {
     userId: user?.id ?? null,
