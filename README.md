@@ -8,6 +8,10 @@ Check out the [homepage][0] for more information!
 
 ## Development
 
+```
+npm run dev
+```
+
 ### Linting
 
 Install [pre-commit](https://pre-commit.com/).
