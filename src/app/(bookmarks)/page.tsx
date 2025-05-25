@@ -172,8 +172,8 @@ export default async function TagPage({
       // Tag page
       let bookmarksCursor: Date | undefined
       if (cursor) {
-        const dateMsString = Buffer.from(cursor, "base64").toString("utf-8")
-        bookmarksCursor = new Date(parseInt(dateMsString))
+        const isoString = Buffer.from(cursor, "base64").toString("utf-8")
+        bookmarksCursor = new Date(isoString)
       }
       let arr = await Promise.all([
         getTagsCount(db, user.id),
@@ -190,8 +190,8 @@ export default async function TagPage({
       // Home page
       let bookmarksCursor: Date | undefined
       if (cursor) {
-        const dateMsString = Buffer.from(cursor, "base64").toString("utf-8")
-        bookmarksCursor = new Date(parseInt(dateMsString))
+        const isoString = Buffer.from(cursor, "base64").toString("utf-8")
+        bookmarksCursor = new Date(isoString)
       }
       let arr = await Promise.all([
         getTagsCount(db, user.id),
@@ -281,7 +281,7 @@ export default async function TagPage({
 
 function encodeCursor(cursor: CursorType) {
   if (cursor.type === "bookmarks") {
-    const buffer = Buffer.from(cursor.cursorDate.valueOf().toString(), "utf-8")
+    const buffer = Buffer.from(cursor.cursorDate.toISOString(), "utf-8")
     return buffer.toString("base64")
   } else if (cursor.type === "search") {
     const buffer = Buffer.from(cursor.cursorOffset.toString(), "utf-8")

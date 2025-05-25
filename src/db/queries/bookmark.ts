@@ -7,10 +7,9 @@ import {
   desc,
   eq,
   gt,
-  gte,
   inArray,
   isNull,
-  lt,
+  lte,
   not,
   SQL,
   sql,
@@ -242,7 +241,7 @@ export async function getBookmarks(
 
   const queryFilters = and(
     ...filters,
-    cursor ? lt(bookmarks.dateAdded, cursor) : undefined
+    cursor ? lte(bookmarks.dateAdded, cursor) : undefined
   )
 
   const limit_plus_one = limit + 1
@@ -283,7 +282,7 @@ export async function getBookmarks(
 
   const previousPageQueryFilters = and(
     ...previousPageFilters,
-    cursor ? gte(bookmarks.dateAdded, cursor) : undefined
+    cursor ? gt(bookmarks.dateAdded, cursor) : undefined
   )
 
   const backwardQuery = cursor
@@ -309,7 +308,7 @@ export async function getBookmarks(
   const nextCursor = hasNextPage
     ? ({
         type: "bookmarks",
-        cursorDate: results[limit - 1].dateAdded,
+        cursorDate: results[limit].dateAdded,
       } as const)
     : undefined
 
@@ -319,7 +318,6 @@ export async function getBookmarks(
     const prevCursorDate = new Date(
       previousPageResults[previousPageResults.length - 1].dateAdded
     )
-    prevCursorDate.setMilliseconds(prevCursorDate.getMilliseconds() + 1)
     prevCursor = {
       type: "bookmarks",
       cursorDate: prevCursorDate,
