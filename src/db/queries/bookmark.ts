@@ -404,7 +404,21 @@ export async function searchBookmarks(
 
   const countQuery = countQb.where(queryFilters)
 
-  const [results, countResult] = await Promise.all([searchQuery, countQuery])
+  let results, countResult
+  try {
+    [results, countResult] = await Promise.all([searchQuery, countQuery])
+  } catch (error) {
+    // Handle plainto_tsquery errors for short queries that don't contain lexemes
+    if (error instanceof Error && error.message.includes("doesn't contain lexemes")) {
+      return {
+        bookmarks: [],
+        total: 0,
+        nextCursor: undefined,
+        prevCursor: undefined,
+      }
+    }
+    throw error
+  }
 
   const total = countResult[0].count
 
