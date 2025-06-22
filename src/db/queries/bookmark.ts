@@ -254,7 +254,7 @@ export async function getBookmarks(
   const [countQb, countFilters] = buildBookmarksQuery({
     qb: db
       .select({
-        count: sql<number>`count(*) over ()`.mapWith(Number),
+        id: bookmarks.id,
       })
       .from(bookmarks)
       .$dynamic(),
@@ -264,7 +264,11 @@ export async function getBookmarks(
     untagged,
   })
 
-  const countQuery = countQb.where(and(...countFilters))
+  const countQuery = db
+    .select({
+      count: sql<number>`count(*)`.mapWith(Number),
+    })
+    .from(countQb.where(and(...countFilters)).as("subquery"))
 
   // Previous page cursor query
   const [previousPageQb, previousPageFilters] = buildBookmarksQuery({
@@ -392,7 +396,7 @@ export async function searchBookmarks(
   const [countQb] = buildBookmarksQuery({
     qb: db
       .select({
-        count: sql<number>`count(*) over ()`.mapWith(Number),
+        id: bookmarks.id,
       })
       .from(bookmarks)
       .$dynamic(),
@@ -402,7 +406,11 @@ export async function searchBookmarks(
     untagged,
   })
 
-  const countQuery = countQb.where(queryFilters)
+  const countQuery = db
+    .select({
+      count: sql<number>`count(*)`.mapWith(Number),
+    })
+    .from(countQb.where(queryFilters).as("subquery"))
 
   let results, countResult
   try {
