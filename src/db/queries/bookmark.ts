@@ -254,7 +254,7 @@ export async function getBookmarks(
   const [countQb, countFilters] = buildBookmarksQuery({
     qb: db
       .select({
-        count: sql<number>`count(*)`.mapWith(Number),
+        count: sql<number>`count(*) over ()`.mapWith(Number),
       })
       .from(bookmarks)
       .$dynamic(),
@@ -392,7 +392,7 @@ export async function searchBookmarks(
   const [countQb] = buildBookmarksQuery({
     qb: db
       .select({
-        count: sql<number>`count(*)`.mapWith(Number),
+        count: sql<number>`count(*) over ()`.mapWith(Number),
       })
       .from(bookmarks)
       .$dynamic(),
@@ -406,10 +406,13 @@ export async function searchBookmarks(
 
   let results, countResult
   try {
-    [results, countResult] = await Promise.all([searchQuery, countQuery])
+    ;[results, countResult] = await Promise.all([searchQuery, countQuery])
   } catch (error) {
     // Handle plainto_tsquery errors for short queries that don't contain lexemes
-    if (error instanceof Error && error.message.includes("doesn't contain lexemes")) {
+    if (
+      error instanceof Error &&
+      error.message.includes("doesn't contain lexemes")
+    ) {
       return {
         bookmarks: [],
         total: 0,
