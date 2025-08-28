@@ -641,6 +641,42 @@ export async function removeTag(
   await updateSearchColumn(db, bookmarkIds)
 }
 
+export async function getTagDisplayNames(
+  db: Session,
+  userId: string,
+  tagNames: string[]
+): Promise<string[]> {
+  if (tagNames.length === 0) {
+    return []
+  }
+
+  const lowerCaseTagNames = tagNames.map((tag) => tag.toLowerCase())
+
+  const result = await db
+    .select({
+      name: userTags.name,
+      displayName: userTags.displayName,
+    })
+    .from(userTags)
+    .where(
+      and(
+        inArray(userTags.name, lowerCaseTagNames),
+        eq(userTags.ownerId, userId)
+      )
+    )
+
+  // Create a map of lowercase name to display name
+  const displayNameMap = new Map(
+    result.map((tag) => [tag.name, tag.displayName])
+  )
+
+  // Return display names in the same order as input, falling back to original if not found
+  return tagNames.map((tagName) => {
+    const lowerCase = tagName.toLowerCase()
+    return displayNameMap.get(lowerCase) ?? tagName
+  })
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //// Helper Functions
 ///////////////////////////////////////////////////////////////////////////////

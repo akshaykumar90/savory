@@ -1,6 +1,7 @@
 import {
   getBookmarks,
   getDrillDownTags,
+  getTagDisplayNames,
   getTagsCount,
   searchBookmarks,
 } from "@/db/queries/bookmark"
@@ -35,9 +36,16 @@ export async function generateMetadata({
 
   const tags = !urlName ? [] : Array.isArray(urlName) ? urlName : [urlName]
   const site = Array.isArray(urlSite) ? urlSite[0] : urlSite
-  const filters = [site, ...tags].filter((x) => !!x)
-
   const query = Array.isArray(urlQuery) ? urlQuery[0] : urlQuery
+
+  // Get user's preferred display names for tags
+  let tagDisplayNames = tags
+  const user = await getUser()
+  if (user && tags.length > 0) {
+    tagDisplayNames = await getTagDisplayNames(db, user.id, tags)
+  }
+
+  const filters = [site, ...tagDisplayNames].filter((x) => !!x)
 
   const titleArray = []
 
@@ -236,6 +244,11 @@ export default async function TagPage({
 
   const numTotal = bookmarksResponse.total
 
+  // Get user's preferred display names for tags
+  const tagDisplayNames = tags.length > 0
+    ? await getTagDisplayNames(db, user.id, tags)
+    : []
+
   let message: string
   let hasUntagged = false
 
@@ -243,8 +256,8 @@ export default async function TagPage({
     message = "Nothing to see here"
   } else {
     const itemsStr = numTotal > 1 ? "bookmarks" : "bookmark"
-    if (tags.length > 0) {
-      message = `${numTotal} ${itemsStr} in ${tags.join(", ")}`
+    if (tagDisplayNames.length > 0) {
+      message = `${numTotal} ${itemsStr} in ${tagDisplayNames.join(", ")}`
     } else if (site) {
       message = `${numTotal} ${itemsStr} in ${site}`
       hasUntagged = true
