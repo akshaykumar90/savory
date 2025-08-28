@@ -64,7 +64,7 @@ export default function useBookmarkTags(bookmarkIds: string[]) {
             oldValues.push(bookmark)
             const updatedBookmark = {
               ...bookmark,
-              tags: [...bookmark.tags, newTag],
+              tags: bookmark.tags.includes(newTag) ? bookmark.tags : [...bookmark.tags, newTag],
             }
             queryClient.setQueryData(queryKey, updatedBookmark)
           }

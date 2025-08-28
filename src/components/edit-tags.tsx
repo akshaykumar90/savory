@@ -61,7 +61,7 @@ export default function EditTags({ bookmarkId, pageTags }: EditTagsProps) {
 
   const handleAddTag = (tagName: string) => {
     setNewTag("")
-    if (tagName) {
+    if (tagName && !bookmarkTags.includes(tagName)) {
       addTag({ name: tagName, bookmarkIds })
     }
   }
