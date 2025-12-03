@@ -30,7 +30,7 @@
     "next": "^15.2.4",
     "postgres": "^3.4.5",
     "react": "^19.0.1",
-    "react-dom": "19.0.0",
+    "react-dom": "^19.0.1",
     "superjson": "^2.2.2",
     "tldts": "^7.0.1",
     "use-debounce": "^10.0.3",
