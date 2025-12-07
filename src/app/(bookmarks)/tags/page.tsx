@@ -18,7 +18,7 @@ export default async function TagsPage() {
   }
   let tagsResponse
   try {
-    tagsResponse = await getTagsCount(db, user.id)
+    tagsResponse = await getTagsCount(db, user.id, "tuple")
   } catch (error) {
     const wrappedError =
       error instanceof Error ? error : new Error(JSON.stringify(error))

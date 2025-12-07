@@ -3,12 +3,14 @@
 import { useState } from "react"
 import Link from "next/link"
 
+type TagCount = [string, number]
+
 export default function TagFilter(props: {
-  tags: Array<{ name: string; count: number }>
+  tags: TagCount[]
 }) {
   const tags = props.tags
   const [filterValue, setFilterValue] = useState("")
-  const [filteredTags, setFilteredTags] = useState(tags)
+  const [filteredTags, setFilteredTags] = useState<TagCount[]>(tags)
 
   return (
     <>
@@ -21,8 +23,8 @@ export default function TagFilter(props: {
               onChange={(e) => {
                 const value = e.target.value
                 setFilterValue(value)
-                const filtered = tags.filter((tag) =>
-                  tag.name.toLowerCase().includes(value.toLowerCase())
+                const filtered = tags.filter(([name]) =>
+                  name.toLowerCase().includes(value.toLowerCase())
                 )
                 setFilteredTags(filtered)
               }}
@@ -41,7 +43,7 @@ export default function TagFilter(props: {
         </div>
       </div>
       <ul role="list">
-        {filteredTags.map(({ name, count }) => (
+        {filteredTags.map(([name, count]) => (
           <li key={name}>
             <Link
               href={{ pathname: "/", query: { name } }}
