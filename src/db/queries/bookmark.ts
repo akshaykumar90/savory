@@ -518,7 +518,21 @@ export async function addTag(
   await updateSearchColumn(db, bookmarkIds)
 }
 
-export async function getTagsCount(db: Session, userId: string) {
+export async function getTagsCount(
+  db: Session,
+  userId: string,
+  format?: "object"
+): Promise<Array<{ name: string; count: number }>>
+export async function getTagsCount(
+  db: Session,
+  userId: string,
+  format: "tuple"
+): Promise<Array<[string, number]>>
+export async function getTagsCount(
+  db: Session,
+  userId: string,
+  format: "object" | "tuple" = "object"
+): Promise<Array<{ name: string; count: number }> | Array<[string, number]>> {
   const tagsWithCounts = await db
     .select({
       name: userTags.displayName,
@@ -529,6 +543,12 @@ export async function getTagsCount(db: Session, userId: string) {
     .where(eq(userTags.ownerId, userId))
     .groupBy(userTags.id)
     .orderBy(userTags.name)
+
+  if (format === "tuple") {
+    return tagsWithCounts.map(
+      ({ name, count }) => [name, count] as [string, number]
+    )
+  }
 
   return tagsWithCounts
 }

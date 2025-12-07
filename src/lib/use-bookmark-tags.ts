@@ -15,6 +15,7 @@ function uniqueTagsPickLastOccurrence(tags: string[]) {
 }
 
 export default function useBookmarkTags(bookmarkIds: string[]) {
+  type TagTuple = [string, number]
   const trpc = useTRPC()
   const queryClient = useQueryClient()
 
@@ -30,7 +31,7 @@ export default function useBookmarkTags(bookmarkIds: string[]) {
   const tags = uniqueTagsPickLastOccurrence(bookmarkTags)
 
   const { data: allTags } = useQuery(
-    trpc.tags.getTagsCount.queryOptions(undefined, {
+    trpc.tags.getTagsCount.queryOptions({ format: "tuple" }, {
       retry: 1,
       // Prevent tags query from being garbage collected. This query powers tags
       // autocomplete.
@@ -48,7 +49,15 @@ export default function useBookmarkTags(bookmarkIds: string[]) {
     })
   )
 
-  const tagsQueryKey = trpc.tags.getTagsCount.queryKey()
+  const tupleTags: TagTuple[] | undefined = allTags?.map((tag) => {
+    if (Array.isArray(tag)) {
+      const [name, count] = tag
+      return [name, count] as TagTuple
+    }
+    return [tag.name, tag.count] as TagTuple
+  })
+
+  const tagsQueryKey = trpc.tags.getTagsCount.queryKey({ format: "tuple" })
 
   const { mutate: addTag } = useMutation(
     trpc.tags.addTag.mutationOptions({
@@ -116,7 +125,7 @@ export default function useBookmarkTags(bookmarkIds: string[]) {
 
   return {
     tags,
-    allTags,
+    allTags: tupleTags,
     addTag,
     removeTag,
   }

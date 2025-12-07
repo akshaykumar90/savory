@@ -9,16 +9,14 @@ type EditTagsProps = {
 }
 
 const CASE_SENSITIVE_TAGS = false
+type TagCount = [string, number]
 
-function lookup(
-  tags: Array<{ name: string; count: number }>,
-  query: string
-): string[] {
+function lookup(tags: TagCount[], query: string): string[] {
   const searchQuery = CASE_SENSITIVE_TAGS ? query : query.toLowerCase()
 
-  let searchResults = []
+  let searchResults: TagCount[] = []
 
-  for (const { name: tag, count: freq } of tags) {
+  for (const [tag, freq] of tags) {
     const candidate = CASE_SENSITIVE_TAGS ? tag : tag.toLowerCase()
     if (candidate.startsWith(searchQuery)) {
       searchResults.push([tag, freq] as const)
