@@ -155,9 +155,7 @@ export default async function TagPage({
     ...(untagged && { untagged }),
   }
 
-  let tagsResponse: [string, number][],
-    bookmarksResponse,
-    drillDownTagsResponse
+  let tagsResponse, bookmarksResponse, drillDownTagsResponse
 
   try {
     if (query) {
@@ -168,7 +166,7 @@ export default async function TagPage({
         searchCursor = parseInt(numOffsetString)
       }
       let arr = await Promise.all([
-        getTagsCount(db, user.id, "tuple"),
+        getTagsCount(db, user.id),
         searchBookmarks(db, {
           ...commonArgs,
           query,
@@ -186,7 +184,7 @@ export default async function TagPage({
         bookmarksCursor = new Date(isoString)
       }
       let arr = await Promise.all([
-        getTagsCount(db, user.id, "tuple"),
+        getTagsCount(db, user.id),
         getBookmarks(db, {
           ...commonArgs,
           cursor: bookmarksCursor,
@@ -204,7 +202,7 @@ export default async function TagPage({
         bookmarksCursor = new Date(isoString)
       }
       let arr = await Promise.all([
-        getTagsCount(db, user.id, "tuple"),
+        getTagsCount(db, user.id),
         getBookmarks(db, {
           ...commonArgs,
           cursor: bookmarksCursor,
@@ -235,10 +233,7 @@ export default async function TagPage({
     )
   })
 
-  queryClient.setQueryData(
-    trpc.tags.getTagsCount.queryKey({ format: "tuple" }),
-    tagsResponse
-  )
+  queryClient.setQueryData(trpc.tags.getTagsCount.queryKey(), tagsResponse)
 
   const drillTags = (drillDownTagsResponse ?? [])
     // Sort the search results by decreasing tag frequency
@@ -250,9 +245,8 @@ export default async function TagPage({
   const numTotal = bookmarksResponse.total
 
   // Get user's preferred display names for tags
-  const tagDisplayNames = tags.length > 0
-    ? await getTagDisplayNames(db, user.id, tags)
-    : []
+  const tagDisplayNames =
+    tags.length > 0 ? await getTagDisplayNames(db, user.id, tags) : []
 
   let message: string
   let hasUntagged = false

@@ -520,19 +520,8 @@ export async function addTag(
 
 export async function getTagsCount(
   db: Session,
-  userId: string,
-  format?: "object"
-): Promise<Array<{ name: string; count: number }>>
-export async function getTagsCount(
-  db: Session,
-  userId: string,
-  format: "tuple"
-): Promise<Array<[string, number]>>
-export async function getTagsCount(
-  db: Session,
-  userId: string,
-  format: "object" | "tuple" = "object"
-): Promise<Array<{ name: string; count: number }> | Array<[string, number]>> {
+  userId: string
+): Promise<Array<[string, number]>> {
   const tagsWithCounts = await db
     .select({
       name: userTags.displayName,
@@ -544,13 +533,9 @@ export async function getTagsCount(
     .groupBy(userTags.id)
     .orderBy(userTags.name)
 
-  if (format === "tuple") {
-    return tagsWithCounts.map(
-      ({ name, count }) => [name, count] as [string, number]
-    )
-  }
-
-  return tagsWithCounts
+  return tagsWithCounts.map(
+    ({ name, count }) => [name, count] as [string, number]
+  )
 }
 
 export async function getDrillDownTags(

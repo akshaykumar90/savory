@@ -5,15 +5,9 @@ import { addTag, getTagsCount, removeTag } from "@/db/queries/bookmark"
 import { userHasAccess } from "@/db/queries/user"
 
 export const tagsRouter = createTRPCRouter({
-  getTagsCount: protectedProcedure
-    .input(z.object({ format: z.enum(["object", "tuple"]).optional() }).optional())
-    .query(async ({ ctx, input }) => {
-      const format = input?.format ?? "object"
-      if (format === "tuple") {
-        return await getTagsCount(ctx.db, ctx.userId, "tuple")
-      }
-      return await getTagsCount(ctx.db, ctx.userId, "object")
-    }),
+  getTagsCount: protectedProcedure.query(async ({ ctx }) => {
+    return await getTagsCount(ctx.db, ctx.userId)
+  }),
   addTag: protectedProcedure
     .input(
       z.object({
