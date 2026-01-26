@@ -1,4 +1,9 @@
-import type { Bookmark, BookmarksCursor, CursorType } from "@/lib/types"
+import type {
+  Bookmark,
+  BookmarksCursor,
+  CursorType,
+  SearchCursor,
+} from "@/lib/types"
 import { createHash } from "crypto"
 import {
   and,
@@ -32,7 +37,7 @@ export async function createBookmark(
     url: string
     dateAdded: Date
     tags: string[]
-  }
+  },
 ): Promise<Bookmark> {
   const { title, url, dateAdded, tags } = input
   const uniqTags = _.uniq(tags)
@@ -52,7 +57,10 @@ export async function createBookmark(
       })
       .from(userTags)
       .where(
-        and(inArray(userTags.name, lowerCaseTags), eq(userTags.ownerId, userId))
+        and(
+          inArray(userTags.name, lowerCaseTags),
+          eq(userTags.ownerId, userId),
+        ),
       )
 
     // dbTags are preferred over localTags
@@ -80,7 +88,7 @@ export async function createBookmark(
         finalTags.map((tag) => ({
           ...tag,
           ownerId: userId,
-        }))
+        })),
       )
       .onConflictDoNothing()
 
@@ -100,7 +108,7 @@ export async function createBookmarkWithoutTags(
   userId: string,
   title: string,
   url: string,
-  dateAdded: Date
+  dateAdded: Date,
 ): Promise<Bookmark> {
   const bookmark = {
     id: crypto.randomUUID(),
@@ -125,7 +133,7 @@ export async function createBookmarkWithoutTags(
 export async function findLatestBookmarkWithUrl(
   db: Session,
   userId: string,
-  url: string
+  url: string,
 ): Promise<Bookmark | null> {
   const urlDigest = createHash("md5").update(url).digest("hex")
   let filter = eq(sql`md5(${bookmarks.url}::text)`, urlDigest)
@@ -159,7 +167,7 @@ export async function findLatestBookmarkWithUrl(
   const latestBookmark = foundBookmarks[0]
 
   const tags = (await getTags(db, [latestBookmark.id])).map(
-    (tag) => tag.displayName
+    (tag) => tag.displayName,
   )
 
   return {
@@ -171,7 +179,7 @@ export async function findLatestBookmarkWithUrl(
 export async function getBookmarkById(
   db: Session,
   userId: string,
-  bookmarkId: string
+  bookmarkId: string,
 ): Promise<Bookmark | null> {
   const foundBookmarks = await db
     .select({
@@ -192,7 +200,7 @@ export async function getBookmarkById(
   const latestBookmark = foundBookmarks[0]
 
   const tags = (await getTags(db, [latestBookmark.id])).map(
-    (tag) => tag.displayName
+    (tag) => tag.displayName,
   )
 
   return {
@@ -210,7 +218,7 @@ export async function getBookmarks(
     untagged?: boolean
     num?: number
     cursor?: Date
-  }
+  },
 ): Promise<{
   bookmarks: Bookmark[]
   total: number
@@ -241,7 +249,7 @@ export async function getBookmarks(
 
   const queryFilters = and(
     ...filters,
-    cursor ? lte(bookmarks.dateAdded, cursor) : undefined
+    cursor ? lte(bookmarks.dateAdded, cursor) : undefined,
   )
 
   const limit_plus_one = limit + 1
@@ -286,7 +294,7 @@ export async function getBookmarks(
 
   const previousPageQueryFilters = and(
     ...previousPageFilters,
-    cursor ? gt(bookmarks.dateAdded, cursor) : undefined
+    cursor ? gt(bookmarks.dateAdded, cursor) : undefined,
   )
 
   const backwardQuery = cursor
@@ -320,7 +328,7 @@ export async function getBookmarks(
 
   if (previousPageResults.length > 0) {
     const prevCursorDate = new Date(
-      previousPageResults[previousPageResults.length - 1].dateAdded
+      previousPageResults[previousPageResults.length - 1].dateAdded,
     )
     prevCursor = {
       type: "bookmarks",
@@ -345,8 +353,8 @@ export async function searchBookmarks(
     tags?: string[]
     untagged?: boolean
     num?: number
-    cursor?: number
-  }
+    cursor?: Date
+  },
 ): Promise<{
   bookmarks: Bookmark[]
   total: number
@@ -356,6 +364,8 @@ export async function searchBookmarks(
   const { userId, query, site, tags, untagged, cursor } = args
 
   const limit = args.num || 100
+
+  const cursorFilter = cursor ? lte(bookmarks.dateAdded, cursor) : undefined
 
   // Search query
   const [qb, filters] = buildBookmarksQuery({
@@ -377,20 +387,15 @@ export async function searchBookmarks(
 
   const queryFilters = and(
     ...filters,
-    sql`${bookmarks.search} @@ plainto_tsquery('english', ${query})`
+    cursorFilter,
+    sql`${bookmarks.search} @@ plainto_tsquery('english', ${query})`,
   )
 
   const limit_plus_one = limit + 1
   let searchQuery = qb
     .where(queryFilters)
-    .orderBy(
-      sql`ts_rank(${bookmarks.search}, plainto_tsquery('english', ${query})) desc`
-    )
+    .orderBy(desc(bookmarks.dateAdded))
     .limit(limit_plus_one)
-
-  if (cursor) {
-    searchQuery = searchQuery.offset(cursor)
-  }
 
   // Count query
   const [countQb] = buildBookmarksQuery({
@@ -412,9 +417,44 @@ export async function searchBookmarks(
     })
     .from(countQb.where(queryFilters).as("subquery"))
 
-  let results, countResult
+  // Previous page cursor query
+  const [previousPageQb, previousPageFilters] = buildBookmarksQuery({
+    qb: db
+      .select({
+        dateAdded: bookmarks.dateAdded,
+      })
+      .from(bookmarks)
+      .$dynamic(),
+    userId,
+    site,
+    tags,
+    untagged,
+  })
+
+  const previousPageCursorFilter = cursor
+    ? gt(bookmarks.dateAdded, cursor)
+    : undefined
+
+  const previousPageQueryFilters = and(
+    ...previousPageFilters,
+    previousPageCursorFilter,
+    sql`${bookmarks.search} @@ plainto_tsquery('english', ${query})`,
+  )
+
+  const backwardQuery = cursor
+    ? previousPageQb
+        .where(previousPageQueryFilters)
+        .orderBy(asc(bookmarks.dateAdded))
+        .limit(limit)
+    : Promise.resolve([])
+
+  let results, countResult, previousPageResults
   try {
-    ;[results, countResult] = await Promise.all([searchQuery, countQuery])
+    ;[results, countResult, previousPageResults] = await Promise.all([
+      searchQuery,
+      countQuery,
+      backwardQuery,
+    ])
   } catch (error) {
     // Handle plainto_tsquery errors for short queries that don't contain lexemes
     if (
@@ -441,17 +481,19 @@ export async function searchBookmarks(
   const nextCursor = hasNextPage
     ? ({
         type: "search",
-        cursorOffset: cursor ? cursor + limit : limit,
+        cursorDate: results[limit].dateAdded,
       } as const)
     : undefined
 
-  const prevCursor =
-    cursor && cursor > 0
-      ? ({
-          type: "search",
-          cursorOffset: cursor - limit,
-        } as const)
-      : undefined
+  let prevCursor: SearchCursor | undefined
+
+  if (previousPageResults.length > 0) {
+    const prev = previousPageResults[previousPageResults.length - 1]
+    prevCursor = {
+      type: "search",
+      cursorDate: new Date(prev.dateAdded),
+    }
+  }
 
   return {
     bookmarks: bookmarksWithTags,
@@ -481,7 +523,7 @@ export async function addTag(
   db: Session,
   userId: string,
   bookmarkIds: string[],
-  tagName: string
+  tagName: string,
 ) {
   await db.transaction(async (tx) => {
     let tagId = crypto.randomUUID()
@@ -492,8 +534,8 @@ export async function addTag(
       .where(
         and(
           eq(userTags.name, tagName.toLowerCase()),
-          eq(userTags.ownerId, userId)
-        )
+          eq(userTags.ownerId, userId),
+        ),
       )
 
     if (existingTags.length > 0) {
@@ -520,7 +562,7 @@ export async function addTag(
 
 export async function getTagsCount(
   db: Session,
-  userId: string
+  userId: string,
 ): Promise<Array<[string, number]>> {
   const tagsWithCounts = await db
     .select({
@@ -534,7 +576,7 @@ export async function getTagsCount(
     .orderBy(userTags.name)
 
   return tagsWithCounts.map(
-    ({ name, count }) => [name, count] as [string, number]
+    ({ name, count }) => [name, count] as [string, number],
   )
 }
 
@@ -542,7 +584,7 @@ export async function getDrillDownTags(
   db: Session,
   userId: string,
   tags: string[],
-  site?: string
+  site?: string,
 ) {
   const dbTags = tags.map((tag) => tag.toLowerCase())
 
@@ -567,7 +609,7 @@ export async function getDrillDownTags(
       filters.push(eq(bookmarks.site, site))
       stmt = stmt.innerJoin(
         bookmarks,
-        eq(bookmarks.id, bookmarkTags.bookmarkId)
+        eq(bookmarks.id, bookmarkTags.bookmarkId),
       )
     }
 
@@ -603,7 +645,7 @@ export async function removeTag(
   db: Session,
   userId: string,
   bookmarkIds: string[],
-  tagName: string
+  tagName: string,
 ) {
   await db.transaction(async (tx) => {
     const existingTags = await tx
@@ -612,8 +654,8 @@ export async function removeTag(
       .where(
         and(
           eq(userTags.name, tagName.toLowerCase()),
-          eq(userTags.ownerId, userId)
-        )
+          eq(userTags.ownerId, userId),
+        ),
       )
 
     if (existingTags.length === 0) {
@@ -628,8 +670,8 @@ export async function removeTag(
         .where(
           and(
             eq(bookmarkTags.tagId, tagId),
-            eq(bookmarkTags.bookmarkId, bookmarkId)
-          )
+            eq(bookmarkTags.bookmarkId, bookmarkId),
+          ),
         )
     }
 
@@ -649,7 +691,7 @@ export async function removeTag(
 export async function getTagDisplayNames(
   db: Session,
   userId: string,
-  tagNames: string[]
+  tagNames: string[],
 ): Promise<string[]> {
   if (tagNames.length === 0) {
     return []
@@ -666,13 +708,13 @@ export async function getTagDisplayNames(
     .where(
       and(
         inArray(userTags.name, lowerCaseTagNames),
-        eq(userTags.ownerId, userId)
-      )
+        eq(userTags.ownerId, userId),
+      ),
     )
 
   // Create a map of lowercase name to display name
   const displayNameMap = new Map(
-    result.map((tag) => [tag.name, tag.displayName])
+    result.map((tag) => [tag.name, tag.displayName]),
   )
 
   // Return display names in the same order as input, falling back to original if not found
@@ -701,7 +743,7 @@ async function updateSearchColumn(db: Session, bookmarkIds: string[]) {
 
     const bookmarksWithTags = await hydrateTagsForBookmarksPage(
       tx,
-      allBookmarks
+      allBookmarks,
     )
 
     for (const bookmark of bookmarksWithTags) {
@@ -718,7 +760,7 @@ async function updateSearchColumn(db: Session, bookmarkIds: string[]) {
 function getSearchColumn(
   bookmark: Omit<Bookmark, "tags"> & {
     tags?: string[]
-  }
+  },
 ) {
   const allTags = (bookmark.tags ?? []).join(" ")
   const title = bookmark.title || ""
@@ -732,7 +774,7 @@ function getSearchColumn(
 
 async function getTags(
   tx: any,
-  bookmarkIds: string[]
+  bookmarkIds: string[],
 ): Promise<
   Array<{
     bookmarkId: string
@@ -754,13 +796,13 @@ async function getTags(
     .where(
       bookmarkIds.length > 1
         ? inArray(bookmarks.id, bookmarkIds)
-        : eq(bookmarks.id, bookmarkIds[0])
+        : eq(bookmarks.id, bookmarkIds[0]),
     )
 }
 
 async function hydrateTagsForBookmarksPage(
   tx: any,
-  bookmarksPage: Array<Omit<Bookmark, "tags">>
+  bookmarksPage: Array<Omit<Bookmark, "tags">>,
 ): Promise<Array<Bookmark>> {
   if (bookmarksPage.length === 0) {
     return []
@@ -768,7 +810,7 @@ async function hydrateTagsForBookmarksPage(
 
   const tags = await getTags(
     tx,
-    bookmarksPage.map((b) => b.id)
+    bookmarksPage.map((b) => b.id),
   )
 
   const emptyMap: Record<string, string[]> = {}

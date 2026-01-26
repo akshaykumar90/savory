@@ -5,7 +5,7 @@ export type BookmarksCursor = {
 
 export type SearchCursor = {
   type: "search"
-  cursorOffset: number
+  cursorDate: Date
 }
 
 export type CursorType = BookmarksCursor | SearchCursor

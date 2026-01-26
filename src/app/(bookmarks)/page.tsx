@@ -160,10 +160,10 @@ export default async function TagPage({
   try {
     if (query) {
       // Search page
-      let searchCursor: number | undefined
+      let searchCursor: Date | undefined
       if (cursor) {
-        const numOffsetString = Buffer.from(cursor, "base64").toString("utf-8")
-        searchCursor = parseInt(numOffsetString)
+        const isoString = Buffer.from(cursor, "base64").toString("utf-8")
+        searchCursor = new Date(isoString)
       }
       let arr = await Promise.all([
         getTagsCount(db, user.id),
@@ -296,7 +296,7 @@ function encodeCursor(cursor: CursorType) {
     const buffer = Buffer.from(cursor.cursorDate.toISOString(), "utf-8")
     return buffer.toString("base64")
   } else if (cursor.type === "search") {
-    const buffer = Buffer.from(cursor.cursorOffset.toString(), "utf-8")
+    const buffer = Buffer.from(cursor.cursorDate.toISOString(), "utf-8")
     return buffer.toString("base64")
   }
 }
