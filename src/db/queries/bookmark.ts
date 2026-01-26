@@ -385,11 +385,8 @@ export async function searchBookmarks(
     untagged,
   })
 
-  const queryFilters = and(
-    ...filters,
-    cursorFilter,
-    sql`${bookmarks.search} @@ plainto_tsquery('english', ${query})`,
-  )
+  const searchFilter = sql`${bookmarks.search} @@ plainto_tsquery('english', ${query})`
+  const queryFilters = and(...filters, cursorFilter, searchFilter)
 
   const limit_plus_one = limit + 1
   let searchQuery = qb
@@ -398,7 +395,7 @@ export async function searchBookmarks(
     .limit(limit_plus_one)
 
   // Count query
-  const [countQb] = buildBookmarksQuery({
+  const [countQb, countFilters] = buildBookmarksQuery({
     qb: db
       .select({
         id: bookmarks.id,
@@ -415,7 +412,7 @@ export async function searchBookmarks(
     .select({
       count: sql<number>`count(*)`.mapWith(Number),
     })
-    .from(countQb.where(queryFilters).as("subquery"))
+    .from(countQb.where(and(...countFilters, searchFilter)).as("subquery"))
 
   // Previous page cursor query
   const [previousPageQb, previousPageFilters] = buildBookmarksQuery({
@@ -438,7 +435,7 @@ export async function searchBookmarks(
   const previousPageQueryFilters = and(
     ...previousPageFilters,
     previousPageCursorFilter,
-    sql`${bookmarks.search} @@ plainto_tsquery('english', ${query})`,
+    searchFilter,
   )
 
   const backwardQuery = cursor
