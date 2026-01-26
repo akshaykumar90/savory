@@ -8,13 +8,7 @@ export function RefreshOnFocus() {
 
   useEffect(() => {
     const onFocus = () => {
-      // Check if we're on a search page at the time of focus
-      const currentSearchParams = new URLSearchParams(window.location.search)
-      const isCurrentlySearchPage = !!currentSearchParams.get("q")
-
-      if (!isCurrentlySearchPage) {
-        refresh()
-      }
+      refresh()
     }
 
     window.addEventListener("focus", onFocus)
