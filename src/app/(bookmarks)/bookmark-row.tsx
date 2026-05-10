@@ -41,7 +41,7 @@ export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
   const selected = selectedBookmarkIds.has(bookmarkId)
   let timestring = dateAdded.toLocaleDateString(undefined, {
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
   })
 
