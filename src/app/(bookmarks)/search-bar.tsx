@@ -15,6 +15,7 @@ export default function SearchBar() {
     const onKeydown = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.ctrlKey || e.metaKey) && inputRef.current) {
         inputRef.current.focus()
+        inputRef.current.select()
       }
     }
 
