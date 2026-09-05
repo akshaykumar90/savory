@@ -1,4 +1,4 @@
-import { getTagsCount } from "@/db/queries/bookmark"
+import { getTagsForManagement } from "@/db/queries/bookmark"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import ErrorScreen from "../error-screen"
@@ -18,7 +18,7 @@ export default async function TagsPage() {
   }
   let tagsResponse
   try {
-    tagsResponse = await getTagsCount(db, user.id)
+    tagsResponse = await getTagsForManagement(db, user.id)
   } catch (error) {
     const wrappedError =
       error instanceof Error ? error : new Error(JSON.stringify(error))

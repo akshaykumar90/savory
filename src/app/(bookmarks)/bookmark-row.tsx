@@ -1,5 +1,6 @@
 "use client"
 
+import type { Bookmark } from "@/lib/types"
 import { useTRPC } from "@/lib/trpc"
 import {
   addToSelectionAtom,
@@ -23,7 +24,7 @@ export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
     {
       id: bookmarkId,
     },
-    { enabled: false }
+    { enabled: false },
   )
   const { data } = useQuery(queryOptions)
 
@@ -36,36 +37,55 @@ export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
     return null
   }
 
-  let { title, url, site, tags, dateAdded } = data
-
   const selected = selectedBookmarkIds.has(bookmarkId)
-  let timestring = dateAdded.toLocaleDateString(undefined, {
+
+  return (
+    <BookmarkRowContent
+      bookmark={data}
+      selection={
+        <button
+          aria-label={selected ? "Deselect bookmark" : "Select bookmark"}
+          onClick={() =>
+            selected
+              ? removeFromSelection(bookmarkId)
+              : addToSelection(bookmarkId)
+          }
+        >
+          {selected ? (
+            <CheckIcon
+              className="mx-3.5 mt-0.5 h-6 w-6 flex-none text-gray-600"
+              aria-hidden="true"
+            />
+          ) : (
+            <SelectIcon
+              className="mx-4 mt-0.5 h-5 w-5 flex-none text-gray-400"
+              aria-hidden="true"
+            />
+          )}
+        </button>
+      }
+    />
+  )
+}
+
+export function BookmarkRowContent({
+  bookmark,
+  preview = false,
+  selection,
+}: {
+  bookmark: Bookmark
+  preview?: boolean
+  selection?: React.ReactNode
+}) {
+  const { id: bookmarkId, title, url, site, tags, dateAdded } = bookmark
+  const timestring = dateAdded.toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
     day: "numeric",
   })
-
   return (
     <li className="flex items-start gap-2 py-4">
-      <button>
-        {selected ? (
-          <CheckIcon
-            className="mx-3.5 mt-0.5 h-6 w-6 flex-none text-gray-600"
-            aria-hidden="true"
-            onClick={() => {
-              removeFromSelection(bookmarkId)
-            }}
-          />
-        ) : (
-          <SelectIcon
-            className="mx-4 mt-0.5 h-5 w-5 flex-none text-gray-400"
-            aria-hidden="true"
-            onClick={() => {
-              addToSelection(bookmarkId)
-            }}
-          />
-        )}
-      </button>
+      {!preview && selection}
       <div className="pr-2">
         <p className="text-base font-bold line-clamp-3 sm:line-clamp-2">
           <a href={url} target="_blank" rel="noopener">
@@ -95,21 +115,25 @@ export default function BookmarkRow({ bookmarkId }: { bookmarkId: string }) {
         </div>
         <div className="mt-2 flex flex-row gap-1.5 text-sm text-zinc-500">
           <span className="inline-block">{timestring}</span>
-          {"·"}
-          <span className="hidden sm:inline-flex">
-            <TagsPopover bookmarkId={bookmarkId}>
-              <span>edit</span>
-            </TagsPopover>
-          </span>
-          <span className="inline-flex sm:hidden">
-            <EditTagsDialog bookmarkId={bookmarkId}>
-              <span>edit</span>
-            </EditTagsDialog>
-          </span>
-          {"·"}
-          <DeleteBookmarks bookmarkId={bookmarkId}>
-            <span>delete</span>
-          </DeleteBookmarks>
+          {!preview && (
+            <>
+              {"·"}
+              <span className="hidden sm:inline-flex">
+                <TagsPopover bookmarkId={bookmarkId}>
+                  <span>edit</span>
+                </TagsPopover>
+              </span>
+              <span className="inline-flex sm:hidden">
+                <EditTagsDialog bookmarkId={bookmarkId}>
+                  <span>edit</span>
+                </EditTagsDialog>
+              </span>
+              {"·"}
+              <DeleteBookmarks bookmarkId={bookmarkId}>
+                <span>delete</span>
+              </DeleteBookmarks>
+            </>
+          )}
         </div>
       </div>
     </li>

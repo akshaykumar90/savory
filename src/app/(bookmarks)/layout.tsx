@@ -37,7 +37,7 @@ export default function AppLayout({
               </Suspense>
             </div>
           </div>
-          <div className="min-w-0 max-w-[36rem] flex-1">
+          <div className="min-w-0 max-w-[36rem] flex-1 has-[.tags-explorer]:max-w-[64rem]">
             <main>{children}</main>
           </div>
         </div>
