@@ -557,6 +557,78 @@ export async function addTag(
   await updateSearchColumn(db, bookmarkIds)
 }
 
+export async function getTagsForManagement(db: Session, userId: string) {
+  return db
+    .select({
+      id: userTags.id,
+      name: userTags.displayName,
+      count: count(bookmarkTags.bookmarkId),
+    })
+    .from(userTags)
+    .innerJoin(bookmarkTags, eq(userTags.id, bookmarkTags.tagId))
+    .where(eq(userTags.ownerId, userId))
+    .groupBy(userTags.id)
+    .orderBy(userTags.name)
+}
+
+export async function getTagPreview(
+  db: Session,
+  userId: string,
+  tagId: string,
+) {
+  const page = await db
+    .select({
+      id: bookmarks.id,
+      title: bookmarks.title,
+      url: bookmarks.url,
+      dateAdded: bookmarks.dateAdded,
+      site: bookmarks.site,
+    })
+    .from(bookmarks)
+    .innerJoin(bookmarkTags, eq(bookmarks.id, bookmarkTags.bookmarkId))
+    .innerJoin(userTags, eq(bookmarkTags.tagId, userTags.id))
+    .where(
+      and(
+        eq(userTags.id, tagId),
+        eq(userTags.ownerId, userId),
+        eq(bookmarks.ownerId, userId),
+      ),
+    )
+    .orderBy(desc(bookmarks.dateAdded), desc(bookmarks.id))
+    .limit(3)
+  return hydrateTagsForBookmarksPage(db, page)
+}
+
+export async function renameTag(
+  db: Session,
+  userId: string,
+  tagId: string,
+  displayName: string,
+) {
+  return db.transaction(async (tx) => {
+    const [tag] = await tx
+      .select()
+      .from(userTags)
+      .where(and(eq(userTags.id, tagId), eq(userTags.ownerId, userId)))
+    if (!tag) return false
+    if (tag.displayName === displayName) return true
+    await tx
+      .update(userTags)
+      .set({ name: displayName.toLowerCase(), displayName })
+      .where(and(eq(userTags.id, tagId), eq(userTags.ownerId, userId)))
+    const affected = await tx
+      .select({ id: bookmarkTags.bookmarkId })
+      .from(bookmarkTags)
+      .where(eq(bookmarkTags.tagId, tagId))
+    if (affected.length)
+      await rebuildSearchColumn(
+        tx,
+        affected.map(({ id }) => id),
+      )
+    return true
+  })
+}
+
 export async function getTagsCount(
   db: Session,
   userId: string,
@@ -726,32 +798,34 @@ export async function getTagDisplayNames(
 ///////////////////////////////////////////////////////////////////////////////
 
 async function updateSearchColumn(db: Session, bookmarkIds: string[]) {
-  await db.transaction(async (tx) => {
-    const allBookmarks = await tx
-      .select({
-        id: bookmarks.id,
-        dateAdded: bookmarks.dateAdded,
-        title: bookmarks.title,
-        url: bookmarks.url,
-        site: bookmarks.site,
-      })
-      .from(bookmarks)
-      .where(inArray(bookmarks.id, bookmarkIds))
+  await db.transaction((tx) => rebuildSearchColumn(tx, bookmarkIds))
+}
 
-    const bookmarksWithTags = await hydrateTagsForBookmarksPage(
-      tx,
-      allBookmarks,
-    )
+async function rebuildSearchColumn(
+  tx: Parameters<Parameters<Session["transaction"]>[0]>[0],
+  bookmarkIds: string[],
+) {
+  const allBookmarks = await tx
+    .select({
+      id: bookmarks.id,
+      dateAdded: bookmarks.dateAdded,
+      title: bookmarks.title,
+      url: bookmarks.url,
+      site: bookmarks.site,
+    })
+    .from(bookmarks)
+    .where(inArray(bookmarks.id, bookmarkIds))
 
-    for (const bookmark of bookmarksWithTags) {
-      const searchColumn = getSearchColumn(bookmark)
+  const bookmarksWithTags = await hydrateTagsForBookmarksPage(tx, allBookmarks)
 
-      await tx
-        .update(bookmarks)
-        .set({ search: searchColumn })
-        .where(eq(bookmarks.id, bookmark.id))
-    }
-  })
+  for (const bookmark of bookmarksWithTags) {
+    const searchColumn = getSearchColumn(bookmark)
+
+    await tx
+      .update(bookmarks)
+      .set({ search: searchColumn })
+      .where(eq(bookmarks.id, bookmark.id))
+  }
 }
 
 function getSearchColumn(
